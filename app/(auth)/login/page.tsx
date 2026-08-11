@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
+import { loginUser } from "@/lib/auth";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
@@ -36,12 +37,10 @@ function LoginForm() {
     onSubmit: async ({ value }) => {
       setErrorMessage(null);
       try {
-        const supabase = createClient();
-        const { error } = await supabase.auth.signInWithPassword({
+        const {error} = await loginUser({
           email: value.email,
           password: value.password,
         });
-
         if (error) {
           setErrorMessage(error.message);
           return;

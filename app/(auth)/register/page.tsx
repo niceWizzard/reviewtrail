@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
+import { registerUser } from "@/lib/auth";
 
 const registerSchema = z
   .object({
@@ -53,18 +54,12 @@ export default function RegisterPage() {
       setSuccessMessage(null);
 
       try {
-        const supabase = createClient();
-        const { data, error } = await supabase.auth.signUp({
+        
+        const { error, data } = await registerUser({
+          username: value.username,
           email: value.email,
           password: value.password,
-          options: {
-            data: {
-              username: value.username,
-            },
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-
+        })
         if (error) {
           setErrorMessage(error.message);
           return;
