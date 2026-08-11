@@ -95,11 +95,11 @@ export default function AboutPage() {
           </p>
 
           <div className="flex items-center gap-4 pt-2">
-            <Button render={<Link href="/builder" />} size="lg" className="gap-2 font-semibold">
+            <Button render={<Link href="/builder" />} size="lg" className="gap-2 font-semibold" nativeButton={false}>
               <Sparkles className="size-4" />
               Build Your Review Tracker
             </Button>
-            <Button render={<Link href="/templates" />} variant="outline" size="lg">
+            <Button render={<Link href="/templates" />} variant="outline" size="lg"  nativeButton={false}>
               Browse Syllabi
             </Button>
           </div>
@@ -253,6 +253,7 @@ export default function AboutPage() {
             render={<Link href="/templates" />}
             size="default"
             className="gap-2 font-semibold"
+            nativeButton={false}
           >
             Browse Syllabi Templates
             <ArrowRight className="size-4" />
