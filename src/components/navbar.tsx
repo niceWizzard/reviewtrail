@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   LogIn,
   UserPlus,
+  LayoutDashboard,
 } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
@@ -26,6 +27,7 @@ import {
   SheetClose,
 } from "@/src/components/ui/sheet";
 import { cn } from "@/src/lib/utils";
+import { useUser } from "@/src/hooks/use-user";
 
 const navItems = [
   { name: "Home", href: "/", icon: BookOpen },
@@ -36,6 +38,7 @@ const navItems = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const { user } = useUser();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-md transition-colors">
@@ -93,26 +96,40 @@ export function Navbar() {
 
         {/* Right CTA and Actions */}
         <div className="flex items-center gap-2.5">
-          <Button
-            render={<Link href="/login" />}
-            size="sm"
-            className="max-md:hidden gap-1.5"
-            variant="ghost"
-            nativeButton={false}
-          >
-            <LogIn className="size-4" />
-            Log In
-          </Button>
+          {user ? (
+            <Button
+              render={<Link href="/dashboard" />}
+              size="sm"
+              className="max-md:hidden gap-1.5 shadow-sm"
+              nativeButton={false}
+            >
+              <LayoutDashboard className="size-4" />
+              Dashboard
+            </Button>
+          ) : (
+            <>
+              <Button
+                render={<Link href="/login" />}
+                size="sm"
+                className="max-md:hidden gap-1.5"
+                variant="ghost"
+                nativeButton={false}
+              >
+                <LogIn className="size-4" />
+                Log In
+              </Button>
 
-          <Button
-            render={<Link href="/register" />}
-            size="sm"
-            className="max-md:hidden gap-1.5 shadow-sm"
-            nativeButton={false}
-          >
-            <UserPlus className="size-4" />
-            Register
-          </Button>
+              <Button
+                render={<Link href="/register" />}
+                size="sm"
+                className="max-md:hidden gap-1.5 shadow-sm"
+                nativeButton={false}
+              >
+                <UserPlus className="size-4" />
+                Register
+              </Button>
+            </>
+          )}
 
           {/* Mobile Sheet Navigation */}
           <Sheet>
@@ -170,34 +187,52 @@ export function Navbar() {
                     <span>Free templates for all examinees</span>
                   </div>
 
-                  <SheetClose
-                    render={
-                      <Button
-                        render={<Link href="/login" />}
-                        variant="outline"
-                        size="default"
-                        className="w-full justify-center gap-2"
-                        nativeButton={false}
-                      >
-                        <LogIn className="size-4" />
-                        Log In
-                      </Button>
-                    }
-                  />
+                  {user ? (
+                    <SheetClose
+                      render={
+                        <Button
+                          render={<Link href="/dashboard" />}
+                          size="default"
+                          className="w-full justify-center gap-2"
+                          nativeButton={false}
+                        >
+                          <LayoutDashboard className="size-4" />
+                          Dashboard
+                        </Button>
+                      }
+                    />
+                  ) : (
+                    <>
+                      <SheetClose
+                        render={
+                          <Button
+                            render={<Link href="/login" />}
+                            variant="outline"
+                            size="default"
+                            className="w-full justify-center gap-2"
+                            nativeButton={false}
+                          >
+                            <LogIn className="size-4" />
+                            Log In
+                          </Button>
+                        }
+                      />
 
-                  <SheetClose
-                    render={
-                      <Button
-                        render={<Link href="/register" />}
-                        size="default"
-                        className="w-full justify-center gap-2"
-                        nativeButton={false}
-                      >
-                        <UserPlus className="size-4" />
-                        Register
-                      </Button>
-                    }
-                  />
+                      <SheetClose
+                        render={
+                          <Button
+                            render={<Link href="/register" />}
+                            size="default"
+                            className="w-full justify-center gap-2"
+                            nativeButton={false}
+                          >
+                            <UserPlus className="size-4" />
+                            Register
+                          </Button>
+                        }
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>
