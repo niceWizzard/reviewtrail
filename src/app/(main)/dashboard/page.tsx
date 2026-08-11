@@ -162,10 +162,10 @@ function TrackerCard({
           <Button
             render={<Link href={`/dashboard/tracker/${tracker.id}`} />}
             size="sm"
-            className="w-full gap-1.5"
+            className="flex-1 gap-1.5"
             nativeButton={false}
           >
-            Open Workspace
+              Open Workspace
             <ArrowRight className="size-4" />
           </Button>
 
