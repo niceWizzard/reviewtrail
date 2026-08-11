@@ -8,13 +8,7 @@ import {
   Brain, 
   Calendar, 
   Users, 
-  Award, 
   ArrowRight,
-  ShieldCheck,
-  FileSpreadsheet,
-  Zap,
-  BookOpen,
-  GraduationCap,
   ChevronRight,
   Check,
   X
@@ -262,7 +256,7 @@ export default function Home() {
               <CardTitle className="text-lg font-bold">Weighted Readiness Index</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground leading-relaxed">
-              Don't treat all topics equally. ReviewTrail calculates readiness based on official Board exam weightings (e.g. 35% Math vs 10% Ethics).
+              Don&apos;t treat all topics equally. ReviewTrail calculates readiness based on official Board exam weightings (e.g. 35% Math vs 10% Ethics).
             </CardContent>
             <CardFooter className="pt-2">
               <Link href="/templates" className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 flex items-center gap-1 hover:underline">
@@ -427,7 +421,7 @@ export default function Home() {
                 </div>
               </CardHeader>
               <CardContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed italic">
-                "{t.quote}"
+                &ldquo;{t.quote}&rdquo;
               </CardContent>
               <CardFooter className="flex items-center gap-3 pt-4 border-t border-border/50">
                 <div className="size-9 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-xs">
@@ -453,7 +447,7 @@ export default function Home() {
         <Accordion className="w-full flex flex-col gap-3">
           <AccordionItem value="faq-1" className="border rounded-xl px-4 bg-card">
             <AccordionTrigger className="text-sm font-semibold hover:no-underline">
-              Can I customize an existing template for my review center's schedule?
+              Can I customize an existing template for my review center&apos;s schedule?
             </AccordionTrigger>
             <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Yes! Every template in ReviewTrail can be cloned and fully customized. You can add topics, adjust subject weightings to match your review center’s mock exams, rename review phases, and set custom target dates.

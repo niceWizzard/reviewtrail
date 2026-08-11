@@ -10,7 +10,6 @@ import { Eye, EyeOff, Loader2, UserPlus, AlertCircle, CheckCircle2 } from "lucid
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
-import { createClient } from "@/src/lib/supabase/client";
 import { registerUser } from "@/src/lib/auth";
 
 const registerSchema = z
@@ -108,9 +107,8 @@ export default function RegisterPage() {
           }}
           className="space-y-4"
         >
-          <form.Field
-            name="username"
-            children={(field) => {
+          <form.Field name="username">
+            {(field) => {
               const { errors, isTouched, isDirty } = field.state.meta;
               const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
               return (
@@ -136,11 +134,10 @@ export default function RegisterPage() {
                 </div>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="email"
-            children={(field) => {
+          <form.Field name="email">
+            {(field) => {
               const { errors, isTouched, isDirty } = field.state.meta;
               const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
               return (
@@ -166,11 +163,10 @@ export default function RegisterPage() {
                 </div>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="password"
-            children={(field) => {
+          <form.Field name="password">
+            {(field) => {
               const { errors, isTouched, isDirty } = field.state.meta;
               const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
               return (
@@ -208,11 +204,10 @@ export default function RegisterPage() {
                 </div>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="confirmPassword"
-            children={(field) => {
+          <form.Field name="confirmPassword">
+            {(field) => {
               const { errors, isTouched, isDirty } = field.state.meta;
               const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
               return (
@@ -238,11 +233,10 @@ export default function RegisterPage() {
                 </div>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isSubmitting]) => (
+          <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+            {([canSubmit, isSubmitting]) => (
               <Button
                 type="submit"
                 className="w-full font-medium"
@@ -261,7 +255,7 @@ export default function RegisterPage() {
                 )}
               </Button>
             )}
-          />
+          </form.Subscribe>
         </form>
 
         <div className="mt-6 text-center text-sm text-muted-foreground">

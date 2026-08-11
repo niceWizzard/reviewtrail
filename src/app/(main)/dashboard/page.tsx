@@ -1,8 +1,8 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { User, ShieldCheck, Sparkles, BookOpen, Clock, AlertCircle } from "lucide-react";
+import { User, ShieldCheck, Sparkles, BookOpen, Clock } from "lucide-react";
 import { createClient } from "@/src/lib/supabase/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
 import { SignOutButton } from "./sign-out-button";
 

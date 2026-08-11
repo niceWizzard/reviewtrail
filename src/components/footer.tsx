@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { GraduationCap, Heart, Globe, Share2, Mail } from "lucide-react";
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
+import { GraduationCap, Heart } from "lucide-react";
 import { Separator } from "@/src/components/ui/separator";
 
 export function Footer() {

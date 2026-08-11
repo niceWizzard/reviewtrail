@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { 
   GraduationCap, 
   Menu, 
-  Plus, 
   Sparkles, 
   Layers, 
   Info, 

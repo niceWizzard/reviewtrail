@@ -5,7 +5,6 @@ import {
   CheckCircle2, 
   Clock, 
   Sparkles, 
-  RotateCcw, 
   ArrowRight,
   ShieldCheck,
   TrendingUp,
@@ -13,7 +12,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/src/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import { cn } from "@/src/lib/utils";

@@ -10,7 +10,6 @@ import { Eye, EyeOff, Loader2, LogIn, AlertCircle } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
-import { createClient } from "@/src/lib/supabase/client";
 import { loginUser } from "@/src/lib/auth";
 
 const loginSchema = z.object({
@@ -78,9 +77,8 @@ function LoginForm() {
           }}
           className="space-y-4"
         >
-          <form.Field
-            name="email"
-            children={(field) => {
+          <form.Field name="email">
+            {(field) => {
               const { errors, isTouched, isDirty } = field.state.meta;
               const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
               return (
@@ -106,11 +104,10 @@ function LoginForm() {
                 </div>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="password"
-            children={(field) => {
+          <form.Field name="password">
+            {(field) => {
               const { errors, isTouched, isDirty } = field.state.meta;
               const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
               return (
@@ -150,11 +147,10 @@ function LoginForm() {
                 </div>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isSubmitting]) => (
+          <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+            {([canSubmit, isSubmitting]) => (
               <Button
                 type="submit"
                 className="w-full font-medium"
@@ -173,7 +169,7 @@ function LoginForm() {
                 )}
               </Button>
             )}
-          />
+          </form.Subscribe>
         </form>
 
         <div className="mt-6 text-center text-sm text-muted-foreground">

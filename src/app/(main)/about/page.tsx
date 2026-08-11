@@ -4,18 +4,15 @@ import {
   Target, 
   Brain, 
   Sparkles, 
-  Layers, 
   ShieldCheck, 
-  BookOpen, 
   Award, 
   CheckCircle2, 
-  Heart,
   ArrowRight,
   TrendingUp
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Separator } from "@/src/components/ui/separator";
 
 export const metadata = {
@@ -80,7 +77,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-            ReviewTrail was born from a simple realization: standard study planners don't understand the rigor, weightings, and spaced repetition needed to pass high-stakes board examinations.
+            ReviewTrail was born from a simple realization: standard study planners don&apos;t understand the rigor, weightings, and spaced repetition needed to pass high-stakes board examinations.
           </p>
 
           <div className="flex items-center gap-4 pt-2">
@@ -104,10 +101,10 @@ export default function AboutPage() {
               Giving Every Candidate a Clear Path to Licensure
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Preparing for a licensure exam is one of the most intense periods of a professional's life. Reviewees spend hundreds of hours attending lectures, solving question banks, and memorizing vast syllabi.
+              Preparing for a licensure exam is one of the most intense periods of a professional&apos;s life. Reviewees spend hundreds of hours attending lectures, solving question banks, and memorizing vast syllabi.
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Without structured tracking, it's easy to fall into the trap of re-reading familiar topics while unintentionally neglecting high-weight subjects. ReviewTrail provides the clarity examinees need to prioritize high-yield modules and track mastery systematically.
+              Without structured tracking, it&apos;s easy to fall into the trap of re-reading familiar topics while unintentionally neglecting high-weight subjects. ReviewTrail provides the clarity examinees need to prioritize high-yield modules and track mastery systematically.
             </p>
           </div>
 
