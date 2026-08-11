@@ -42,7 +42,7 @@ next-env.d.ts
 
 
 # Playwright test results and reports
-/test-results/
-/playwright-report/
-/blob-report/
-/.playwright-artifacts/
+test-results/
+playwright-report/
+blob-report/
+.playwright-artifacts/
