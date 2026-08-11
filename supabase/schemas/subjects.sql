@@ -18,7 +18,8 @@ CREATE TRIGGER set_subjects_updated_at
   BEFORE UPDATE ON public.subjects
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- ROW LEVEL SECURITY
+-- DATA API PERMISSIONS & ROW LEVEL SECURITY
+GRANT ALL ON TABLE public.subjects TO anon, authenticated, service_role;
 ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users manage own subjects" ON public.subjects;

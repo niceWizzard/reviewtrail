@@ -26,7 +26,8 @@ CREATE TRIGGER set_topic_section_progress_updated_at
   BEFORE UPDATE ON public.topic_section_progress
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- ROW LEVEL SECURITY
+-- DATA API PERMISSIONS & ROW LEVEL SECURITY
+GRANT ALL ON TABLE public.topic_section_progress TO anon, authenticated, service_role;
 ALTER TABLE public.topic_section_progress ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users manage own topic progress" ON public.topic_section_progress;

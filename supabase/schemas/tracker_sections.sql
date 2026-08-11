@@ -34,7 +34,8 @@ CREATE TRIGGER on_exam_tracker_created
   AFTER INSERT ON public.exam_trackers
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_exam_tracker();
 
--- ROW LEVEL SECURITY
+-- DATA API PERMISSIONS & ROW LEVEL SECURITY
+GRANT ALL ON TABLE public.tracker_sections TO anon, authenticated, service_role;
 ALTER TABLE public.tracker_sections ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users manage own sections" ON public.tracker_sections;

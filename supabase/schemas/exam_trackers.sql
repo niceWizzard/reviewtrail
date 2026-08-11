@@ -28,7 +28,8 @@ CREATE TRIGGER set_exam_trackers_updated_at
   BEFORE UPDATE ON public.exam_trackers
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- ROW LEVEL SECURITY & HELPER FUNCTION
+-- DATA API PERMISSIONS & ROW LEVEL SECURITY
+GRANT ALL ON TABLE public.exam_trackers TO anon, authenticated, service_role;
 ALTER TABLE public.exam_trackers ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION public.is_exam_owner(exam_id uuid)

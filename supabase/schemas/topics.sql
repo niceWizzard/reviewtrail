@@ -25,7 +25,8 @@ CREATE TRIGGER set_topics_updated_at
   BEFORE UPDATE ON public.topics
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- ROW LEVEL SECURITY
+-- DATA API PERMISSIONS & ROW LEVEL SECURITY
+GRANT ALL ON TABLE public.topics TO anon, authenticated, service_role;
 ALTER TABLE public.topics ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users manage own topics" ON public.topics;
