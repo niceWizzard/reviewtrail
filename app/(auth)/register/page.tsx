@@ -2,44 +2,67 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { Eye, EyeOff, Loader2, LogIn, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, UserPlus, AlertCircle, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
 
-const loginSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+const registerSchema = z
+  .object({
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(20, "Username must be at most 20 characters")
+      .regex(
+        /^[a-zA-Z0-9_-]+$/,
+        "Username can only contain letters, numbers, underscores, and hyphens"
+      ),
+    email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Confirm password is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
-function LoginForm() {
+export default function RegisterPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
+      username: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
     validators: {
-      onChange: loginSchema,
+      onChange: registerSchema,
     },
     onSubmit: async ({ value }) => {
       setErrorMessage(null);
+      setSuccessMessage(null);
+
       try {
         const supabase = createClient();
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signUp({
           email: value.email,
           password: value.password,
+          options: {
+            data: {
+              username: value.username,
+            },
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
         });
 
         if (error) {
@@ -47,8 +70,12 @@ function LoginForm() {
           return;
         }
 
-        router.push(redirectTo);
-        router.refresh();
+        if (data.session) {
+          router.push("/dashboard");
+          router.refresh();
+        } else {
+          setSuccessMessage("Registration successful! Please check your email to confirm your account.");
+        }
       } catch (err) {
         setErrorMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
       }
@@ -58,9 +85,9 @@ function LoginForm() {
   return (
     <Card className="shadow-lg border-border/80">
       <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-bold tracking-tight">Welcome Back</CardTitle>
+        <CardTitle className="text-2xl font-bold tracking-tight">Create an Account</CardTitle>
         <CardDescription>
-          Sign in to access your review schedules and subject trackers
+          Start tracking your board exam review journey today
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -68,6 +95,13 @@ function LoginForm() {
           <div className="mb-4 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
             <AlertCircle className="size-4 shrink-0 mt-0.5" />
             <div className="flex-1 font-medium">{errorMessage}</div>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="size-4 shrink-0 mt-0.5" />
+            <div className="flex-1 font-medium">{successMessage}</div>
           </div>
         )}
 
@@ -79,6 +113,36 @@ function LoginForm() {
           }}
           className="space-y-4"
         >
+          <form.Field
+            name="username"
+            children={(field) => {
+              const { errors, isTouched, isDirty } = field.state.meta;
+              const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
+              return (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none" htmlFor={field.name}>
+                    Username
+                  </label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="text"
+                    placeholder="mariasantos"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    autoComplete="username"
+                  />
+                  {shouldShowErrors ? (
+                    <p className="text-xs font-medium text-destructive">
+                      {errors.map((err) => (typeof err === "string" ? err : (err as { message?: string })?.message || String(err))).join(", ")}
+                    </p>
+                  ) : null}
+                </div>
+              );
+            }}
+          />
+
           <form.Field
             name="email"
             children={(field) => {
@@ -116,21 +180,19 @@ function LoginForm() {
               const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
               return (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium leading-none" htmlFor={field.name}>
-                      Password
-                    </label>
-                  </div>
+                  <label className="text-sm font-medium leading-none" htmlFor={field.name}>
+                    Password
+                  </label>
                   <div className="relative">
                     <Input
                       id={field.name}
                       name={field.name}
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="At least 6 characters"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
-                      autoComplete="current-password"
+                      autoComplete="new-password"
                       className="pr-10"
                     />
                     <button
@@ -153,6 +215,36 @@ function LoginForm() {
             }}
           />
 
+          <form.Field
+            name="confirmPassword"
+            children={(field) => {
+              const { errors, isTouched, isDirty } = field.state.meta;
+              const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
+              return (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none" htmlFor={field.name}>
+                    Confirm Password
+                  </label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Re-enter password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    autoComplete="new-password"
+                  />
+                  {shouldShowErrors ? (
+                    <p className="text-xs font-medium text-destructive">
+                      {errors.map((err) => (typeof err === "string" ? err : (err as { message?: string })?.message || String(err))).join(", ")}
+                    </p>
+                  ) : null}
+                </div>
+              );
+            }}
+          />
+
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, isSubmitting]) => (
@@ -164,12 +256,12 @@ function LoginForm() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="size-4 animate-spin mr-2" />
-                    Signing in...
+                    Creating Account...
                   </>
                 ) : (
                   <>
-                    <LogIn className="size-4 mr-2" />
-                    Sign In
+                    <UserPlus className="size-4 mr-2" />
+                    Register
                   </>
                 )}
               </Button>
@@ -178,29 +270,15 @@ function LoginForm() {
         </form>
 
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          Already have an account?{" "}
           <Link
-            href="/register"
+            href="/login"
             className="font-semibold text-primary underline-offset-4 hover:underline"
           >
-            Create an account
+            Sign In
           </Link>
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <React.Suspense
-      fallback={
-        <Card className="shadow-lg border-border/80 p-8 flex justify-center items-center">
-          <Loader2 className="size-6 animate-spin text-primary" />
-        </Card>
-      }
-    >
-      <LoginForm />
-    </React.Suspense>
   );
 }

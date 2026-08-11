@@ -11,8 +11,9 @@ import {
   Layers, 
   Info, 
   BookOpen, 
-  Search,
-  CheckCircle2
+  CheckCircle2,
+  LogIn,
+  UserPlus
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -89,23 +90,26 @@ export function Navbar() {
         </div>
 
         {/* Right CTA and Actions */}
-        <div className="flex items-center gap-3">
-
-          <Button render={<Link href="/builder" />} size="sm" className="gap-1.5 font-medium shadow-sm max-md:hidden"
-            nativeButton={false}
-          >
-            <Plus data-icon="inline-start" />
-            Create Your Tracker
-          </Button>
+        <div className="flex items-center gap-2.5">
           <Button 
             render={<Link href="/login" />} 
             size="sm" 
-            className="max-md:hidden"
-            variant="outline"
+            className="max-md:hidden gap-1.5"
+            variant="ghost"
             nativeButton={false}
           >
-            <Plus data-icon="inline-start" />
-            Login
+            <LogIn className="size-4" />
+            Log In
+          </Button>
+
+          <Button 
+            render={<Link href="/register" />} 
+            size="sm" 
+            className="max-md:hidden gap-1.5 shadow-sm"
+            nativeButton={false}
+          >
+            <UserPlus className="size-4" />
+            Register
           </Button>
 
           {/* Mobile Sheet Navigation */}
@@ -151,16 +155,23 @@ export function Navbar() {
                   })}
                 </div>
 
-                <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
+                <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground px-1 mb-2">
                     <CheckCircle2 className="size-3.5 text-primary" />
                     <span>Free templates for all examinees</span>
                   </div>
+
                   <SheetClose render={
-                    <Button render={<Link href="/builder" />} size="default" className="w-full justify-center">
-                        nativeButton={false}
-                      <Plus data-icon="inline-start" />
-                      Create Tracker Now
+                    <Button render={<Link href="/login" />} variant="outline" size="default" className="w-full justify-center gap-2" nativeButton={false}>
+                      <LogIn className="size-4" />
+                      Log In
+                    </Button>
+                  } />
+
+                  <SheetClose render={
+                    <Button render={<Link href="/register" />} size="default" className="w-full justify-center gap-2" nativeButton={false}>
+                      <UserPlus className="size-4" />
+                      Register
                     </Button>
                   } />
                 </div>
