@@ -3,17 +3,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Navbar } from "./navbar";
 
-const mockGetUser = vi.fn();
-const mockOnAuthStateChange = vi.fn();
+import { mockGetUser, mockOnAuthStateChange } from "@/src/test/mocks/supabase";
 
-vi.mock("@/src/lib/supabase/client", () => ({
-  createClient: () => ({
-    auth: {
-      getUser: mockGetUser,
-      onAuthStateChange: mockOnAuthStateChange,
-    },
-  }),
-}));
+vi.mock("@/src/lib/supabase/client", () => import("@/src/test/mocks/supabase"));
 
 describe("Navbar Component", () => {
   beforeEach(() => {
@@ -24,10 +16,13 @@ describe("Navbar Component", () => {
     });
   });
 
-  it("renders brand title and nav links correctly", () => {
+  it("renders brand title and nav links correctly", async () => {
     render(<Navbar />);
 
-    expect(screen.getByText("Review")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Review")).toBeInTheDocument();
+    });
+
     expect(screen.getByText("Trail")).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: /home/i })).toBeInTheDocument();
@@ -39,10 +34,13 @@ describe("Navbar Component", () => {
   it("renders login and register CTA buttons when user is logged out", async () => {
     render(<Navbar />);
 
-    const loginButtons = screen.getAllByRole("button", { name: /log in/i });
+    await waitFor(() => {
+      const loginButtons = screen.getAllByRole("button", { name: /log in/i });
+      expect(loginButtons.length).toBeGreaterThan(0);
+    });
+
     const registerButtons = screen.getAllByRole("button", { name: /register/i });
 
-    expect(loginButtons.length).toBeGreaterThan(0);
     expect(registerButtons.length).toBeGreaterThan(0);
   });
 

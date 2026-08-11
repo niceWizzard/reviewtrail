@@ -2,17 +2,9 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useUser } from "./use-user";
 
-const mockGetUser = vi.fn();
-const mockOnAuthStateChange = vi.fn();
+import { mockGetUser, mockOnAuthStateChange } from "@/src/test/mocks/supabase";
 
-vi.mock("@/src/lib/supabase/client", () => ({
-  createClient: () => ({
-    auth: {
-      getUser: mockGetUser,
-      onAuthStateChange: mockOnAuthStateChange,
-    },
-  }),
-}));
+vi.mock("@/src/lib/supabase/client", () => import("@/src/test/mocks/supabase"));
 
 describe("useUser Hook", () => {
   beforeEach(() => {

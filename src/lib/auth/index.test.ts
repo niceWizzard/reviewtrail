@@ -1,19 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { loginUser, registerUser, signOutUser } from "./index";
 
-const mockSignInWithPassword = vi.fn();
-const mockSignUp = vi.fn();
-const mockSignOut = vi.fn();
+import {
+  mockSignInWithPassword,
+  mockSignUp,
+  mockSignOut,
+} from "@/src/test/mocks/supabase";
 
-vi.mock("../supabase/client", () => ({
-  createClient: () => ({
-    auth: {
-      signInWithPassword: mockSignInWithPassword,
-      signUp: mockSignUp,
-      signOut: mockSignOut,
-    },
-  }),
-}));
+vi.mock("../supabase/client", () => import("@/src/test/mocks/supabase"));
 
 describe("Auth Helpers (lib/auth)", () => {
   beforeEach(() => {
