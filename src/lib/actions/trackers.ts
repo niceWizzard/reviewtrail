@@ -3,6 +3,20 @@
 import { createClient } from "@/src/lib/supabase/server";
 import type { ExamTracker } from "@/src/lib/types/database";
 
+export async function fetchExamTrackersAction(): Promise<ExamTracker[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("exam_trackers")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data as ExamTracker[]) || [];
+}
+
 export async function createExamTrackerAction(payload: {
   exam_name: string;
   exam_date?: string | null;
@@ -59,3 +73,4 @@ export async function deleteExamTrackerAction(trackerId: string): Promise<void> 
     throw new Error(error.message);
   }
 }
+

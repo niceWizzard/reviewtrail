@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchExamTrackers } from "@/src/lib/api/trackers";
 import {
+  fetchExamTrackersAction,
   createExamTrackerAction,
   archiveExamTrackerAction,
   deleteExamTrackerAction,
@@ -13,8 +13,9 @@ export function useExamTrackers() {
 
   const query = useQuery({
     queryKey: ["exam_trackers"],
-    queryFn: fetchExamTrackers,
+    queryFn: fetchExamTrackersAction,
   });
+
 
   const createMutation = useMutation({
     mutationFn: createExamTrackerAction,

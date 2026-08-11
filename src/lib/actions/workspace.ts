@@ -1,4 +1,6 @@
-import { createClient } from "@/src/lib/supabase/client";
+"use server";
+
+import { createClient } from "@/src/lib/supabase/server";
 import type {
   ExamTracker,
   TrackerSection,
@@ -11,10 +13,10 @@ import type {
   ChapterWithTopics,
 } from "@/src/lib/types/database";
 
-export async function fetchTrackerWorkspace(
+export async function fetchTrackerWorkspaceAction(
   examTrackerId: string
 ): Promise<TrackerWorkspaceData> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const [trackerRes, sectionsRes, subjectsRes, chaptersRes, topicsRes, progressRes] =
     await Promise.all([

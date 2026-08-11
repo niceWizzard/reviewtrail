@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchTrackerWorkspace } from "@/src/lib/api/workspace";
+import { fetchTrackerWorkspaceAction } from "@/src/lib/actions/workspace";
 import {
   createSubjectAction,
   createChapterAction,
@@ -18,9 +18,10 @@ export function useTrackerWorkspace(examTrackerId: string) {
 
   const query = useQuery({
     queryKey,
-    queryFn: () => fetchTrackerWorkspace(examTrackerId),
+    queryFn: () => fetchTrackerWorkspaceAction(examTrackerId),
     enabled: !!examTrackerId,
   });
+
 
   const addSubjectMutation = useMutation({
     mutationFn: (payload: { name: string; color?: string }) =>
