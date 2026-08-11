@@ -1,10 +1,21 @@
 "use server";
 
-import { createClient } from "@/src/lib/supabase/server";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
+import { cookies } from "next/headers";
+import { createClient, createStaticClient } from "@/src/lib/supabase/server";
 import type { ExamTracker } from "@/src/lib/types/database";
 
 export async function fetchExamTrackersAction(): Promise<ExamTracker[]> {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  return getCachedExamTrackers(cookieStore.toString());
+}
+
+async function getCachedExamTrackers(cookieString: string): Promise<ExamTracker[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("exam_trackers");
+
+  const supabase = createStaticClient(cookieString);
   const { data, error } = await supabase
     .from("exam_trackers")
     .select("*")
@@ -47,6 +58,7 @@ export async function createExamTrackerAction(payload: {
     throw new Error(error.message);
   }
 
+  updateTag("exam_trackers");
   return data as ExamTracker;
 }
 
@@ -63,6 +75,8 @@ export async function archiveExamTrackerAction(
   if (error) {
     throw new Error(error.message);
   }
+
+  updateTag("exam_trackers");
 }
 
 export async function deleteExamTrackerAction(trackerId: string): Promise<void> {
@@ -72,5 +86,10 @@ export async function deleteExamTrackerAction(trackerId: string): Promise<void> 
   if (error) {
     throw new Error(error.message);
   }
+
+  updateTag("exam_trackers");
 }
+
+
+
 

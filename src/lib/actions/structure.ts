@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { createClient } from "@/src/lib/supabase/server";
 import type { TrackerSection, Subject, Chapter, Topic } from "@/src/lib/types/database";
 
@@ -22,6 +23,7 @@ export async function createTrackerSectionAction(payload: {
     .single();
 
   if (error) throw new Error(error.message);
+  updateTag(`workspace-${payload.exam_tracker_id}`);
   return data as TrackerSection;
 }
 
@@ -44,6 +46,7 @@ export async function createSubjectAction(payload: {
     .single();
 
   if (error) throw new Error(error.message);
+  updateTag(`workspace-${payload.exam_tracker_id}`);
   return data as Subject;
 }
 
@@ -68,6 +71,7 @@ export async function createChapterAction(payload: {
     .single();
 
   if (error) throw new Error(error.message);
+  updateTag(`workspace-${payload.exam_tracker_id}`);
   return data as Chapter;
 }
 
@@ -92,6 +96,7 @@ export async function createTopicAction(payload: {
     .single();
 
   if (error) throw new Error(error.message);
+  updateTag(`workspace-${payload.exam_tracker_id}`);
   return data as Topic;
 }
 
@@ -99,16 +104,22 @@ export async function deleteTopicAction(topicId: string): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase.from("topics").delete().eq("id", topicId);
   if (error) throw new Error(error.message);
+  updateTag("exam_trackers");
 }
 
 export async function deleteSubjectAction(subjectId: string): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase.from("subjects").delete().eq("id", subjectId);
   if (error) throw new Error(error.message);
+  updateTag("exam_trackers");
 }
 
 export async function deleteTrackerSectionAction(sectionId: string): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase.from("tracker_sections").delete().eq("id", sectionId);
   if (error) throw new Error(error.message);
+  updateTag("exam_trackers");
 }
+
+
+

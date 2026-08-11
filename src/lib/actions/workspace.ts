@@ -1,6 +1,8 @@
 "use server";
 
-import { createClient } from "@/src/lib/supabase/server";
+import { cacheLife, cacheTag } from "next/cache";
+import { cookies } from "next/headers";
+import { createClient, createStaticClient } from "@/src/lib/supabase/server";
 import type {
   ExamTracker,
   TrackerSection,
@@ -16,7 +18,21 @@ import type {
 export async function fetchTrackerWorkspaceAction(
   examTrackerId: string
 ): Promise<TrackerWorkspaceData> {
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  return getCachedTrackerWorkspace(examTrackerId, cookieStore.toString());
+}
+
+async function getCachedTrackerWorkspace(
+  examTrackerId: string,
+  cookieString: string
+): Promise<TrackerWorkspaceData> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(`workspace-${examTrackerId}`);
+
+  const supabase = createStaticClient(cookieString);
+
+
 
   const [trackerRes, sectionsRes, subjectsRes, chaptersRes, topicsRes, progressRes] =
     await Promise.all([

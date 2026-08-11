@@ -25,3 +25,30 @@ export async function createClient() {
     }
   );
 }
+
+export function createStaticClient(cookieString: string) {
+  const parsedCookies = cookieString
+    ? cookieString.split("; ").map((pair) => {
+        const idx = pair.indexOf("=");
+        if (idx < 0) return { name: pair.trim(), value: "" };
+        return {
+          name: pair.substring(0, idx).trim(),
+          value: pair.substring(idx + 1).trim(),
+        };
+      })
+    : [];
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return parsedCookies;
+        },
+        setAll() {},
+      },
+    }
+  );
+}
+

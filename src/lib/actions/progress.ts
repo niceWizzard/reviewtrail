@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { createClient } from "@/src/lib/supabase/server";
 import type { TopicSectionProgress } from "@/src/lib/types/database";
 
@@ -36,6 +37,7 @@ export async function upsertTopicProgressAction(
     throw new Error(error.message);
   }
 
+  updateTag(`workspace-${payload.exam_tracker_id}`);
   return data as TopicSectionProgress;
 }
 
@@ -62,5 +64,9 @@ export async function updateProgressNotesAction(
     throw new Error(error.message);
   }
 
+  updateTag(`workspace-${payload.exam_tracker_id}`);
   return data as TopicSectionProgress;
 }
+
+
+

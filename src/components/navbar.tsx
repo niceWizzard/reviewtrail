@@ -36,7 +36,7 @@ const navItems = [
   { name: "About", href: "/about", icon: Info },
 ];
 
-export function Navbar() {
+function NavbarContent() {
   const pathname = usePathname();
   const { user } = useUser();
 
@@ -240,5 +240,13 @@ export function Navbar() {
         </div>
       </div>
     </header>
+  );
+}
+
+export function Navbar() {
+  return (
+    <React.Suspense fallback={<header className="h-16 w-full border-b border-border/60 bg-background/80" />}>
+      <NavbarContent />
+    </React.Suspense>
   );
 }
