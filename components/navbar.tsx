@@ -91,7 +91,9 @@ export function Navbar() {
         {/* Right CTA and Actions */}
         <div className="flex items-center gap-3">
 
-          <Button render={<Link href="/builder" />} size="sm" className="gap-1.5 font-medium shadow-sm max-md:hidden">
+          <Button render={<Link href="/builder" />} size="sm" className="gap-1.5 font-medium shadow-sm max-md:hidden"
+            nativeButton={false}
+          >
             <Plus data-icon="inline-start" />
             Create Your Tracker
           </Button>
@@ -100,6 +102,7 @@ export function Navbar() {
             size="sm" 
             className="max-md:hidden"
             variant="outline"
+            nativeButton={false}
           >
             <Plus data-icon="inline-start" />
             Login
@@ -155,6 +158,7 @@ export function Navbar() {
                   </div>
                   <SheetClose render={
                     <Button render={<Link href="/builder" />} size="default" className="w-full justify-center">
+                        nativeButton={false}
                       <Plus data-icon="inline-start" />
                       Create Tracker Now
                     </Button>

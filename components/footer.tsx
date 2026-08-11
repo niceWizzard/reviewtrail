@@ -22,17 +22,6 @@ export function Footer() {
             <p className="max-w-sm text-sm text-muted-foreground leading-relaxed">
               Empowering board exam candidates across Medicine, Engineering, Accountancy, Law, and Nursing with structured study templates and custom review tracking.
             </p>
-            <div className="flex items-center gap-2 pt-2 text-muted-foreground">
-              <Button render={<a href="https://github.com" target="_blank" rel="noreferrer" aria-label="Website" />} variant="ghost" size="icon-sm">
-                <Globe className="size-4" />
-              </Button>
-              <Button render={<a href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Share" />} variant="ghost" size="icon-sm">
-                <Share2 className="size-4" />
-              </Button>
-              <Button render={<a href="mailto:support@reviewtrail.com" aria-label="Email support" />} variant="ghost" size="icon-sm">
-                <Mail className="size-4" />
-              </Button>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -62,55 +51,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Popular Categories */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold text-foreground">Board Exam Tracks</h3>
-            <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/templates?cat=medical" className="hover:text-foreground transition-colors">
-                  Medical Boards (PLE / USMLE)
-                </Link>
-              </li>
-              <li>
-                <Link href="/templates?cat=cpa" className="hover:text-foreground transition-colors">
-                  CPA Accountancy
-                </Link>
-              </li>
-              <li>
-                <Link href="/templates?cat=engineering" className="hover:text-foreground transition-colors">
-                  Civil & Structural Engg.
-                </Link>
-              </li>
-              <li>
-                <Link href="/templates?cat=nursing" className="hover:text-foreground transition-colors">
-                  NCLEX & Nursing Boards
-                </Link>
-              </li>
-              <li>
-                <Link href="/templates?cat=bar" className="hover:text-foreground transition-colors">
-                  Bar Exam Syllabi
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold text-foreground">Review Digest</h3>
-            <p className="text-xs text-muted-foreground">
-              Get monthly study techniques, high-yield review schedules, and new syllabus templates.
-            </p>
-            <div className="flex flex-col gap-2">
-              <Input 
-                type="email" 
-                placeholder="examinee@university.edu" 
-                className="h-8 text-xs"
-              />
-              <Button size="xs" className="w-full">
-                Subscribe
-              </Button>
-            </div>
-          </div>
+          
         </div>
 
         <Separator className="my-8" />
