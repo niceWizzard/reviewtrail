@@ -267,7 +267,7 @@ export function HeroTrackerDemo() {
           <ShieldCheck className="size-4 text-emerald-500" />
           <span>Syllabi auto-synced with official 2026 Board Table of Specifications.</span>
         </div>
-        <Button render={<Link href="/builder" />} size="xs" variant="default" className="gap-1">
+        <Button render={<Link href="/builder" />} size="xs" variant="default" className="gap-1" nativeButton={false}>
           Customize This Template
           <ArrowRight className="size-3" />
         </Button>
