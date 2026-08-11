@@ -9,7 +9,13 @@ import { Eye, EyeOff, Loader2, UserPlus, AlertCircle, CheckCircle2 } from "lucid
 
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/src/components/ui/card";
 import { registerUser } from "@/src/lib/auth";
 
 const registerSchema = z
@@ -53,12 +59,11 @@ export default function RegisterPage() {
       setSuccessMessage(null);
 
       try {
-        
         const { error, data } = await registerUser({
           username: value.username,
           email: value.email,
           password: value.password,
-        })
+        });
         if (error) {
           setErrorMessage(error.message);
           return;
@@ -68,7 +73,9 @@ export default function RegisterPage() {
           router.push("/dashboard");
           router.refresh();
         } else {
-          setSuccessMessage("Registration successful! Please check your email to confirm your account.");
+          setSuccessMessage(
+            "Registration successful! Please check your email to confirm your account."
+          );
         }
       } catch (err) {
         setErrorMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
@@ -80,9 +87,7 @@ export default function RegisterPage() {
     <Card className="shadow-lg border-border/80">
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="text-2xl font-bold tracking-tight">Create an Account</CardTitle>
-        <CardDescription>
-          Start tracking your board exam review journey today
-        </CardDescription>
+        <CardDescription>Start tracking your board exam review journey today</CardDescription>
       </CardHeader>
       <CardContent>
         {errorMessage && (
@@ -128,7 +133,13 @@ export default function RegisterPage() {
                   />
                   {shouldShowErrors ? (
                     <p className="text-xs font-medium text-destructive">
-                      {errors.map((err) => (typeof err === "string" ? err : (err as { message?: string })?.message || String(err))).join(", ")}
+                      {errors
+                        .map((err) =>
+                          typeof err === "string"
+                            ? err
+                            : (err as { message?: string })?.message || String(err)
+                        )
+                        .join(", ")}
                     </p>
                   ) : null}
                 </div>
@@ -157,7 +168,13 @@ export default function RegisterPage() {
                   />
                   {shouldShowErrors ? (
                     <p className="text-xs font-medium text-destructive">
-                      {errors.map((err) => (typeof err === "string" ? err : (err as { message?: string })?.message || String(err))).join(", ")}
+                      {errors
+                        .map((err) =>
+                          typeof err === "string"
+                            ? err
+                            : (err as { message?: string })?.message || String(err)
+                        )
+                        .join(", ")}
                     </p>
                   ) : null}
                 </div>
@@ -198,7 +215,13 @@ export default function RegisterPage() {
                   </div>
                   {shouldShowErrors ? (
                     <p className="text-xs font-medium text-destructive">
-                      {errors.map((err) => (typeof err === "string" ? err : (err as { message?: string })?.message || String(err))).join(", ")}
+                      {errors
+                        .map((err) =>
+                          typeof err === "string"
+                            ? err
+                            : (err as { message?: string })?.message || String(err)
+                        )
+                        .join(", ")}
                     </p>
                   ) : null}
                 </div>
@@ -227,7 +250,13 @@ export default function RegisterPage() {
                   />
                   {shouldShowErrors ? (
                     <p className="text-xs font-medium text-destructive">
-                      {errors.map((err) => (typeof err === "string" ? err : (err as { message?: string })?.message || String(err))).join(", ")}
+                      {errors
+                        .map((err) =>
+                          typeof err === "string"
+                            ? err
+                            : (err as { message?: string })?.message || String(err)
+                        )
+                        .join(", ")}
                     </p>
                   ) : null}
                 </div>

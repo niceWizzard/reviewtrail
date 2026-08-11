@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { loginUser, registerUser, signOutUser } from './index'
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { loginUser, registerUser, signOutUser } from "./index";
 
-const mockSignInWithPassword = vi.fn()
-const mockSignUp = vi.fn()
-const mockSignOut = vi.fn()
+const mockSignInWithPassword = vi.fn();
+const mockSignUp = vi.fn();
+const mockSignOut = vi.fn();
 
-vi.mock('../supabase/client', () => ({
+vi.mock("../supabase/client", () => ({
   createClient: () => ({
     auth: {
       signInWithPassword: mockSignInWithPassword,
@@ -13,55 +13,55 @@ vi.mock('../supabase/client', () => ({
       signOut: mockSignOut,
     },
   }),
-}))
+}));
 
-describe('Auth Helpers (lib/auth)', () => {
+describe("Auth Helpers (lib/auth)", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
     // Setup window.location.origin for registerUser
-    Object.defineProperty(window, 'location', {
-      value: { origin: 'http://localhost:3000' },
+    Object.defineProperty(window, "location", {
+      value: { origin: "http://localhost:3000" },
       writable: true,
-    })
-  })
+    });
+  });
 
-  it('should call signInWithPassword with correct credentials on loginUser', async () => {
-    mockSignInWithPassword.mockResolvedValue({ data: { user: { id: '123' } }, error: null })
+  it("should call signInWithPassword with correct credentials on loginUser", async () => {
+    mockSignInWithPassword.mockResolvedValue({ data: { user: { id: "123" } }, error: null });
 
-    const result = await loginUser({ email: 'test@example.com', password: 'password123' })
+    const result = await loginUser({ email: "test@example.com", password: "password123" });
 
     expect(mockSignInWithPassword).toHaveBeenCalledWith({
-      email: 'test@example.com',
-      password: 'password123',
-    })
-    expect(result).toEqual({ data: { user: { id: '123' } }, error: null })
-  })
+      email: "test@example.com",
+      password: "password123",
+    });
+    expect(result).toEqual({ data: { user: { id: "123" } }, error: null });
+  });
 
-  it('should call signUp with username metadata on registerUser', async () => {
-    mockSignUp.mockResolvedValue({ data: { user: { id: '123' } }, error: null })
+  it("should call signUp with username metadata on registerUser", async () => {
+    mockSignUp.mockResolvedValue({ data: { user: { id: "123" } }, error: null });
 
     const result = await registerUser({
-      email: 'newuser@example.com',
-      password: 'password123',
-      username: 'testuser',
-    })
+      email: "newuser@example.com",
+      password: "password123",
+      username: "testuser",
+    });
 
     expect(mockSignUp).toHaveBeenCalledWith({
-      email: 'newuser@example.com',
-      password: 'password123',
+      email: "newuser@example.com",
+      password: "password123",
       options: {
-        data: { username: 'testuser' },
-        emailRedirectTo: 'http://localhost:3000/auth/callback',
+        data: { username: "testuser" },
+        emailRedirectTo: "http://localhost:3000/auth/callback",
       },
-    })
-    expect(result).toEqual({ data: { user: { id: '123' } }, error: null })
-  })
+    });
+    expect(result).toEqual({ data: { user: { id: "123" } }, error: null });
+  });
 
-  it('should call signOut on signOutUser', async () => {
-    mockSignOut.mockResolvedValue({ error: null })
+  it("should call signOut on signOutUser", async () => {
+    mockSignOut.mockResolvedValue({ error: null });
 
-    await signOutUser()
+    await signOutUser();
 
-    expect(mockSignOut).toHaveBeenCalledTimes(1)
-  })
-})
+    expect(mockSignOut).toHaveBeenCalledTimes(1);
+  });
+});

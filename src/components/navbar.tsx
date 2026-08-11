@@ -3,16 +3,16 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  GraduationCap, 
-  Menu, 
-  Sparkles, 
-  Layers, 
-  Info, 
-  BookOpen, 
+import {
+  GraduationCap,
+  Menu,
+  Sparkles,
+  Layers,
+  Info,
+  BookOpen,
   CheckCircle2,
   LogIn,
-  UserPlus
+  UserPlus,
 } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetClose
+  SheetClose,
 } from "@/src/components/ui/sheet";
 import { cn } from "@/src/lib/utils";
 
@@ -42,8 +42,8 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
         <div className="flex items-center gap-6">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="flex items-center gap-2.5 transition-opacity hover:opacity-90 focus-visible:outline-none"
           >
             <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
@@ -54,7 +54,10 @@ export function Navbar() {
                 <span className="font-bold text-lg leading-none tracking-tight">
                   Review<span className="text-primary">Trail</span>
                 </span>
-                <Badge variant="secondary" className="px-1.5 py-0 text-[10px] font-semibold uppercase">
+                <Badge
+                  variant="secondary"
+                  className="px-1.5 py-0 text-[10px] font-semibold uppercase"
+                >
                   Board Exam
                 </Badge>
               </div>
@@ -90,9 +93,9 @@ export function Navbar() {
 
         {/* Right CTA and Actions */}
         <div className="flex items-center gap-2.5">
-          <Button 
-            render={<Link href="/login" />} 
-            size="sm" 
+          <Button
+            render={<Link href="/login" />}
+            size="sm"
             className="max-md:hidden gap-1.5"
             variant="ghost"
             nativeButton={false}
@@ -101,9 +104,9 @@ export function Navbar() {
             Log In
           </Button>
 
-          <Button 
-            render={<Link href="/register" />} 
-            size="sm" 
+          <Button
+            render={<Link href="/register" />}
+            size="sm"
             className="max-md:hidden gap-1.5 shadow-sm"
             nativeButton={false}
           >
@@ -113,11 +116,18 @@ export function Navbar() {
 
           {/* Mobile Sheet Navigation */}
           <Sheet>
-            <SheetTrigger render={
-              <Button variant="outline" size="icon-sm" className="md:hidden" aria-label="Open Navigation Menu">
-                <Menu className="size-4" />
-              </Button>
-            } />
+            <SheetTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  className="md:hidden"
+                  aria-label="Open Navigation Menu"
+                >
+                  <Menu className="size-4" />
+                </Button>
+              }
+            />
             <SheetContent side="right" className="w-[300px] sm:w-[350px] p-6">
               <SheetHeader className="text-left pb-4 border-b border-border">
                 <SheetTitle className="flex items-center gap-2.5">
@@ -160,19 +170,34 @@ export function Navbar() {
                     <span>Free templates for all examinees</span>
                   </div>
 
-                  <SheetClose render={
-                    <Button render={<Link href="/login" />} variant="outline" size="default" className="w-full justify-center gap-2" nativeButton={false}>
-                      <LogIn className="size-4" />
-                      Log In
-                    </Button>
-                  } />
+                  <SheetClose
+                    render={
+                      <Button
+                        render={<Link href="/login" />}
+                        variant="outline"
+                        size="default"
+                        className="w-full justify-center gap-2"
+                        nativeButton={false}
+                      >
+                        <LogIn className="size-4" />
+                        Log In
+                      </Button>
+                    }
+                  />
 
-                  <SheetClose render={
-                    <Button render={<Link href="/register" />} size="default" className="w-full justify-center gap-2" nativeButton={false}>
-                      <UserPlus className="size-4" />
-                      Register
-                    </Button>
-                  } />
+                  <SheetClose
+                    render={
+                      <Button
+                        render={<Link href="/register" />}
+                        size="default"
+                        className="w-full justify-center gap-2"
+                        nativeButton={false}
+                      >
+                        <UserPlus className="size-4" />
+                        Register
+                      </Button>
+                    }
+                  />
                 </div>
               </div>
             </SheetContent>

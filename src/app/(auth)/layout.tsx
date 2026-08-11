@@ -3,11 +3,7 @@ import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { Badge } from "@/src/components/ui/badge";
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-muted/30 px-4 py-12 sm:px-6 lg:px-8">
       {/* Background Decorative Pattern */}
@@ -28,7 +24,10 @@ export default function AuthLayout({
                 <span className="font-bold text-xl leading-none tracking-tight">
                   Review<span className="text-primary">Trail</span>
                 </span>
-                <Badge variant="secondary" className="px-1.5 py-0 text-[10px] font-semibold uppercase">
+                <Badge
+                  variant="secondary"
+                  className="px-1.5 py-0 text-[10px] font-semibold uppercase"
+                >
                   Board Exam
                 </Badge>
               </div>

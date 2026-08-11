@@ -9,7 +9,13 @@ import { Eye, EyeOff, Loader2, LogIn, AlertCircle } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/src/components/ui/card";
 import { loginUser } from "@/src/lib/auth";
 
 const loginSchema = z.object({
@@ -36,7 +42,7 @@ function LoginForm() {
     onSubmit: async ({ value }) => {
       setErrorMessage(null);
       try {
-        const {error} = await loginUser({
+        const { error } = await loginUser({
           email: value.email,
           password: value.password,
         });
@@ -98,7 +104,13 @@ function LoginForm() {
                   />
                   {shouldShowErrors ? (
                     <p className="text-xs font-medium text-destructive">
-                      {errors.map((err) => (typeof err === "string" ? err : (err as { message?: string })?.message || String(err))).join(", ")}
+                      {errors
+                        .map((err) =>
+                          typeof err === "string"
+                            ? err
+                            : (err as { message?: string })?.message || String(err)
+                        )
+                        .join(", ")}
                     </p>
                   ) : null}
                 </div>
@@ -141,7 +153,13 @@ function LoginForm() {
                   </div>
                   {shouldShowErrors ? (
                     <p className="text-xs font-medium text-destructive">
-                      {errors.map((err) => (typeof err === "string" ? err : (err as { message?: string })?.message || String(err))).join(", ")}
+                      {errors
+                        .map((err) =>
+                          typeof err === "string"
+                            ? err
+                            : (err as { message?: string })?.message || String(err)
+                        )
+                        .join(", ")}
                     </p>
                   ) : null}
                 </div>

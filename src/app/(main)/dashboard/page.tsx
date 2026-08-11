@@ -80,7 +80,8 @@ export default async function DashboardPage() {
           </div>
           <h3 className="text-lg font-semibold mb-2">Review Tracker Dashboard Shell</h3>
           <p className="text-sm text-muted-foreground max-w-md mb-6">
-            Your auth setup is active! This empty dashboard shell is ready for integrating active syllabus trackers, spaced repetition cards, and progress analytics.
+            Your auth setup is active! This empty dashboard shell is ready for integrating active
+            syllabus trackers, spaced repetition cards, and progress analytics.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">

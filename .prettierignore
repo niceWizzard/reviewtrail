@@ -1,0 +1,11 @@
+.next
+node_modules
+out
+build
+next-env.d.ts
+supabase/.temp
+supabase/.branches
+playwright-report
+test-results
+bun.lock
+.agents/

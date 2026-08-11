@@ -1,14 +1,14 @@
 import Link from "next/link";
-import { 
-  GraduationCap, 
-  Target, 
-  Brain, 
-  Sparkles, 
-  ShieldCheck, 
-  Award, 
-  CheckCircle2, 
+import {
+  GraduationCap,
+  Target,
+  Brain,
+  Sparkles,
+  ShieldCheck,
+  Award,
+  CheckCircle2,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
@@ -17,46 +17,54 @@ import { Separator } from "@/src/components/ui/separator";
 
 export const metadata = {
   title: "About ReviewTrail — Built for Board Exam Candidates",
-  description: "Learn about ReviewTrail's mission, spaced repetition tracking methodology, and how we help examinees pass their licensure exams.",
+  description:
+    "Learn about ReviewTrail's mission, spaced repetition tracking methodology, and how we help examinees pass their licensure exams.",
 };
 
 const TIMELINE = [
   {
     year: "2024",
     title: "The Spreadsheet Chaos",
-    description: "Started as a single shared Google Sheet among study buddies preparing for the PLE and CPA board exams. We quickly realized generic columns couldn't calculate subject weightings or spaced repetition dates.",
+    description:
+      "Started as a single shared Google Sheet among study buddies preparing for the PLE and CPA board exams. We quickly realized generic columns couldn't calculate subject weightings or spaced repetition dates.",
   },
   {
     year: "2025",
     title: "Community Expansion",
-    description: "Word spread across medical schools, engineering departments, and accountancy batches. We built pre-loaded syllabi for 50+ licensure exams and incorporated PRC Table of Specifications (TOS).",
+    description:
+      "Word spread across medical schools, engineering departments, and accountancy batches. We built pre-loaded syllabi for 50+ licensure exams and incorporated PRC Table of Specifications (TOS).",
   },
   {
     year: "2026",
     title: "ReviewTrail Platform",
-    description: "Launched the full ReviewTrail web platform featuring an interactive custom tracker builder, spaced repetition intervals, QBank mock exam analytics, and a template hub for study groups.",
+    description:
+      "Launched the full ReviewTrail web platform featuring an interactive custom tracker builder, spaced repetition intervals, QBank mock exam analytics, and a template hub for study groups.",
   },
 ];
 
 const VALUES = [
   {
     title: "Autonomy First",
-    description: "No two examinees study the exact same way. ReviewTrail lets you customize review phases, add custom subjects, and adapt to your review center schedule.",
+    description:
+      "No two examinees study the exact same way. ReviewTrail lets you customize review phases, add custom subjects, and adapt to your review center schedule.",
     icon: Target,
   },
   {
     title: "Empirical Confidence",
-    description: "Exam anxiety stems from uncertainty. We turn subjective feeling into weighted readiness metrics so you know exactly which topics need your attention today.",
+    description:
+      "Exam anxiety stems from uncertainty. We turn subjective feeling into weighted readiness metrics so you know exactly which topics need your attention today.",
     icon: TrendingUp,
   },
   {
     title: "Pedagogical Science",
-    description: "Built around Active Recall, Spaced Repetition (Feynman/Leitner system), and QBank performance logs to maximize long-term memory retention.",
+    description:
+      "Built around Active Recall, Spaced Repetition (Feynman/Leitner system), and QBank performance logs to maximize long-term memory retention.",
     icon: Brain,
   },
   {
     title: "Open & Accessible",
-    description: "Board exam preparation is stressful enough. We keep ReviewTrail free for individual examinees so every candidate has access to high-yield review tools.",
+    description:
+      "Board exam preparation is stressful enough. We keep ReviewTrail free for individual examinees so every candidate has access to high-yield review tools.",
     icon: ShieldCheck,
   },
 ];
@@ -73,11 +81,17 @@ export default function AboutPage() {
           </Badge>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight max-w-3xl leading-tight">
-            Replacing Board Exam Anxiety with <span className="text-primary underline underline-offset-4 decoration-primary/30">Empirical</span> Progress.
+            Replacing Board Exam Anxiety with{" "}
+            <span className="text-primary underline underline-offset-4 decoration-primary/30">
+              Empirical
+            </span>{" "}
+            Progress.
           </h1>
 
           <p className="max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-            ReviewTrail was born from a simple realization: standard study planners don&apos;t understand the rigor, weightings, and spaced repetition needed to pass high-stakes board examinations.
+            ReviewTrail was born from a simple realization: standard study planners don&apos;t
+            understand the rigor, weightings, and spaced repetition needed to pass high-stakes board
+            examinations.
           </p>
 
           <div className="flex items-center gap-4 pt-2">
@@ -96,15 +110,22 @@ export default function AboutPage() {
       <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           <div className="flex flex-col gap-4">
-            <Badge variant="outline" className="w-fit">Our Mission</Badge>
+            <Badge variant="outline" className="w-fit">
+              Our Mission
+            </Badge>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
               Giving Every Candidate a Clear Path to Licensure
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Preparing for a licensure exam is one of the most intense periods of a professional&apos;s life. Reviewees spend hundreds of hours attending lectures, solving question banks, and memorizing vast syllabi.
+              Preparing for a licensure exam is one of the most intense periods of a
+              professional&apos;s life. Reviewees spend hundreds of hours attending lectures,
+              solving question banks, and memorizing vast syllabi.
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Without structured tracking, it&apos;s easy to fall into the trap of re-reading familiar topics while unintentionally neglecting high-weight subjects. ReviewTrail provides the clarity examinees need to prioritize high-yield modules and track mastery systematically.
+              Without structured tracking, it&apos;s easy to fall into the trap of re-reading
+              familiar topics while unintentionally neglecting high-weight subjects. ReviewTrail
+              provides the clarity examinees need to prioritize high-yield modules and track mastery
+              systematically.
             </p>
           </div>
 
@@ -115,22 +136,33 @@ export default function AboutPage() {
               </div>
               <div>
                 <h3 className="font-bold text-base">The ReviewTrail Method</h3>
-                <span className="text-xs text-muted-foreground">3 Core Principles of Board Prep</span>
+                <span className="text-xs text-muted-foreground">
+                  3 Core Principles of Board Prep
+                </span>
               </div>
             </div>
             <Separator />
             <ul className="flex flex-col gap-3 text-xs sm:text-sm text-foreground">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500 shrink-0 mt-0.5" />
-                <span><strong>Official TOS Weighting:</strong> Track progress relative to official exam percentage weightings.</span>
+                <span>
+                  <strong>Official TOS Weighting:</strong> Track progress relative to official exam
+                  percentage weightings.
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500 shrink-0 mt-0.5" />
-                <span><strong>Multi-Pass Coverage:</strong> Log 1st Pass reading, 2nd Pass recall, and QBank practice scores separately.</span>
+                <span>
+                  <strong>Multi-Pass Coverage:</strong> Log 1st Pass reading, 2nd Pass recall, and
+                  QBank practice scores separately.
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500 shrink-0 mt-0.5" />
-                <span><strong>Smart Spaced Repetition:</strong> Automatic interval triggers so 1st-month subjects remain fresh.</span>
+                <span>
+                  <strong>Smart Spaced Repetition:</strong> Automatic interval triggers so 1st-month
+                  subjects remain fresh.
+                </span>
               </li>
             </ul>
           </Card>
@@ -141,14 +173,18 @@ export default function AboutPage() {
       <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex flex-col items-center text-center gap-2 mb-10">
           <Badge variant="secondary">Our Origin</Badge>
-          <h2 className="text-2xl sm:text-3xl font-extrabold">From Study Group Sheet to Nationwide Platform</h2>
+          <h2 className="text-2xl sm:text-3xl font-extrabold">
+            From Study Group Sheet to Nationwide Platform
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {TIMELINE.map((item, idx) => (
             <Card key={idx} className="relative flex flex-col justify-between border-border/80">
               <CardHeader className="gap-2">
-                <Badge variant="outline" className="w-fit font-mono font-bold text-primary">{item.year}</Badge>
+                <Badge variant="outline" className="w-fit font-mono font-bold text-primary">
+                  {item.year}
+                </Badge>
                 <CardTitle className="text-lg font-bold">{item.title}</CardTitle>
               </CardHeader>
               <CardContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -176,7 +212,9 @@ export default function AboutPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <h3 className="font-bold text-base">{val.title}</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{val.description}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    {val.description}
+                  </p>
                 </div>
               </Card>
             );
@@ -188,7 +226,9 @@ export default function AboutPage() {
       <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 w-full">
         <div className="p-8 rounded-3xl bg-muted/40 border border-border/80 text-center flex flex-col items-center gap-6">
           <Badge variant="secondary">Supported Licensure Fields</Badge>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Syllabi Mapped For Top Board Exams</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Syllabi Mapped For Top Board Exams
+          </h2>
           <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
             {[
               "Medicine (PLE / USMLE)",
@@ -202,14 +242,18 @@ export default function AboutPage() {
               "Teaching (LET)",
               "Pharmacy (PhLE)",
               "Medical Technology (MTLE)",
-              "Custom User Templates"
+              "Custom User Templates",
             ].map((track) => (
               <Badge key={track} variant="outline" className="px-3 py-1 text-xs bg-background">
                 {track}
               </Badge>
             ))}
           </div>
-          <Button render={<Link href="/templates" />} size="default" className="gap-2 font-semibold">
+          <Button
+            render={<Link href="/templates" />}
+            size="default"
+            className="gap-2 font-semibold"
+          >
             Browse Syllabi Templates
             <ArrowRight className="size-4" />
           </Button>

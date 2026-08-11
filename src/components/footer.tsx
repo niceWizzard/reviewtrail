@@ -18,7 +18,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="max-w-sm text-sm text-muted-foreground leading-relaxed">
-              Empowering board exam candidates across Medicine, Engineering, Accountancy, Law, and Nursing with structured study templates and custom review tracking.
+              Empowering board exam candidates across Medicine, Engineering, Accountancy, Law, and
+              Nursing with structured study templates and custom review tracking.
             </p>
           </div>
 
@@ -48,8 +49,6 @@ export function Footer() {
               </li>
             </ul>
           </div>
-
-          
         </div>
 
         <Separator className="my-8" />

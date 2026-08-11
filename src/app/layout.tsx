@@ -14,22 +14,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ReviewTrail — Board Exam Study & Review Tracker",
-  description: "Organize your board exam review schedule, track subject mastery with spaced repetition, and customize exam syllabus trackers for CPA, Medical, Engineering, NCLEX & Bar exams.",
+  description:
+    "Organize your board exam review schedule, track subject mastery with spaced repetition, and customize exam syllabus trackers for CPA, Medical, Engineering, NCLEX & Bar exams.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
-      </body>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
     </html>
   );
 }

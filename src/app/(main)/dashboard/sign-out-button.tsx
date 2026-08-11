@@ -25,11 +25,7 @@ export function SignOutButton() {
       disabled={isLoading}
       className="gap-2 text-muted-foreground hover:text-destructive hover:border-destructive/40"
     >
-      {isLoading ? (
-        <Loader2 className="size-4 animate-spin" />
-      ) : (
-        <LogOut className="size-4" />
-      )}
+      {isLoading ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
       Sign Out
     </Button>
   );
