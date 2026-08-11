@@ -54,7 +54,7 @@ export function Footer() {
         <Separator className="my-8" />
 
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} ReviewTrail. Designed for Board Exam Success.</p>
+          <p> ReviewTrail 2026. Designed for Board Exam Success.</p>
           <div className="flex items-center gap-1">
             <span>Crafted with</span>
             <Heart className="size-3.5 fill-primary text-primary" />

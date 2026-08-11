@@ -43,7 +43,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Footer info line */}
         <p className="text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} ReviewTrail. All rights reserved.
+           ReviewTrail 2026. 
         </p>
       </div>
     </div>
