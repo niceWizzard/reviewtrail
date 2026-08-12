@@ -145,6 +145,7 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                 <Field className="space-y-2">
                   <FieldLabel>2. Add Chapter under Subject (Optional)</FieldLabel>
                   <Select
+                    items={subjects.map((sub) => ({ value: sub.id, label: sub.name }))}
                     value={selectedSubjectId}
                     onValueChange={(val) => {
                       setSelectedSubjectId(val ?? "");
@@ -157,7 +158,7 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                     <SelectContent>
                       <SelectGroup>
                         {subjects.map((sub) => (
-                          <SelectItem key={sub.id} value={sub.id}>
+                          <SelectItem key={sub.id} value={sub.id} label={sub.name}>
                             {sub.name}
                           </SelectItem>
                         ))}
@@ -187,6 +188,7 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                   <FieldLabel>3. Add Topic</FieldLabel>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Select
+                      items={subjects.map((sub) => ({ value: sub.id, label: sub.name }))}
                       value={selectedSubjectId}
                       onValueChange={(val) => {
                         setSelectedSubjectId(val ?? "");
@@ -199,7 +201,7 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                       <SelectContent>
                         <SelectGroup>
                           {subjects.map((sub) => (
-                            <SelectItem key={sub.id} value={sub.id}>
+                            <SelectItem key={sub.id} value={sub.id} label={sub.name}>
                               {sub.name}
                             </SelectItem>
                           ))}
@@ -208,6 +210,10 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                     </Select>
 
                     <Select
+                      items={[
+                        { value: "none", label: "No Chapter (Directly under Subject)" },
+                        ...filteredChapters.map((ch) => ({ value: ch.id, label: ch.name })),
+                      ]}
                       value={selectedChapterId || "none"}
                       onValueChange={(val) => setSelectedChapterId(!val || val === "none" ? "" : val)}
                       disabled={!selectedSubjectId}
@@ -217,9 +223,11 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="none">No Chapter (Directly under Subject)</SelectItem>
+                          <SelectItem value="none" label="No Chapter (Directly under Subject)">
+                            No Chapter (Directly under Subject)
+                          </SelectItem>
                           {filteredChapters.map((ch) => (
-                            <SelectItem key={ch.id} value={ch.id}>
+                            <SelectItem key={ch.id} value={ch.id} label={ch.name}>
                               {ch.name}
                             </SelectItem>
                           ))}

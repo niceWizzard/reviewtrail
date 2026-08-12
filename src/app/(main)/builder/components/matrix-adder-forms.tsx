@@ -206,6 +206,7 @@ export function MatrixAdderForms({
             <FieldLabel>Add Chapter Row under Subject</FieldLabel>
             <div className="grid sm:grid-cols-2 gap-2">
               <Select
+                items={subjects.map((sub) => ({ value: sub.id, label: sub.name }))}
                 value={targetSubjectId}
                 onValueChange={(val) => setTargetSubjectId(val ?? "")}
               >
@@ -215,7 +216,7 @@ export function MatrixAdderForms({
                 <SelectContent>
                   <SelectGroup>
                     {subjects.map((sub) => (
-                      <SelectItem key={sub.id} value={sub.id}>
+                      <SelectItem key={sub.id} value={sub.id} >
                         {sub.name}
                       </SelectItem>
                     ))}
@@ -256,6 +257,7 @@ export function MatrixAdderForms({
             <FieldLabel>Add Topic Row under Subject</FieldLabel>
             <div className="grid sm:grid-cols-3 gap-2">
               <Select
+                items={subjects.map((sub) => ({ value: sub.id, label: sub.name }))}
                 value={targetSubjectId}
                 onValueChange={(val) => {
                   setTargetSubjectId(val ?? "");
@@ -268,7 +270,7 @@ export function MatrixAdderForms({
                 <SelectContent>
                   <SelectGroup>
                     {subjects.map((sub) => (
-                      <SelectItem key={sub.id} value={sub.id}>
+                      <SelectItem key={sub.id} value={sub.id} >
                         {sub.name}
                       </SelectItem>
                     ))}
@@ -277,6 +279,10 @@ export function MatrixAdderForms({
               </Select>
 
               <Select
+                items={[
+                  { value: "none", label: "No Chapter (Ungrouped)" },
+                  ...availableChapters.map((ch) => ({ value: ch.id, label: ch.name })),
+                ]}
                 value={targetChapterId || "none"}
                 onValueChange={(val) => setTargetChapterId(!val || val === "none" ? "" : val)}
                 disabled={!targetSubjectId}
@@ -286,9 +292,11 @@ export function MatrixAdderForms({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="none">No Chapter (Ungrouped)</SelectItem>
+                    <SelectItem value="none" label="No Chapter (Ungrouped)">
+                      No Chapter (Ungrouped)
+                    </SelectItem>
                     {availableChapters.map((ch) => (
-                      <SelectItem key={ch.id} value={ch.id}>
+                      <SelectItem key={ch.id} value={ch.id} label={ch.name}>
                         {ch.name}
                       </SelectItem>
                     ))}
