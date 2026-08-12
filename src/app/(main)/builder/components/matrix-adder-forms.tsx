@@ -79,7 +79,7 @@ export function MatrixAdderForms({
   const handleSectionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSectionName.trim()) return;
-    if (checklistsLength >= 10) {
+    if (checklistsLength  >= 10) {
       setErrorMessage("Maximum limit of 10 checklist columns reached.");
       return;
     }
