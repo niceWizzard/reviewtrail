@@ -56,7 +56,7 @@ export function TrackerAccordionMobile({ workspaceData }: MobileAccordionProps) 
         const subPct =
           subTotalCheckboxes > 0
             ? Math.round((subCompletedCheckboxes / subTotalCheckboxes) * 100)
-            : 0;
+            : null;
 
         return (
           <AccordionItem
@@ -71,12 +71,18 @@ export function TrackerAccordionMobile({ workspaceData }: MobileAccordionProps) 
                   <span className="font-bold text-sm sm:text-base">{subject.name}</span>
                 </div>
                 <Badge variant="outline" className="text-xs font-semibold gap-1 border-primary/40 text-primary">
-                  {subPct}% Done
+                  {subPct !== null ? `${subPct}% Done` : "0 Topics (N/A)"}
                 </Badge>
               </div>
             </AccordionTrigger>
 
             <AccordionContent className="pb-4 pt-1 space-y-4">
+              {allSubTopics.length === 0 && (
+                <div className="p-3 text-xs italic text-muted-foreground bg-muted/20 rounded-lg">
+                  No topics in this subject yet.
+                </div>
+              )}
+
               {/* Chapter Groups */}
               {subject.chapters.map((chapter) => (
                 <div key={chapter.id} className="space-y-2">
@@ -84,6 +90,12 @@ export function TrackerAccordionMobile({ workspaceData }: MobileAccordionProps) 
                     <Layers className="size-3.5 text-primary" />
                     <span>{chapter.name}</span>
                   </div>
+
+                  {chapter.topics.length === 0 && (
+                    <div className="p-2 text-xs italic text-muted-foreground">
+                      No topics in this chapter.
+                    </div>
+                  )}
 
                   <div className="space-y-2.5">
                     {chapter.topics.map((topic) => {

@@ -11,11 +11,15 @@ export async function createTrackerChecklistAction(payload: {
   color?: string | null;
 }): Promise<TrackerChecklist> {
   const supabase = await createClient();
+  const trimmedName = payload.name.trim();
+  if (!trimmedName) {
+    throw new Error("Checklist column name cannot be empty.");
+  }
 
-  // Validate 10-column maximum limit
+  // Validate existing checklist count and duplicates
   const { data: existingChecklists, error: fetchErr } = await supabase
     .from("tracker_checklists")
-    .select("id, position")
+    .select("id, name, position")
     .eq("exam_tracker_id", payload.exam_tracker_id)
     .order("position", { ascending: true });
 
@@ -26,13 +30,17 @@ export async function createTrackerChecklistAction(payload: {
     throw new Error("Maximum limit of 10 checklist columns reached.");
   }
 
+  if (existingChecklists?.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase())) {
+    throw new Error(`A checklist column named "${trimmedName}" already exists.`);
+  }
+
   const nextPosition = payload.position ?? currentCount + 1;
 
   const { data, error } = await supabase
     .from("tracker_checklists")
     .insert({
       exam_tracker_id: payload.exam_tracker_id,
-      name: payload.name,
+      name: trimmedName,
       position: nextPosition,
       color: payload.color || null,
     })
@@ -62,11 +70,16 @@ export async function createSubjectAction(payload: {
   color?: string | null;
 }): Promise<Subject> {
   const supabase = await createClient();
+  const trimmedName = payload.name.trim();
+  if (!trimmedName) {
+    throw new Error("Subject name cannot be empty.");
+  }
+
   const { data, error } = await supabase
     .from("subjects")
     .insert({
       exam_tracker_id: payload.exam_tracker_id,
-      name: payload.name,
+      name: trimmedName,
       position: payload.position ?? 0,
       color: payload.color || null,
     })
@@ -86,13 +99,18 @@ export async function createChapterAction(payload: {
   position?: number;
 }): Promise<Chapter> {
   const supabase = await createClient();
+  const trimmedName = payload.name.trim();
+  if (!trimmedName) {
+    throw new Error("Chapter name cannot be empty.");
+  }
+
   const { data, error } = await supabase
     .from("chapters")
     .insert({
       exam_tracker_id: payload.exam_tracker_id,
       subject_id: payload.subject_id,
-      name: payload.name,
-      description: payload.description || null,
+      name: trimmedName,
+      description: payload.description ? payload.description.trim() : null,
       position: payload.position ?? 0,
     })
     .select()
@@ -111,13 +129,18 @@ export async function createTopicAction(payload: {
   position?: number;
 }): Promise<Topic> {
   const supabase = await createClient();
+  const trimmedName = payload.name.trim();
+  if (!trimmedName) {
+    throw new Error("Topic name cannot be empty.");
+  }
+
   const { data, error } = await supabase
     .from("topics")
     .insert({
       exam_tracker_id: payload.exam_tracker_id,
       subject_id: payload.subject_id,
       chapter_id: payload.chapter_id || null,
-      name: payload.name,
+      name: trimmedName,
       position: payload.position ?? 0,
     })
     .select()
@@ -132,12 +155,25 @@ export async function deleteTopicAction(topicId: string): Promise<void> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("topics")
-    .select("exam_tracker_id")
+    .select("exam_tracker_id, chapter_id")
     .eq("id", topicId)
     .single();
 
   const { error } = await supabase.from("topics").delete().eq("id", topicId);
   if (error) throw new Error(error.message);
+
+  // Auto-cleanup empty chapter if deleting this topic left the chapter empty
+  if (data?.chapter_id) {
+    const { count } = await supabase
+      .from("topics")
+      .select("id", { count: "exact", head: true })
+      .eq("chapter_id", data.chapter_id);
+
+    if (count === 0) {
+      await supabase.from("chapters").delete().eq("id", data.chapter_id);
+    }
+  }
+
   if (data?.exam_tracker_id) {
     updateTag(`workspace-${data.exam_tracker_id}`);
   }
@@ -162,17 +198,27 @@ export async function deleteSubjectAction(subjectId: string): Promise<void> {
 
 export async function deleteTrackerChecklistAction(checklistId: string): Promise<void> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data: targetItem } = await supabase
     .from("tracker_checklists")
     .select("exam_tracker_id")
     .eq("id", checklistId)
     .single();
 
+  if (!targetItem) throw new Error("Checklist column not found.");
+
+  // Check remaining checklist column count
+  const { count } = await supabase
+    .from("tracker_checklists")
+    .select("id", { count: "exact", head: true })
+    .eq("exam_tracker_id", targetItem.exam_tracker_id);
+
+  if ((count || 0) <= 1) {
+    throw new Error("Trackers must maintain at least 1 section column.");
+  }
+
   const { error } = await supabase.from("tracker_checklists").delete().eq("id", checklistId);
   if (error) throw new Error(error.message);
-  if (data?.exam_tracker_id) {
-    updateTag(`workspace-${data.exam_tracker_id}`);
-  }
+  updateTag(`workspace-${targetItem.exam_tracker_id}`);
   updateTag("exam_trackers");
 }
 
@@ -198,11 +244,25 @@ export async function updateTopicChapterAction(payload: {
   subjectId?: string;
 }): Promise<void> {
   const supabase = await createClient();
+
+  let targetSubjectId = payload.subjectId;
+  if (payload.chapterId) {
+    const { data: chapterData } = await supabase
+      .from("chapters")
+      .select("subject_id")
+      .eq("id", payload.chapterId)
+      .single();
+
+    if (chapterData?.subject_id) {
+      targetSubjectId = chapterData.subject_id;
+    }
+  }
+
   const updateData: { chapter_id: string | null; subject_id?: string } = {
     chapter_id: payload.chapterId,
   };
-  if (payload.subjectId) {
-    updateData.subject_id = payload.subjectId;
+  if (targetSubjectId) {
+    updateData.subject_id = targetSubjectId;
   }
 
   const { data, error } = await supabase
@@ -217,6 +277,3 @@ export async function updateTopicChapterAction(payload: {
     updateTag(`workspace-${data.exam_tracker_id}`);
   }
 }
-
-
-

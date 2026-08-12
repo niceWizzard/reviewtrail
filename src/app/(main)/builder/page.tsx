@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
 import { useTrackerBuilder } from "@/src/hooks/use-tracker-builder";
-import { useTrackerWorkspace } from "@/src/hooks/use-tracker-workspace";
+import { BuilderProvider, useBuilderContext } from "./builder-context";
 
 import { ActiveAdderForm, LeaveTarget, Step1Values } from "./types";
 import { BuilderHeader } from "./components/builder-header";
@@ -16,46 +16,40 @@ import { MatrixAdderForms } from "./components/matrix-adder-forms";
 import { ReviewMatrixTable } from "./components/review-matrix-table";
 import { LeaveConfirmDialog } from "./components/leave-confirm-dialog";
 
-export default function BuilderPage() {
+function BuilderContent() {
   const router = useRouter();
-  const {
-    step,
-    setStep,
-    trackerId,
-    resetBuilder,
-    saveExamInfo,
-    isSavingExamInfo,
-    addSectionColumn,
-    isAddingSection,
-    addSubject,
-    isAddingSubject,
-    addChapter,
-    addTopic,
-    isAddingTopic,
-  } = useTrackerBuilder();
+  const { step, setStep, resetBuilder, commitDraft, isCommitting } = useTrackerBuilder();
+  const { draft, dispatch, validateDraft, resetDraft } = useBuilderContext();
 
-  const workspaceData = useTrackerWorkspace(trackerId || "");
+  const resetBuilderRef = useRef(resetBuilder);
+  const resetDraftRef = useRef(resetDraft);
+
+  useEffect(() => {
+    resetBuilderRef.current = resetBuilder;
+    resetDraftRef.current = resetDraft;
+  });
 
   // Reset builder state on component unmount to ensure fresh session on return
   useEffect(() => {
     return () => {
-      resetBuilder();
+      resetBuilderRef.current();
+      resetDraftRef.current();
     };
-  }, [resetBuilder]);
+  }, []);
 
   // Error Alert State
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Step 2 Inline Adder States
   const [activeAdderForm, setActiveAdderForm] = useState<ActiveAdderForm>(null);
-  const [targetSubjectId, setTargetSubjectId] = useState("");
+  const [targetSubjectTempId, setTargetSubjectTempId] = useState("");
 
   // Accidental Navigation Target & Ref
   const [pendingLeaveTarget, setPendingLeaveTarget] = useState<LeaveTarget | null>(null);
   const stayBtnRef = useRef<HTMLButtonElement>(null);
 
   const isLeaveConfirmOpen = pendingLeaveTarget !== null;
-  const isMaxColumnsReached = workspaceData.checklists.length >= 10;
+  const isMaxColumnsReached = draft.checklists.length >= 10;
 
   // Navigation Protection Effects
   useEffect(() => {
@@ -104,6 +98,7 @@ export default function BuilderPage() {
     } else {
       if (target === "dashboard") {
         resetBuilder();
+        resetDraft();
         router.push("/dashboard");
       } else {
         setStep(1);
@@ -117,6 +112,7 @@ export default function BuilderPage() {
     setPendingLeaveTarget(null);
 
     resetBuilder();
+    resetDraft();
 
     if (target.type === "href") {
       router.push(target.href);
@@ -131,29 +127,42 @@ export default function BuilderPage() {
   const handleSaveExamInfo = async (value: Step1Values) => {
     setErrorMessage(null);
     try {
-      await saveExamInfo({
-        exam_name: value.examName.trim(),
-        exam_date: value.examDate || undefined,
-        description: value.description.trim() || undefined,
-        prepopulateColumns: value.prepopulateColumns,
+      dispatch({
+        type: "SET_EXAM_INFO",
+        payload: {
+          examName: value.examName,
+          examDate: value.examDate || null,
+          description: value.description || null,
+          prepopulateColumns: value.prepopulateColumns,
+        },
       });
+      setStep(2);
     } catch (err: any) {
-      setErrorMessage(err?.message || "Failed to create exam tracker");
+      setErrorMessage(err?.message || "Failed to save exam info");
     }
   };
 
-  const handleFinish = () => {
-    const targetTrackerId = trackerId;
-    resetBuilder();
-    if (targetTrackerId) {
-      router.push(`/dashboard/tracker/${targetTrackerId}`);
-    } else {
-      router.push("/dashboard");
+  // Step 2 Submission (Atomic Commit to Supabase)
+  const handleFinish = async () => {
+    setErrorMessage(null);
+    const validationErr = validateDraft();
+    if (validationErr) {
+      setErrorMessage(validationErr);
+      return;
+    }
+
+    try {
+      const createdTracker = await commitDraft(draft);
+      resetBuilder();
+      resetDraft();
+      router.push(`/dashboard/tracker/${createdTracker.id}`);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Failed to commit tracker");
     }
   };
 
-  const handleOpenAdderForm = (form: ActiveAdderForm, subjectId?: string) => {
-    if (subjectId) setTargetSubjectId(subjectId);
+  const handleOpenAdderForm = (form: ActiveAdderForm, subjectTempId?: string) => {
+    if (subjectTempId) setTargetSubjectTempId(subjectTempId);
     setActiveAdderForm((prev) => (prev === form ? null : form));
   };
 
@@ -166,7 +175,7 @@ export default function BuilderPage() {
       {/* STEP 1: EXAM INFO FORM */}
       {step === 1 && (
         <ExamInfoForm
-          isSavingExamInfo={isSavingExamInfo}
+          isSavingExamInfo={false}
           onSubmit={handleSaveExamInfo}
         />
       )}
@@ -190,7 +199,7 @@ export default function BuilderPage() {
 
               <div className="flex items-center gap-2">
                 <Badge variant={isMaxColumnsReached ? "destructive" : "secondary"} className="px-3 py-1 text-xs">
-                  {workspaceData.checklists.length}/10 Columns
+                  {draft.checklists.length}/10 Columns
                 </Badge>
               </div>
             </div>
@@ -201,46 +210,56 @@ export default function BuilderPage() {
               activeAdderForm={activeAdderForm}
               setActiveAdderForm={setActiveAdderForm}
               isMaxColumnsReached={isMaxColumnsReached}
-              subjectCount={workspaceData.subjects.length}
-              topicCount={workspaceData.topics.length}
+              subjectCount={draft.subjects.length}
+              topicCount={draft.topics.length}
             />
 
             <MatrixAdderForms
               activeAdderForm={activeAdderForm}
               setActiveAdderForm={setActiveAdderForm}
-              subjects={workspaceData.subjects}
-              chapters={workspaceData.chapters}
-              checklistsLength={workspaceData.checklists.length}
-              targetSubjectId={targetSubjectId}
-              setTargetSubjectId={setTargetSubjectId}
-              onAddSectionColumn={async (name) => {
-                await addSectionColumn({ name });
+              subjects={draft.subjects}
+              chapters={draft.chapters}
+              checklistsLength={draft.checklists.length}
+              targetSubjectTempId={targetSubjectTempId}
+              setTargetSubjectTempId={setTargetSubjectTempId}
+              onAddSectionColumn={(name) => {
+                dispatch({ type: "ADD_CHECKLIST", payload: { name } });
               }}
-              isAddingSection={isAddingSection}
-              onAddSubject={async (name) => {
-                await addSubject({ name });
+              onAddSubject={(name) => {
+                dispatch({ type: "ADD_SUBJECT", payload: { name } });
               }}
-              isAddingSubject={isAddingSubject}
-              onAddChapter={async (subjectId, name) => {
-                await addChapter({ subjectId, name });
+              onAddChapter={(subjectTempId, name) => {
+                dispatch({ type: "ADD_CHAPTER", payload: { subjectTempId, name } });
               }}
-              onAddTopic={async (subjectId, chapterId, name) => {
-                await addTopic({ subjectId, chapterId, name });
+              onAddTopic={(subjectTempId, chapterTempId, name) => {
+                dispatch({ type: "ADD_TOPIC", payload: { subjectTempId, chapterTempId, name } });
               }}
-              isAddingTopic={isAddingTopic}
               setErrorMessage={setErrorMessage}
             />
 
             <ReviewMatrixTable
-              checklists={workspaceData.checklists}
-              subjects={workspaceData.subjects}
-              chapters={workspaceData.chapters}
-              topics={workspaceData.topics}
+              checklists={draft.checklists}
+              subjects={draft.subjects}
+              chapters={draft.chapters}
+              topics={draft.topics}
               isMaxColumnsReached={isMaxColumnsReached}
-              onDeleteSectionColumn={workspaceData.deleteSectionColumn}
-              onDeleteSubject={workspaceData.deleteSubject}
-              onDeleteChapter={workspaceData.deleteChapter}
-              onDeleteTopic={workspaceData.deleteTopic}
+              isCommitting={isCommitting}
+              onDeleteSectionColumn={(tempId) => {
+                try {
+                  dispatch({ type: "DELETE_CHECKLIST", payload: { tempId } });
+                } catch (err: any) {
+                  setErrorMessage(err?.message || "Failed to delete column");
+                }
+              }}
+              onDeleteSubject={(tempId) => {
+                dispatch({ type: "DELETE_SUBJECT", payload: { tempId } });
+              }}
+              onDeleteChapter={(tempId) => {
+                dispatch({ type: "DELETE_CHAPTER", payload: { tempId } });
+              }}
+              onDeleteTopic={(tempId) => {
+                dispatch({ type: "DELETE_TOPIC", payload: { tempId } });
+              }}
               onOpenAdderForm={handleOpenAdderForm}
               onNavBack={() => handleNavAttempt("step1")}
               onFinish={handleFinish}
@@ -257,5 +276,13 @@ export default function BuilderPage() {
         stayBtnRef={stayBtnRef}
       />
     </div>
+  );
+}
+
+export default function BuilderPage() {
+  return (
+    <BuilderProvider>
+      <BuilderContent />
+    </BuilderProvider>
   );
 }

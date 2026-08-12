@@ -8,6 +8,7 @@ import {
   CheckSquare,
   CheckCircle2,
   X,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
@@ -21,35 +22,43 @@ import {
 } from "@/src/components/ui/table";
 import { ActiveAdderForm } from "../types";
 
-interface ChecklistColumn {
-  id: string;
+export interface MatrixChecklist {
+  tempId?: string;
+  id?: string;
   name: string;
 }
 
-interface Subject {
-  id: string;
+export interface MatrixSubject {
+  tempId?: string;
+  id?: string;
   name: string;
 }
 
-interface Chapter {
-  id: string;
-  subject_id: string;
+export interface MatrixChapter {
+  tempId?: string;
+  id?: string;
+  subjectTempId?: string;
+  subject_id?: string;
   name: string;
 }
 
-interface Topic {
-  id: string;
-  subject_id: string;
-  chapter_id: string | null;
+export interface MatrixTopic {
+  tempId?: string;
+  id?: string;
+  subjectTempId?: string;
+  subject_id?: string;
+  chapterTempId?: string | null;
+  chapter_id?: string | null;
   name: string;
 }
 
 interface ReviewMatrixTableProps {
-  checklists: ChecklistColumn[];
-  subjects: Subject[];
-  chapters: Chapter[];
-  topics: Topic[];
+  checklists: MatrixChecklist[];
+  subjects: MatrixSubject[];
+  chapters: MatrixChapter[];
+  topics: MatrixTopic[];
   isMaxColumnsReached: boolean;
+  isCommitting?: boolean;
   onDeleteSectionColumn: (id: string) => void;
   onDeleteSubject: (id: string) => void;
   onDeleteChapter: (id: string) => void;
@@ -65,6 +74,7 @@ export function ReviewMatrixTable({
   chapters,
   topics,
   isMaxColumnsReached,
+  isCommitting = false,
   onDeleteSectionColumn,
   onDeleteSubject,
   onDeleteChapter,
@@ -73,6 +83,13 @@ export function ReviewMatrixTable({
   onNavBack,
   onFinish,
 }: ReviewMatrixTableProps) {
+  const isMinColumnsReached = checklists.length <= 1;
+
+  const getItemId = (item: { tempId?: string; id?: string }) => item.tempId || item.id || "";
+  const getSubId = (item: { subjectTempId?: string; subject_id?: string }) => item.subjectTempId || item.subject_id || "";
+  const getChId = (item: { chapterTempId?: string | null; chapter_id?: string | null }) =>
+    item.chapterTempId !== undefined ? item.chapterTempId : item.chapter_id ?? null;
+
   return (
     <div className="space-y-6">
       {/* Spreadsheet-Style Interactive Matrix Table (shadcn Table) */}
@@ -85,24 +102,32 @@ export function ReviewMatrixTable({
               </TableHead>
 
               {/* Dynamic Section Columns */}
-              {checklists.map((section) => (
-                <TableHead
-                  key={section.id}
-                  className="px-3 py-2.5 text-center min-w-[120px] font-semibold border-r border-border/40 group relative"
-                >
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="truncate max-w-[90px]">{section.name}</span>
-                    <button
-                      type="button"
-                      title={`Delete ${section.name} column`}
-                      onClick={() => onDeleteSectionColumn(section.id)}
-                      className="text-muted-foreground/60 hover:text-destructive p-0.5 rounded-xs transition-colors cursor-pointer"
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </div>
-                </TableHead>
-              ))}
+              {checklists.map((section) => {
+                const sectionId = getItemId(section);
+                return (
+                  <TableHead
+                    key={sectionId}
+                    className="px-3 py-2.5 text-center min-w-[120px] font-semibold border-r border-border/40 group relative"
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="truncate max-w-[90px]">{section.name}</span>
+                      <button
+                        type="button"
+                        disabled={isMinColumnsReached}
+                        title={
+                          isMinColumnsReached
+                            ? "Trackers must have at least 1 section column"
+                            : `Delete ${section.name} column`
+                        }
+                        onClick={() => onDeleteSectionColumn(sectionId)}
+                        className="text-muted-foreground/60 hover:text-destructive disabled:opacity-30 disabled:hover:text-muted-foreground/60 p-0.5 rounded-xs transition-colors cursor-pointer disabled:cursor-not-allowed"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </div>
+                  </TableHead>
+                );
+              })}
 
               {/* Rightmost Cell to Add Column directly in Header */}
               <TableHead className="px-3 py-2.5 text-center min-w-[110px] bg-muted/30">
@@ -132,12 +157,13 @@ export function ReviewMatrixTable({
               </TableRow>
             ) : (
               subjects.map((subject) => {
-                const subChapters = chapters.filter((ch) => ch.subject_id === subject.id);
-                const subTopics = topics.filter((t) => t.subject_id === subject.id);
-                const ungroupedTopics = subTopics.filter((t) => !t.chapter_id);
+                const subjectId = getItemId(subject);
+                const subChapters = chapters.filter((ch) => getSubId(ch) === subjectId);
+                const subTopics = topics.filter((t) => getSubId(t) === subjectId);
+                const ungroupedTopics = subTopics.filter((t) => !getChId(t));
 
                 return (
-                  <React.Fragment key={subject.id}>
+                  <React.Fragment key={subjectId}>
                     {/* Subject Row Header */}
                     <TableRow className="bg-muted/50 font-bold text-foreground border-t border-border hover:bg-muted/50">
                       <TableCell
@@ -157,7 +183,7 @@ export function ReviewMatrixTable({
                             <Button
                               variant="ghost"
                               size="xs"
-                              onClick={() => onOpenAdderForm("chapter", subject.id)}
+                              onClick={() => onOpenAdderForm("chapter", subjectId)}
                               className="h-6 text-[11px] gap-1 text-primary hover:text-primary"
                             >
                               <Plus className="size-3" /> Chapter
@@ -166,7 +192,7 @@ export function ReviewMatrixTable({
                             <Button
                               variant="ghost"
                               size="xs"
-                              onClick={() => onOpenAdderForm("topic", subject.id)}
+                              onClick={() => onOpenAdderForm("topic", subjectId)}
                               className="h-6 text-[11px] gap-1 text-primary hover:text-primary"
                             >
                               <Plus className="size-3" /> Topic
@@ -175,7 +201,7 @@ export function ReviewMatrixTable({
                             <button
                               type="button"
                               title={`Delete ${subject.name}`}
-                              onClick={() => onDeleteSubject(subject.id)}
+                              onClick={() => onDeleteSubject(subjectId)}
                               className="text-muted-foreground hover:text-destructive p-1 rounded-xs transition-colors cursor-pointer"
                             >
                               <Trash2 className="size-3.5" />
@@ -187,9 +213,10 @@ export function ReviewMatrixTable({
 
                     {/* Chapter Groups */}
                     {subChapters.map((chapter) => {
-                      const chapterTopics = subTopics.filter((t) => t.chapter_id === chapter.id);
+                      const chapterId = getItemId(chapter);
+                      const chapterTopics = subTopics.filter((t) => getChId(t) === chapterId);
                       return (
-                        <React.Fragment key={chapter.id}>
+                        <React.Fragment key={chapterId}>
                           <TableRow className="bg-muted/20 text-xs font-semibold text-muted-foreground hover:bg-muted/20">
                             <TableCell
                               colSpan={checklists.length + 2}
@@ -202,7 +229,7 @@ export function ReviewMatrixTable({
                               <button
                                 type="button"
                                 title={`Delete ${chapter.name}`}
-                                onClick={() => onDeleteChapter(chapter.id)}
+                                onClick={() => onDeleteChapter(chapterId)}
                                 className="text-muted-foreground/60 hover:text-destructive p-0.5 rounded-xs transition-colors cursor-pointer"
                               >
                                 <Trash2 className="size-3" />
@@ -210,71 +237,83 @@ export function ReviewMatrixTable({
                             </TableCell>
                           </TableRow>
 
-                          {chapterTopics.map((topic) => (
-                            <TableRow key={topic.id} className="hover:bg-accent/40 transition-colors group">
-                              <TableCell className="px-8 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="text-xs">{topic.name}</span>
-                                  <button
-                                    type="button"
-                                    title={`Delete ${topic.name}`}
-                                    onClick={() => onDeleteTopic(topic.id)}
-                                    className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
-                                  >
-                                    <Trash2 className="size-3" />
-                                  </button>
-                                </div>
-                              </TableCell>
-
-                              {checklists.map((section) => (
-                                <TableCell key={section.id} className="px-2 py-2 text-center border-r border-border/40">
-                                  <div
-                                    className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
-                                    title="Preview status checkbox cell"
-                                  >
-                                    <CheckSquare className="size-3 text-muted-foreground" />
+                          {chapterTopics.map((topic) => {
+                            const topicId = getItemId(topic);
+                            return (
+                              <TableRow key={topicId} className="hover:bg-accent/40 transition-colors group">
+                                <TableCell className="px-8 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="text-xs">{topic.name}</span>
+                                    <button
+                                      type="button"
+                                      title={`Delete ${topic.name}`}
+                                      onClick={() => onDeleteTopic(topicId)}
+                                      className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
+                                    >
+                                      <Trash2 className="size-3" />
+                                    </button>
                                   </div>
                                 </TableCell>
-                              ))}
 
-                              <TableCell className="px-2 py-2 bg-muted/10" />
-                            </TableRow>
-                          ))}
+                                {checklists.map((section) => {
+                                  const sectionId = getItemId(section);
+                                  return (
+                                    <TableCell key={sectionId} className="px-2 py-2 text-center border-r border-border/40">
+                                      <div
+                                        className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
+                                        title="Preview status checkbox cell"
+                                      >
+                                        <CheckSquare className="size-3 text-muted-foreground" />
+                                      </div>
+                                    </TableCell>
+                                  );
+                                })}
+
+                                <TableCell className="px-2 py-2 bg-muted/10" />
+                              </TableRow>
+                            );
+                          })}
                         </React.Fragment>
                       );
                     })}
 
                     {/* Ungrouped Topics */}
-                    {ungroupedTopics.map((topic) => (
-                      <TableRow key={topic.id} className="hover:bg-accent/40 transition-colors group">
-                        <TableCell className="px-6 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs">{topic.name}</span>
-                            <button
-                              type="button"
-                              title={`Delete ${topic.name}`}
-                              onClick={() => onDeleteTopic(topic.id)}
-                              className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
-                            >
-                              <Trash2 className="size-3" />
-                            </button>
-                          </div>
-                        </TableCell>
-
-                        {checklists.map((section) => (
-                          <TableCell key={section.id} className="px-2 py-2 text-center border-r border-border/40">
-                            <div
-                              className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
-                              title="Preview status checkbox cell"
-                            >
-                              <CheckSquare className="size-3 text-muted-foreground" />
+                    {ungroupedTopics.map((topic) => {
+                      const topicId = getItemId(topic);
+                      return (
+                        <TableRow key={topicId} className="hover:bg-accent/40 transition-colors group">
+                          <TableCell className="px-6 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs">{topic.name}</span>
+                              <button
+                                type="button"
+                                title={`Delete ${topic.name}`}
+                                onClick={() => onDeleteTopic(topicId)}
+                                className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
+                              >
+                                <Trash2 className="size-3" />
+                              </button>
                             </div>
                           </TableCell>
-                        ))}
 
-                        <TableCell className="px-2 py-2 bg-muted/10" />
-                      </TableRow>
-                    ))}
+                          {checklists.map((section) => {
+                            const sectionId = getItemId(section);
+                            return (
+                              <TableCell key={sectionId} className="px-2 py-2 text-center border-r border-border/40">
+                                <div
+                                  className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
+                                  title="Preview status checkbox cell"
+                                >
+                                  <CheckSquare className="size-3 text-muted-foreground" />
+                                </div>
+                              </TableCell>
+                            );
+                          })}
+
+                          <TableCell className="px-2 py-2 bg-muted/10" />
+                        </TableRow>
+                      );
+                    })}
                   </React.Fragment>
                 );
               })
@@ -285,12 +324,21 @@ export function ReviewMatrixTable({
 
       {/* Bottom Form Actions */}
       <div className="flex items-center justify-between pt-4 border-t border-border">
-        <Button variant="outline" onClick={onNavBack}>
+        <Button variant="outline" onClick={onNavBack} disabled={isCommitting}>
           Back to Exam Info
         </Button>
-        <Button onClick={onFinish} className="gap-2 shadow-sm">
-          <CheckCircle2 className="size-4" />
-          Launch Tracker Workspace
+        <Button onClick={onFinish} disabled={isCommitting} className="gap-2 shadow-sm">
+          {isCommitting ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Saving Tracker...
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="size-4" />
+              Launch Tracker Workspace
+            </>
+          )}
         </Button>
       </div>
     </div>

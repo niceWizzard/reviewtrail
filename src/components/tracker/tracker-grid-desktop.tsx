@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Check, Plus, Trash2, BookOpen, Layers } from "lucide-react";
+import { Check, Plus, BookOpen, Layers } from "lucide-react";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
 import type { TrackerWorkspaceData } from "@/src/lib/types/database";
@@ -82,7 +82,7 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
             const subPct =
               subTotalCheckboxes > 0
                 ? Math.round((subCompletedCheckboxes / subTotalCheckboxes) * 100)
-                : 0;
+                : null;
 
             return (
               <React.Fragment key={subject.id}>
@@ -97,15 +97,26 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
                         <span className="size-2 rounded-full bg-primary" />
                         <span className="text-base">{subject.name}</span>
                         <Badge variant="secondary" className="text-[11px] px-1.5 py-0">
-                          {allSubTopics.length} Topics
+                          {allSubTopics.length} {allSubTopics.length === 1 ? "Topic" : "Topics"}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                        <span>{subPct}% Completed</span>
+                        <span>
+                          {subPct !== null ? `${subPct}% Completed` : "0 Topics (N/A)"}
+                        </span>
                       </div>
                     </div>
                   </td>
                 </tr>
+
+                {/* Empty Subject Row Placeholder */}
+                {allSubTopics.length === 0 && (
+                  <tr className="bg-muted/10 text-xs italic text-muted-foreground">
+                    <td colSpan={sections.length + 2} className="px-6 py-3">
+                      No topics in this subject yet. Click <strong>Manage Syllabus & Columns</strong> above to add topics.
+                    </td>
+                  </tr>
+                )}
 
                 {/* Chapter Rows & Topics */}
                 {subject.chapters.map((chapter) => (
@@ -124,6 +135,14 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
                         )}
                       </td>
                     </tr>
+
+                    {chapter.topics.length === 0 && (
+                      <tr className="bg-muted/5 text-xs italic text-muted-foreground">
+                        <td colSpan={sections.length + 2} className="px-8 py-2">
+                          No topics in this chapter yet.
+                        </td>
+                      </tr>
+                    )}
 
                     {chapter.topics.map((topic) => {
                       const completedCount = sections.filter((s) => isChecked(topic.id, s.id)).length;

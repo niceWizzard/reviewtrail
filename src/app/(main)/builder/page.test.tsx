@@ -5,31 +5,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import BuilderPage from "./page";
 import { mockPush } from "@/src/test/mocks/navigation";
 import { useTrackerBuilder } from "@/src/hooks/use-tracker-builder";
-import { useTrackerWorkspace } from "@/src/hooks/use-tracker-workspace";
 
 vi.mock("@/src/hooks/use-tracker-builder");
-vi.mock("@/src/hooks/use-tracker-workspace");
 
-describe("BuilderPage Orchestration - Phase 1", () => {
+describe("BuilderPage Orchestration - Phase 1 & Local Draft", () => {
   const mockSetStep = vi.fn();
-  const mockSetTrackerId = vi.fn();
   const mockResetBuilder = vi.fn();
-  const mockSaveExamInfo = vi.fn();
-  const mockAddSectionColumn = vi.fn();
-  const mockAddSubject = vi.fn();
-  const mockAddChapter = vi.fn();
-  const mockAddTopic = vi.fn();
-
-  const mockWorkspaceData = {
-    checklists: [],
-    subjects: [],
-    chapters: [],
-    topics: [],
-    deleteSectionColumn: vi.fn(),
-    deleteSubject: vi.fn(),
-    deleteChapter: vi.fn(),
-    deleteTopic: vi.fn(),
-  };
+  const mockCommitDraft = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,21 +19,10 @@ describe("BuilderPage Orchestration - Phase 1", () => {
     vi.mocked(useTrackerBuilder).mockReturnValue({
       step: 1,
       setStep: mockSetStep,
-      trackerId: null,
-      setTrackerId: mockSetTrackerId,
       resetBuilder: mockResetBuilder,
-      saveExamInfo: mockSaveExamInfo,
-      isSavingExamInfo: false,
-      addSectionColumn: mockAddSectionColumn,
-      isAddingSection: false,
-      addSubject: mockAddSubject,
-      isAddingSubject: false,
-      addChapter: mockAddChapter,
-      addTopic: mockAddTopic,
-      isAddingTopic: false,
+      commitDraft: mockCommitDraft,
+      isCommitting: false,
     });
-
-    vi.mocked(useTrackerWorkspace).mockReturnValue(mockWorkspaceData as any);
   });
 
   it("renders Phase 1 page layout and hides Phase 2 matrix builder", () => {
@@ -80,27 +51,5 @@ describe("BuilderPage Orchestration - Phase 1", () => {
     const { unmount } = render(<BuilderPage />);
     unmount();
     expect(mockResetBuilder).toHaveBeenCalled();
-  });
-
-  it("displays and dismisses error alert when Phase 1 save throws an error", async () => {
-    const user = userEvent.setup();
-    mockSaveExamInfo.mockRejectedValueOnce(new Error("Failed to create exam tracker"));
-
-    render(<BuilderPage />);
-
-    const examNameInput = screen.getByLabelText(/Exam Name/i);
-    await user.type(examNameInput, "CPA Exam");
-
-    const submitBtn = screen.getByRole("button", { name: /Next: Build Review Matrix/i });
-    await user.click(submitBtn);
-
-    await waitFor(() => {
-      expect(screen.getByText("Failed to create exam tracker")).toBeInTheDocument();
-    });
-
-    const dismissBtn = screen.getByRole("button", { name: /Dismiss/i });
-    await user.click(dismissBtn);
-
-    expect(screen.queryByText("Failed to create exam tracker")).not.toBeInTheDocument();
   });
 });

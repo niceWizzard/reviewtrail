@@ -14,32 +14,37 @@ import {
 } from "@/src/components/ui/select";
 import { ActiveAdderForm } from "../types";
 
-interface SubjectItem {
-  id: string;
+export interface MatrixAdderSubject {
+  tempId?: string;
+  id?: string;
   name: string;
 }
 
-interface ChapterItem {
-  id: string;
-  subject_id: string;
+export interface MatrixAdderChapter {
+  tempId?: string;
+  id?: string;
+  subjectTempId?: string;
+  subject_id?: string;
   name: string;
 }
 
 interface MatrixAdderFormsProps {
   activeAdderForm: ActiveAdderForm;
   setActiveAdderForm: (form: ActiveAdderForm) => void;
-  subjects: SubjectItem[];
-  chapters: ChapterItem[];
+  subjects: MatrixAdderSubject[];
+  chapters: MatrixAdderChapter[];
   checklistsLength: number;
-  targetSubjectId: string;
-  setTargetSubjectId: (id: string) => void;
-  onAddSectionColumn: (name: string) => Promise<void>;
-  isAddingSection: boolean;
-  onAddSubject: (name: string) => Promise<void>;
-  isAddingSubject: boolean;
-  onAddChapter: (subjectId: string, name: string) => Promise<void>;
-  onAddTopic: (subjectId: string, chapterId: string | null, name: string) => Promise<void>;
-  isAddingTopic: boolean;
+  targetSubjectTempId?: string;
+  targetSubjectId?: string;
+  setTargetSubjectTempId?: (id: string) => void;
+  setTargetSubjectId?: (id: string) => void;
+  onAddSectionColumn: (name: string) => void | Promise<void>;
+  isAddingSection?: boolean;
+  onAddSubject: (name: string) => void | Promise<void>;
+  isAddingSubject?: boolean;
+  onAddChapter: (subjectId: string, name: string) => void | Promise<void>;
+  onAddTopic: (subjectId: string, chapterId: string | null, name: string) => void | Promise<void>;
+  isAddingTopic?: boolean;
   setErrorMessage: (msg: string | null) => void;
 }
 
@@ -49,29 +54,40 @@ export function MatrixAdderForms({
   subjects,
   chapters,
   checklistsLength,
+  targetSubjectTempId,
   targetSubjectId,
+  setTargetSubjectTempId,
   setTargetSubjectId,
   onAddSectionColumn,
-  isAddingSection,
+  isAddingSection = false,
   onAddSubject,
-  isAddingSubject,
+  isAddingSubject = false,
   onAddChapter,
   onAddTopic,
-  isAddingTopic,
+  isAddingTopic = false,
   setErrorMessage,
 }: MatrixAdderFormsProps) {
   const [newSectionName, setNewSectionName] = useState("");
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newChapterName, setNewChapterName] = useState("");
   const [newTopicName, setNewTopicName] = useState("");
-  const [targetChapterId, setTargetChapterId] = useState("");
+  const [targetChapterIdState, setTargetChapterIdState] = useState("");
+
+  const getItemId = (item: { tempId?: string; id?: string }) => item.tempId || item.id || "";
+  const getSubId = (item: { subjectTempId?: string; subject_id?: string }) => item.subjectTempId || item.subject_id || "";
+
+  const activeTargetSubjectId = targetSubjectTempId ?? targetSubjectId ?? "";
+  const updateTargetSubjectId = (val: string) => {
+    if (setTargetSubjectTempId) setTargetSubjectTempId(val);
+    if (setTargetSubjectId) setTargetSubjectId(val);
+  };
 
   useEffect(() => {
     setNewSectionName("");
     setNewSubjectName("");
     setNewChapterName("");
     setNewTopicName("");
-    setTargetChapterId("");
+    setTargetChapterIdState("");
   }, [activeAdderForm]);
 
   if (!activeAdderForm) return null;
@@ -79,7 +95,7 @@ export function MatrixAdderForms({
   const handleSectionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSectionName.trim()) return;
-    if (checklistsLength  >= 10) {
+    if (checklistsLength >= 10) {
       setErrorMessage("Maximum limit of 10 checklist columns reached.");
       return;
     }
@@ -108,10 +124,10 @@ export function MatrixAdderForms({
 
   const handleChapterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!targetSubjectId || !newChapterName.trim()) return;
+    if (!activeTargetSubjectId || !newChapterName.trim()) return;
     setErrorMessage(null);
     try {
-      await onAddChapter(targetSubjectId, newChapterName.trim());
+      await onAddChapter(activeTargetSubjectId, newChapterName.trim());
       setNewChapterName("");
       setActiveAdderForm(null);
     } catch (err: any) {
@@ -121,10 +137,10 @@ export function MatrixAdderForms({
 
   const handleTopicSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!targetSubjectId || !newTopicName.trim()) return;
+    if (!activeTargetSubjectId || !newTopicName.trim()) return;
     setErrorMessage(null);
     try {
-      await onAddTopic(targetSubjectId, targetChapterId || null, newTopicName.trim());
+      await onAddTopic(activeTargetSubjectId, targetChapterIdState || null, newTopicName.trim());
       setNewTopicName("");
       setActiveAdderForm(null);
     } catch (err: any) {
@@ -132,7 +148,7 @@ export function MatrixAdderForms({
     }
   };
 
-  const availableChapters = chapters.filter((ch) => ch.subject_id === targetSubjectId);
+  const availableChapters = chapters.filter((ch) => getSubId(ch) === activeTargetSubjectId);
 
   return (
     <>
@@ -206,20 +222,26 @@ export function MatrixAdderForms({
             <FieldLabel>Add Chapter Row under Subject</FieldLabel>
             <div className="grid sm:grid-cols-2 gap-2">
               <Select
-                items={subjects.map((sub) => ({ value: sub.id, label: sub.name }))}
-                value={targetSubjectId}
-                onValueChange={(val) => setTargetSubjectId(val ?? "")}
+                items={subjects.map((sub) => {
+                  const subId = getItemId(sub);
+                  return { value: subId, label: sub.name };
+                })}
+                value={activeTargetSubjectId}
+                onValueChange={(val) => updateTargetSubjectId(val ?? "")}
               >
                 <SelectTrigger className="h-9 text-xs sm:text-sm w-full">
                   <SelectValue placeholder="Select Target Subject..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {subjects.map((sub) => (
-                      <SelectItem key={sub.id} value={sub.id} >
-                        {sub.name}
-                      </SelectItem>
-                    ))}
+                    {subjects.map((sub) => {
+                      const subId = getItemId(sub);
+                      return (
+                        <SelectItem key={subId} value={subId}>
+                          {sub.name}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -234,7 +256,7 @@ export function MatrixAdderForms({
             </div>
 
             <div className="flex gap-2 pt-1">
-              <Button type="submit" size="sm" disabled={!targetSubjectId || !newChapterName.trim()}>
+              <Button type="submit" size="sm" disabled={!activeTargetSubjectId || !newChapterName.trim()}>
                 Add Chapter
               </Button>
               <Button
@@ -257,11 +279,14 @@ export function MatrixAdderForms({
             <FieldLabel>Add Topic Row under Subject</FieldLabel>
             <div className="grid sm:grid-cols-3 gap-2">
               <Select
-                items={subjects.map((sub) => ({ value: sub.id, label: sub.name }))}
-                value={targetSubjectId}
+                items={subjects.map((sub) => {
+                  const subId = getItemId(sub);
+                  return { value: subId, label: sub.name };
+                })}
+                value={activeTargetSubjectId}
                 onValueChange={(val) => {
-                  setTargetSubjectId(val ?? "");
-                  setTargetChapterId("");
+                  updateTargetSubjectId(val ?? "");
+                  setTargetChapterIdState("");
                 }}
               >
                 <SelectTrigger className="h-9 text-xs sm:text-sm w-full">
@@ -269,11 +294,14 @@ export function MatrixAdderForms({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {subjects.map((sub) => (
-                      <SelectItem key={sub.id} value={sub.id} >
-                        {sub.name}
-                      </SelectItem>
-                    ))}
+                    {subjects.map((sub) => {
+                      const subId = getItemId(sub);
+                      return (
+                        <SelectItem key={subId} value={subId}>
+                          {sub.name}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -281,11 +309,14 @@ export function MatrixAdderForms({
               <Select
                 items={[
                   { value: "none", label: "No Chapter (Ungrouped)" },
-                  ...availableChapters.map((ch) => ({ value: ch.id, label: ch.name })),
+                  ...availableChapters.map((ch) => {
+                    const chId = getItemId(ch);
+                    return { value: chId, label: ch.name };
+                  }),
                 ]}
-                value={targetChapterId || "none"}
-                onValueChange={(val) => setTargetChapterId(!val || val === "none" ? "" : val)}
-                disabled={!targetSubjectId}
+                value={targetChapterIdState || "none"}
+                onValueChange={(val) => setTargetChapterIdState(!val || val === "none" ? "" : val)}
+                disabled={!activeTargetSubjectId}
               >
                 <SelectTrigger className="h-9 text-xs sm:text-sm w-full disabled:opacity-50">
                   <SelectValue placeholder="No Chapter (Ungrouped)" />
@@ -295,11 +326,14 @@ export function MatrixAdderForms({
                     <SelectItem value="none" label="No Chapter (Ungrouped)">
                       No Chapter (Ungrouped)
                     </SelectItem>
-                    {availableChapters.map((ch) => (
-                      <SelectItem key={ch.id} value={ch.id} label={ch.name}>
-                        {ch.name}
-                      </SelectItem>
-                    ))}
+                    {availableChapters.map((ch) => {
+                      const chId = getItemId(ch);
+                      return (
+                        <SelectItem key={chId} value={chId} label={ch.name}>
+                          {ch.name}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -314,7 +348,7 @@ export function MatrixAdderForms({
             </div>
 
             <div className="flex gap-2 pt-1">
-              <Button type="submit" size="sm" disabled={isAddingTopic || !targetSubjectId || !newTopicName.trim()}>
+              <Button type="submit" size="sm" disabled={isAddingTopic || !activeTargetSubjectId || !newTopicName.trim()}>
                 Add Topic
               </Button>
               <Button

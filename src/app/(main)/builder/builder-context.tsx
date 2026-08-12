@@ -1,0 +1,286 @@
+"use client";
+
+import React, { createContext, useContext, useReducer, useCallback } from "react";
+import type {
+  TrackerDraft,
+  DraftChecklist,
+  DraftSubject,
+  DraftChapter,
+  DraftTopic,
+} from "@/src/lib/types/builder-draft";
+
+const DEFAULT_CHECKLISTS: DraftChecklist[] = [
+  { tempId: "default-col-1", name: "1st Read", position: 1 },
+  { tempId: "default-col-2", name: "Notes", position: 2 },
+  { tempId: "default-col-3", name: "Practice Qs", position: 3 },
+];
+
+const initialDraftState: TrackerDraft = {
+  examName: "",
+  examDate: null,
+  description: null,
+  checklists: DEFAULT_CHECKLISTS,
+  subjects: [],
+  chapters: [],
+  topics: [],
+};
+
+type Action =
+  | {
+      type: "SET_EXAM_INFO";
+      payload: {
+        examName: string;
+        examDate?: string | null;
+        description?: string | null;
+        prepopulateColumns?: boolean;
+      };
+    }
+  | { type: "ADD_SUBJECT"; payload: { name: string } }
+  | { type: "DELETE_SUBJECT"; payload: { tempId: string } }
+  | { type: "ADD_CHAPTER"; payload: { subjectTempId: string; name: string; description?: string } }
+  | { type: "DELETE_CHAPTER"; payload: { tempId: string } }
+  | {
+      type: "ADD_TOPIC";
+      payload: { subjectTempId: string; chapterTempId?: string | null; name: string };
+    }
+  | { type: "DELETE_TOPIC"; payload: { tempId: string } }
+  | { type: "ADD_CHECKLIST"; payload: { name: string } }
+  | { type: "DELETE_CHECKLIST"; payload: { tempId: string } }
+  | { type: "RESET_DRAFT" };
+
+function draftReducer(state: TrackerDraft, action: Action): TrackerDraft {
+  switch (action.type) {
+    case "SET_EXAM_INFO": {
+      const trimmedName = action.payload.examName.trim();
+      const prepopulate = action.payload.prepopulateColumns !== false;
+      return {
+        ...state,
+        examName: trimmedName,
+        examDate: action.payload.examDate || null,
+        description: action.payload.description ? action.payload.description.trim() : null,
+        checklists: prepopulate ? state.checklists.length > 0 ? state.checklists : DEFAULT_CHECKLISTS : [],
+      };
+    }
+
+    case "ADD_SUBJECT": {
+      const trimmedName = action.payload.name.trim();
+      if (!trimmedName) return state;
+
+      // Duplicate check
+      if (state.subjects.some((s) => s.name.toLowerCase() === trimmedName.toLowerCase())) {
+        throw new Error(`A subject named "${trimmedName}" already exists.`);
+      }
+
+      const newSubject: DraftSubject = {
+        tempId: `sub-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        name: trimmedName,
+        position: state.subjects.length + 1,
+      };
+
+      return {
+        ...state,
+        subjects: [...state.subjects, newSubject],
+      };
+    }
+
+    case "DELETE_SUBJECT": {
+      const { tempId } = action.payload;
+      // Cascade delete chapters and topics belonging to this subject
+      const remainingSubjects = state.subjects.filter((s) => s.tempId !== tempId);
+      const remainingChapters = state.chapters.filter((c) => c.subjectTempId !== tempId);
+      const remainingTopics = state.topics.filter((t) => t.subjectTempId !== tempId);
+
+      return {
+        ...state,
+        subjects: remainingSubjects,
+        chapters: remainingChapters,
+        topics: remainingTopics,
+      };
+    }
+
+    case "ADD_CHAPTER": {
+      const trimmedName = action.payload.name.trim();
+      if (!trimmedName || !action.payload.subjectTempId) return state;
+
+      const subChapters = state.chapters.filter(
+        (c) => c.subjectTempId === action.payload.subjectTempId
+      );
+
+      if (subChapters.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase())) {
+        throw new Error(`A chapter named "${trimmedName}" already exists in this subject.`);
+      }
+
+      const newChapter: DraftChapter = {
+        tempId: `ch-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        subjectTempId: action.payload.subjectTempId,
+        name: trimmedName,
+        description: action.payload.description ? action.payload.description.trim() : null,
+        position: subChapters.length + 1,
+      };
+
+      return {
+        ...state,
+        chapters: [...state.chapters, newChapter],
+      };
+    }
+
+    case "DELETE_CHAPTER": {
+      const { tempId } = action.payload;
+      // When deleting a chapter, unassign topics or delete topics belonging to it
+      const targetChapter = state.chapters.find((c) => c.tempId === tempId);
+      if (!targetChapter) return state;
+
+      const remainingChapters = state.chapters.filter((c) => c.tempId !== tempId);
+      const remainingTopics = state.topics.filter((t) => t.chapterTempId !== tempId);
+
+      return {
+        ...state,
+        chapters: remainingChapters,
+        topics: remainingTopics,
+      };
+    }
+
+    case "ADD_TOPIC": {
+      const trimmedName = action.payload.name.trim();
+      if (!trimmedName || !action.payload.subjectTempId) return state;
+
+      const newTopic: DraftTopic = {
+        tempId: `top-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        subjectTempId: action.payload.subjectTempId,
+        chapterTempId: action.payload.chapterTempId || null,
+        name: trimmedName,
+        position: state.topics.length + 1,
+      };
+
+      return {
+        ...state,
+        topics: [...state.topics, newTopic],
+      };
+    }
+
+    case "DELETE_TOPIC": {
+      return {
+        ...state,
+        topics: state.topics.filter((t) => t.tempId !== action.payload.tempId),
+      };
+    }
+
+    case "ADD_CHECKLIST": {
+      const trimmedName = action.payload.name.trim();
+      if (!trimmedName) return state;
+
+      if (state.checklists.length >= 10) {
+        throw new Error("Maximum limit of 10 checklist columns reached.");
+      }
+
+      if (state.checklists.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase())) {
+        throw new Error(`A checklist column named "${trimmedName}" already exists.`);
+      }
+
+      const newChecklist: DraftChecklist = {
+        tempId: `col-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        name: trimmedName,
+        position: state.checklists.length + 1,
+      };
+
+      return {
+        ...state,
+        checklists: [...state.checklists, newChecklist],
+      };
+    }
+
+    case "DELETE_CHECKLIST": {
+      if (state.checklists.length <= 1) {
+        throw new Error("Trackers must maintain at least 1 checklist column.");
+      }
+      return {
+        ...state,
+        checklists: state.checklists.filter((c) => c.tempId !== action.payload.tempId),
+      };
+    }
+
+    case "RESET_DRAFT": {
+      return initialDraftState;
+    }
+
+    default:
+      return state;
+  }
+}
+
+export function validateDraft(draft: TrackerDraft): string | null {
+  if (!draft.examName.trim()) {
+    return "Please enter an Exam Name before launching.";
+  }
+  if (draft.checklists.length === 0) {
+    return "At least 1 checklist column is required before launching.";
+  }
+  if (draft.subjects.length === 0) {
+    return "Please add at least 1 subject to your syllabus.";
+  }
+  if (draft.topics.length === 0) {
+    return "Please add at least 1 topic to your syllabus.";
+  }
+
+  // Verify no empty chapters
+  for (const ch of draft.chapters) {
+    const hasTopics = draft.topics.some((t) => t.chapterTempId === ch.tempId);
+    if (!hasTopics) {
+      const parentSub = draft.subjects.find((s) => s.tempId === ch.subjectTempId);
+      const subInfo = parentSub ? ` under "${parentSub.name}"` : "";
+      return `Chapter "${ch.name}"${subInfo} has no topics. Please add topics to it or remove the empty chapter.`;
+    }
+  }
+
+  // Verify no empty subjects
+  for (const sub of draft.subjects) {
+    const hasTopics = draft.topics.some((t) => t.subjectTempId === sub.tempId);
+    if (!hasTopics) {
+      return `Subject "${sub.name}" has no topics. Please add topics to it or remove the empty subject.`;
+    }
+  }
+
+  return null;
+}
+
+interface BuilderContextValue {
+  draft: TrackerDraft;
+  dispatch: React.Dispatch<Action>;
+  validateDraft: () => string | null;
+  resetDraft: () => void;
+}
+
+const BuilderContext = createContext<BuilderContextValue | null>(null);
+
+export function BuilderProvider({ children }: { children: React.ReactNode }) {
+  const [draft, dispatch] = useReducer(draftReducer, initialDraftState);
+
+  const handleValidate = useCallback(() => {
+    return validateDraft(draft);
+  }, [draft]);
+
+  const handleReset = useCallback(() => {
+    dispatch({ type: "RESET_DRAFT" });
+  }, []);
+
+  return (
+    <BuilderContext.Provider
+      value={{
+        draft,
+        dispatch,
+        validateDraft: handleValidate,
+        resetDraft: handleReset,
+      }}
+    >
+      {children}
+    </BuilderContext.Provider>
+  );
+}
+
+export function useBuilderContext() {
+  const context = useContext(BuilderContext);
+  if (!context) {
+    throw new Error("useBuilderContext must be used within a BuilderProvider");
+  }
+  return context;
+}
