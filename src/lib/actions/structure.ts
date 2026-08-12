@@ -176,5 +176,47 @@ export async function deleteTrackerChecklistAction(checklistId: string): Promise
   updateTag("exam_trackers");
 }
 
+export async function deleteChapterAction(chapterId: string): Promise<void> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("chapters")
+    .select("exam_tracker_id")
+    .eq("id", chapterId)
+    .single();
+
+  const { error } = await supabase.from("chapters").delete().eq("id", chapterId);
+  if (error) throw new Error(error.message);
+  if (data?.exam_tracker_id) {
+    updateTag(`workspace-${data.exam_tracker_id}`);
+  }
+  updateTag("exam_trackers");
+}
+
+export async function updateTopicChapterAction(payload: {
+  topicId: string;
+  chapterId: string | null;
+  subjectId?: string;
+}): Promise<void> {
+  const supabase = await createClient();
+  const updateData: { chapter_id: string | null; subject_id?: string } = {
+    chapter_id: payload.chapterId,
+  };
+  if (payload.subjectId) {
+    updateData.subject_id = payload.subjectId;
+  }
+
+  const { data, error } = await supabase
+    .from("topics")
+    .update(updateData)
+    .eq("id", payload.topicId)
+    .select("exam_tracker_id")
+    .single();
+
+  if (error) throw new Error(error.message);
+  if (data?.exam_tracker_id) {
+    updateTag(`workspace-${data.exam_tracker_id}`);
+  }
+}
+
 
 

@@ -17,6 +17,7 @@ import {
   AlertCircle,
   AlertTriangle,
   X,
+  Layers,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
@@ -42,7 +43,7 @@ const step1Schema = z.object({
 });
 
 // Discriminated Unions for Step 2 UI
-type ActiveAdderForm = "section" | "subject" | "topic" | null;
+type ActiveAdderForm = "section" | "subject" | "chapter" | "topic" | null;
 type LeaveTarget =
   | { type: "dashboard" }
   | { type: "step1" }
@@ -60,6 +61,7 @@ export default function BuilderPage() {
     isAddingSection,
     addSubject,
     isAddingSubject,
+    addChapter,
     addTopic,
     isAddingTopic,
   } = useTrackerBuilder();
@@ -73,8 +75,10 @@ export default function BuilderPage() {
   const [activeAdderForm, setActiveAdderForm] = useState<ActiveAdderForm>(null);
   const [newSectionName, setNewSectionName] = useState("");
   const [newSubjectName, setNewSubjectName] = useState("");
+  const [newChapterName, setNewChapterName] = useState("");
   const [newTopicName, setNewTopicName] = useState("");
   const [targetSubjectId, setTargetSubjectId] = useState("");
+  const [targetChapterId, setTargetChapterId] = useState("");
 
   // Accidental Navigation Target & Ref
   const [pendingLeaveTarget, setPendingLeaveTarget] = useState<LeaveTarget | null>(null);
@@ -207,12 +211,29 @@ export default function BuilderPage() {
     }
   };
 
+  const handleAddChapter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetSubjectId || !newChapterName.trim()) return;
+    setErrorMessage(null);
+    try {
+      await addChapter({ subjectId: targetSubjectId, name: newChapterName.trim() });
+      setNewChapterName("");
+      setActiveAdderForm(null);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Failed to add chapter");
+    }
+  };
+
   const handleAddTopic = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetSubjectId || !newTopicName.trim()) return;
     setErrorMessage(null);
     try {
-      await addTopic({ subjectId: targetSubjectId, name: newTopicName.trim() });
+      await addTopic({
+        subjectId: targetSubjectId,
+        chapterId: targetChapterId || null,
+        name: newTopicName.trim(),
+      });
       setNewTopicName("");
       setActiveAdderForm(null);
     } catch (err: any) {
@@ -462,6 +483,18 @@ export default function BuilderPage() {
                   Add Subject
                 </Button>
 
+                {/* Add Chapter Button */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={workspaceData.subjects.length === 0}
+                  onClick={() => setActiveAdderForm(activeAdderForm === "chapter" ? null : "chapter")}
+                  className="gap-1.5"
+                >
+                  <Plus className="size-3.5" />
+                  Add Chapter
+                </Button>
+
                 {/* Add Topic Button */}
                 <Button
                   size="sm"
@@ -537,10 +570,10 @@ export default function BuilderPage() {
               </form>
             )}
 
-            {/* Inline Add Topic Form */}
-            {activeAdderForm === "topic" && (
-              <form onSubmit={handleAddTopic} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-3">
-                <span className="text-xs font-semibold text-foreground block">Add Topic Row under Subject</span>
+            {/* Inline Add Chapter Form */}
+            {activeAdderForm === "chapter" && (
+              <form onSubmit={handleAddChapter} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-3">
+                <span className="text-xs font-semibold text-foreground block">Add Chapter Row under Subject</span>
                 <div className="grid sm:grid-cols-2 gap-2">
                   <select
                     value={targetSubjectId}
@@ -557,13 +590,17 @@ export default function BuilderPage() {
 
                   <Input
                     autoFocus
-                    placeholder="Topic Name (e.g. Beta Blockers, Torts)"
-                    value={newTopicName}
-                    onChange={(e) => setNewTopicName(e.target.value)}
+                    placeholder="Chapter Name (e.g. Cardiovascular)"
+                    value={newChapterName}
+                    onChange={(e) => setNewChapterName(e.target.value)}
                     className="h-9 text-sm"
                   />
                 </div>
-                <div className="flex justify-end gap-2">
+
+                <div className="flex gap-2">
+                  <Button type="submit" size="sm" disabled={!targetSubjectId || !newChapterName.trim()}>
+                    Add Chapter
+                  </Button>
                   <Button
                     type="button"
                     variant="ghost"
@@ -572,11 +609,58 @@ export default function BuilderPage() {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    type="submit"
-                    size="sm"
-                    disabled={isAddingTopic || !targetSubjectId || !newTopicName.trim()}
+                </div>
+              </form>
+            )}
+
+            {/* Inline Add Topic Form */}
+            {activeAdderForm === "topic" && (
+              <form onSubmit={handleAddTopic} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-3">
+                <span className="text-xs font-semibold text-foreground block">Add Topic Row under Subject</span>
+                <div className="grid sm:grid-cols-3 gap-2">
+                  <select
+                    value={targetSubjectId}
+                    onChange={(e) => {
+                      setTargetSubjectId(e.target.value);
+                      setTargetChapterId("");
+                    }}
+                    className="h-9 px-3 py-1 text-xs sm:text-sm rounded-md border border-input bg-background text-foreground"
                   >
+                    <option value="">Select Target Subject...</option>
+                    {workspaceData.subjects.map((sub) => (
+                      <option key={sub.id} value={sub.id}>
+                        {sub.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={targetChapterId}
+                    onChange={(e) => setTargetChapterId(e.target.value)}
+                    disabled={!targetSubjectId}
+                    className="h-9 px-3 py-1 text-xs sm:text-sm rounded-md border border-input bg-background text-foreground disabled:opacity-50"
+                  >
+                    <option value="">No Chapter (Ungrouped)</option>
+                    {workspaceData.chapters
+                      .filter((ch) => ch.subject_id === targetSubjectId)
+                      .map((ch) => (
+                        <option key={ch.id} value={ch.id}>
+                          {ch.name}
+                        </option>
+                      ))}
+                  </select>
+
+                  <Input
+                    autoFocus
+                    placeholder="Topic Title (e.g. Heart Failure)"
+                    value={newTopicName}
+                    onChange={(e) => setNewTopicName(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="submit" size="sm" disabled={isAddingTopic || !targetSubjectId || !newTopicName.trim()}>
                     Add Topic
                   </Button>
                 </div>
@@ -640,8 +724,14 @@ export default function BuilderPage() {
                     </tr>
                   ) : (
                     workspaceData.subjects.map((subject) => {
+                      const subChapters = workspaceData.chapters.filter(
+                        (ch) => ch.subject_id === subject.id
+                      );
                       const subTopics = workspaceData.topics.filter(
                         (t) => t.subject_id === subject.id
+                      );
+                      const ungroupedTopics = subTopics.filter(
+                        (t) => !t.chapter_id || t.chapter_id === null
                       );
 
                       return (
@@ -667,6 +757,18 @@ export default function BuilderPage() {
                                     size="xs"
                                     onClick={() => {
                                       setTargetSubjectId(subject.id);
+                                      setActiveAdderForm("chapter");
+                                    }}
+                                    className="h-6 text-[11px] gap-1 text-primary hover:text-primary"
+                                  >
+                                    <Plus className="size-3" /> Chapter
+                                  </Button>
+
+                                  <Button
+                                    variant="ghost"
+                                    size="xs"
+                                    onClick={() => {
+                                      setTargetSubjectId(subject.id);
                                       setActiveAdderForm("topic");
                                     }}
                                     className="h-6 text-[11px] gap-1 text-primary hover:text-primary"
@@ -687,57 +789,108 @@ export default function BuilderPage() {
                             </td>
                           </tr>
 
-                          {/* Topic Rows */}
-                          {subTopics.length === 0 ? (
-                            <tr>
-                              <td
-                                colSpan={workspaceData.checklists.length + 2}
-                                className="px-8 py-2 text-xs text-muted-foreground/70 italic"
-                              >
-                                No topics under {subject.name}. Click "+ Topic" to add one!
-                              </td>
-                            </tr>
-                          ) : (
-                            subTopics.map((topic) => (
-                              <tr
-                                key={topic.id}
-                                className="hover:bg-accent/40 transition-colors group"
-                              >
-                                {/* Left Cell: Topic Name + Actions */}
-                                <td className="px-6 py-2.5 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
-                                  <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs">{topic.name}</span>
+                          {/* Chapter Groups */}
+                          {subChapters.map((chapter) => {
+                            const chapterTopics = subTopics.filter((t) => t.chapter_id === chapter.id);
+                            return (
+                              <React.Fragment key={chapter.id}>
+                                <tr className="bg-muted/20 text-xs font-semibold text-muted-foreground">
+                                  <td
+                                    colSpan={workspaceData.checklists.length + 2}
+                                    className="px-6 py-1.5 sticky left-0 z-10 flex items-center justify-between"
+                                  >
+                                    <div className="flex items-center gap-1.5">
+                                      <Layers className="size-3.5 text-primary" />
+                                      <span>{chapter.name}</span>
+                                    </div>
                                     <button
                                       type="button"
-                                      title={`Delete ${topic.name}`}
-                                      onClick={() => workspaceData.deleteTopic(topic.id)}
-                                      className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
+                                      title={`Delete ${chapter.name}`}
+                                      onClick={() => workspaceData.deleteChapter(chapter.id)}
+                                      className="text-muted-foreground/60 hover:text-destructive p-0.5 rounded-xs transition-colors cursor-pointer"
                                     >
                                       <Trash2 className="size-3" />
                                     </button>
+                                  </td>
+                                </tr>
+
+                                {chapterTopics.map((topic) => (
+                                  <tr
+                                    key={topic.id}
+                                    className="hover:bg-accent/40 transition-colors group"
+                                  >
+                                    <td className="px-8 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <span className="text-xs">{topic.name}</span>
+                                        <button
+                                          type="button"
+                                          title={`Delete ${topic.name}`}
+                                          onClick={() => workspaceData.deleteTopic(topic.id)}
+                                          className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
+                                        >
+                                          <Trash2 className="size-3" />
+                                        </button>
+                                      </div>
+                                    </td>
+
+                                    {workspaceData.checklists.map((section) => (
+                                      <td
+                                        key={section.id}
+                                        className="px-2 py-2 text-center border-r border-border/40"
+                                      >
+                                        <div
+                                          className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
+                                          title="Preview status checkbox cell"
+                                        >
+                                          <CheckSquare className="size-3 text-muted-foreground" />
+                                        </div>
+                                      </td>
+                                    ))}
+
+                                    <td className="px-2 py-2 bg-muted/10" />
+                                  </tr>
+                                ))}
+                              </React.Fragment>
+                            );
+                          })}
+
+                          {/* Ungrouped Topics */}
+                          {ungroupedTopics.map((topic) => (
+                            <tr
+                              key={topic.id}
+                              className="hover:bg-accent/40 transition-colors group"
+                            >
+                              <td className="px-6 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-xs">{topic.name}</span>
+                                  <button
+                                    type="button"
+                                    title={`Delete ${topic.name}`}
+                                    onClick={() => workspaceData.deleteTopic(topic.id)}
+                                    className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
+                                  >
+                                    <Trash2 className="size-3" />
+                                  </button>
+                                </div>
+                              </td>
+
+                              {workspaceData.checklists.map((section) => (
+                                <td
+                                  key={section.id}
+                                  className="px-2 py-2 text-center border-r border-border/40"
+                                >
+                                  <div
+                                    className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
+                                    title="Preview status checkbox cell"
+                                  >
+                                    <CheckSquare className="size-3 text-muted-foreground" />
                                   </div>
                                 </td>
+                              ))}
 
-                                {/* Checklist Cells (Spreadsheet Matrix Preview) */}
-                                {workspaceData.checklists.map((section) => (
-                                  <td
-                                    key={section.id}
-                                    className="px-2 py-2 text-center border-r border-border/40"
-                                  >
-                                    <div
-                                      className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
-                                      title="Preview status checkbox cell"
-                                    >
-                                      <CheckSquare className="size-3 text-muted-foreground" />
-                                    </div>
-                                  </td>
-                                ))}
-
-                                {/* Rightmost Empty Cell */}
-                                <td className="px-2 py-2 bg-muted/10" />
-                              </tr>
-                            ))
-                          )}
+                              <td className="px-2 py-2 bg-muted/10" />
+                            </tr>
+                          ))}
                         </React.Fragment>
                       );
                     })
