@@ -135,6 +135,7 @@ export function ExamInfoForm({ isSavingExamInfo, onSubmit }: ExamInfoFormProps) 
                           onSelect={(date) => {
                             field.handleChange(date ? format(date, "yyyy-MM-dd") : "");
                           }}
+                          captionLayout="dropdown"
                         />
                       </PopoverContent>
                     </Popover>
