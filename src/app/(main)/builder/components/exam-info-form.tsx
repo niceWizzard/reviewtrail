@@ -24,7 +24,7 @@ import { Step1Values } from "../types";
 export const step1Schema = z.object({
   examName: z.string().min(1, "Exam name is required").max(32, "Exam name must be 32 characters or less"),
   examDate: z.string(),
-  description: z.string(),
+  description: z.string().max(255, "Description must be 255 characters or less"),
   prepopulateColumns: z.boolean(),
 });
 
@@ -146,18 +146,26 @@ export function ExamInfoForm({ isSavingExamInfo, onSubmit }: ExamInfoFormProps) 
             {/* Field 3: Description */}
             <step1Form.Field
               name="description"
-              children={(field) => (
-                <Field>
-                  <FieldLabel htmlFor="description">Description / Goal</FieldLabel>
-                  <Input
-                    id="description"
-                    placeholder="e.g. Target score 250+, 3 review passes before scheduled exam"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                  />
-                </Field>
-              )}
+              validators={{
+                onChange: step1Schema.shape.description,
+              }}
+              children={(field) => {
+                const hasError = field.state.meta.errors.length > 0;
+                return (
+                  <Field data-invalid={hasError}>
+                    <FieldLabel htmlFor="description">Description / Goal</FieldLabel>
+                    <Input
+                      id="description"
+                      placeholder="e.g. Target score 250+, 3 review passes before scheduled exam"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      aria-invalid={hasError}
+                    />
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                );
+              }}
             />
 
             {/* Field 4: Pre-populate Columns Checkbox */}
