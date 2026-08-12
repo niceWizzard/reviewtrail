@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createExamTrackerAction } from "@/src/lib/actions/trackers";
 import {
   createTrackerSectionAction,
+  clearTrackerSectionsAction,
   createSubjectAction,
   createChapterAction,
   createTopicAction,
@@ -17,8 +18,22 @@ export function useTrackerBuilder() {
 
   // Step 1: Create Exam Tracker in DB via Server Action
   const saveExamInfoMutation = useMutation({
-    mutationFn: async (payload: { exam_name: string; exam_date?: string; description?: string }) => {
-      const tracker = await createExamTrackerAction(payload);
+    mutationFn: async (payload: {
+      exam_name: string;
+      exam_date?: string;
+      description?: string;
+      prepopulateColumns?: boolean;
+    }) => {
+      const tracker = await createExamTrackerAction({
+        exam_name: payload.exam_name,
+        exam_date: payload.exam_date,
+        description: payload.description,
+      });
+
+      if (payload.prepopulateColumns === false) {
+        await clearTrackerSectionsAction(tracker.id);
+      }
+
       setTrackerId(tracker.id);
       return tracker;
     },

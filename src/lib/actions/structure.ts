@@ -11,12 +11,29 @@ export async function createTrackerSectionAction(payload: {
   color?: string | null;
 }): Promise<TrackerSection> {
   const supabase = await createClient();
+
+  // Validate 10-column maximum limit
+  const { data: existingSections, error: fetchErr } = await supabase
+    .from("tracker_sections")
+    .select("id, position")
+    .eq("exam_tracker_id", payload.exam_tracker_id)
+    .order("position", { ascending: true });
+
+  if (fetchErr) throw new Error(fetchErr.message);
+
+  const currentCount = existingSections?.length || 0;
+  if (currentCount >= 10) {
+    throw new Error("Maximum limit of 10 checklist columns reached.");
+  }
+
+  const nextPosition = payload.position ?? currentCount + 1;
+
   const { data, error } = await supabase
     .from("tracker_sections")
     .insert({
       exam_tracker_id: payload.exam_tracker_id,
       name: payload.name,
-      position: payload.position ?? 0,
+      position: nextPosition,
       color: payload.color || null,
     })
     .select()
@@ -25,6 +42,17 @@ export async function createTrackerSectionAction(payload: {
   if (error) throw new Error(error.message);
   updateTag(`workspace-${payload.exam_tracker_id}`);
   return data as TrackerSection;
+}
+
+export async function clearTrackerSectionsAction(examTrackerId: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("tracker_sections")
+    .delete()
+    .eq("exam_tracker_id", examTrackerId);
+
+  if (error) throw new Error(error.message);
+  updateTag(`workspace-${examTrackerId}`);
 }
 
 export async function createSubjectAction(payload: {
@@ -102,22 +130,49 @@ export async function createTopicAction(payload: {
 
 export async function deleteTopicAction(topicId: string): Promise<void> {
   const supabase = await createClient();
+  const { data } = await supabase
+    .from("topics")
+    .select("exam_tracker_id")
+    .eq("id", topicId)
+    .single();
+
   const { error } = await supabase.from("topics").delete().eq("id", topicId);
   if (error) throw new Error(error.message);
+  if (data?.exam_tracker_id) {
+    updateTag(`workspace-${data.exam_tracker_id}`);
+  }
   updateTag("exam_trackers");
 }
 
 export async function deleteSubjectAction(subjectId: string): Promise<void> {
   const supabase = await createClient();
+  const { data } = await supabase
+    .from("subjects")
+    .select("exam_tracker_id")
+    .eq("id", subjectId)
+    .single();
+
   const { error } = await supabase.from("subjects").delete().eq("id", subjectId);
   if (error) throw new Error(error.message);
+  if (data?.exam_tracker_id) {
+    updateTag(`workspace-${data.exam_tracker_id}`);
+  }
   updateTag("exam_trackers");
 }
 
 export async function deleteTrackerSectionAction(sectionId: string): Promise<void> {
   const supabase = await createClient();
+  const { data } = await supabase
+    .from("tracker_sections")
+    .select("exam_tracker_id")
+    .eq("id", sectionId)
+    .single();
+
   const { error } = await supabase.from("tracker_sections").delete().eq("id", sectionId);
   if (error) throw new Error(error.message);
+  if (data?.exam_tracker_id) {
+    updateTag(`workspace-${data.exam_tracker_id}`);
+  }
   updateTag("exam_trackers");
 }
 
