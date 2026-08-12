@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createExamTrackerAction } from "@/src/lib/actions/trackers";
 import {
@@ -15,6 +13,11 @@ export function useTrackerBuilder() {
   const queryClient = useQueryClient();
   const [step, setStep] = useState<number>(1);
   const [trackerId, setTrackerId] = useState<string | null>(null);
+
+  const resetBuilder = useCallback(() => {
+    setStep(1);
+    setTrackerId(null);
+  }, []);
 
   // Step 1: Create Exam Tracker in DB via Server Action
   const saveExamInfoMutation = useMutation({
@@ -109,6 +112,8 @@ export function useTrackerBuilder() {
     step,
     setStep,
     trackerId,
+    setTrackerId,
+    resetBuilder,
     saveExamInfo: saveExamInfoMutation.mutateAsync,
     isSavingExamInfo: saveExamInfoMutation.isPending,
     addSectionColumn: addSectionMutation.mutateAsync,

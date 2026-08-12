@@ -22,6 +22,7 @@ export default function BuilderPage() {
     step,
     setStep,
     trackerId,
+    resetBuilder,
     saveExamInfo,
     isSavingExamInfo,
     addSectionColumn,
@@ -34,6 +35,13 @@ export default function BuilderPage() {
   } = useTrackerBuilder();
 
   const workspaceData = useTrackerWorkspace(trackerId || "");
+
+  // Reset builder state on component unmount to ensure fresh session on return
+  useEffect(() => {
+    return () => {
+      resetBuilder();
+    };
+  }, [resetBuilder]);
 
   // Error Alert State
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -95,6 +103,7 @@ export default function BuilderPage() {
       setPendingLeaveTarget({ type: target });
     } else {
       if (target === "dashboard") {
+        resetBuilder();
         router.push("/dashboard");
       } else {
         setStep(1);
@@ -106,6 +115,8 @@ export default function BuilderPage() {
     if (!pendingLeaveTarget) return;
     const target = pendingLeaveTarget;
     setPendingLeaveTarget(null);
+
+    resetBuilder();
 
     if (target.type === "href") {
       router.push(target.href);
@@ -132,8 +143,10 @@ export default function BuilderPage() {
   };
 
   const handleFinish = () => {
-    if (trackerId) {
-      router.push(`/dashboard/tracker/${trackerId}`);
+    const targetTrackerId = trackerId;
+    resetBuilder();
+    if (targetTrackerId) {
+      router.push(`/dashboard/tracker/${targetTrackerId}`);
     } else {
       router.push("/dashboard");
     }

@@ -12,6 +12,8 @@ vi.mock("@/src/hooks/use-tracker-workspace");
 
 describe("BuilderPage Orchestration - Phase 1", () => {
   const mockSetStep = vi.fn();
+  const mockSetTrackerId = vi.fn();
+  const mockResetBuilder = vi.fn();
   const mockSaveExamInfo = vi.fn();
   const mockAddSectionColumn = vi.fn();
   const mockAddSubject = vi.fn();
@@ -36,6 +38,8 @@ describe("BuilderPage Orchestration - Phase 1", () => {
       step: 1,
       setStep: mockSetStep,
       trackerId: null,
+      setTrackerId: mockSetTrackerId,
+      resetBuilder: mockResetBuilder,
       saveExamInfo: mockSaveExamInfo,
       isSavingExamInfo: false,
       addSectionColumn: mockAddSectionColumn,
@@ -68,7 +72,14 @@ describe("BuilderPage Orchestration - Phase 1", () => {
     await user.click(backBtn);
 
     expect(mockPush).toHaveBeenCalledWith("/dashboard");
+    expect(mockResetBuilder).toHaveBeenCalled();
     expect(screen.queryByText(/Are you sure you want to leave\?/i)).not.toBeInTheDocument();
+  });
+
+  it("resets builder state when component unmounts", () => {
+    const { unmount } = render(<BuilderPage />);
+    unmount();
+    expect(mockResetBuilder).toHaveBeenCalled();
   });
 
   it("displays and dismisses error alert when Phase 1 save throws an error", async () => {
