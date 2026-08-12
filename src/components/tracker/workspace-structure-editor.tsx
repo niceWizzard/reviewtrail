@@ -4,7 +4,15 @@ import React, { useState } from "react";
 import { Plus, Trash2, Layers, BookOpen, CheckSquare, Sparkles } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { Badge } from "@/src/components/ui/badge";
+import { Field, FieldLabel } from "@/src/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -76,6 +84,8 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
     setSectionName("");
   };
 
+  const filteredChapters = chapters.filter((ch) => ch.subject_id === selectedSubjectId);
+
   return (
     <Sheet>
       <SheetTrigger
@@ -111,103 +121,125 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
           {/* Tab 1: Manage Subjects & Topics */}
           <TabsContent value="topics" className="space-y-6">
             {/* Add Subject Form */}
-            <form onSubmit={handleAddSubject} className="space-y-2 p-3 bg-muted/30 rounded-xl border border-border">
-              <span className="text-xs font-semibold text-foreground block">1. Add New Subject</span>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Subject Name (e.g. Pathology)"
-                  value={subjectName}
-                  onChange={(e) => setSubjectName(e.target.value)}
-                  className="text-sm h-9"
-                />
-                <Button type="submit" size="sm" className="shrink-0">
-                  <Plus className="size-4" /> Add
-                </Button>
-              </div>
+            <form onSubmit={handleAddSubject} className="p-3 bg-muted/30 rounded-xl border border-border">
+              <Field className="space-y-1.5">
+                <FieldLabel htmlFor="subjectNameInput">1. Add New Subject</FieldLabel>
+                <div className="flex gap-2">
+                  <Input
+                    id="subjectNameInput"
+                    placeholder="Subject Name (e.g. Pathology)"
+                    value={subjectName}
+                    onChange={(e) => setSubjectName(e.target.value)}
+                    className="text-sm h-9"
+                  />
+                  <Button type="submit" size="sm" className="shrink-0">
+                    <Plus className="size-4" /> Add
+                  </Button>
+                </div>
+              </Field>
             </form>
 
             {/* Add Chapter Form */}
             {subjects.length > 0 && (
-              <form onSubmit={handleAddChapter} className="space-y-3 p-3 bg-muted/30 rounded-xl border border-border">
-                <span className="text-xs font-semibold text-foreground block">2. Add Chapter under Subject (Optional)</span>
-                <select
-                  value={selectedSubjectId}
-                  onChange={(e) => {
-                    setSelectedSubjectId(e.target.value);
-                    setSelectedChapterId("");
-                  }}
-                  className="w-full h-9 px-3 py-1 text-xs rounded-md border border-input bg-background text-foreground"
-                >
-                  <option value="">Select Target Subject...</option>
-                  {subjects.map((sub) => (
-                    <option key={sub.id} value={sub.id}>
-                      {sub.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Chapter Title (e.g. Cardiovascular)"
-                    value={chapterName}
-                    onChange={(e) => setChapterName(e.target.value)}
-                    className="text-sm h-9"
-                  />
-                  <Button type="submit" size="sm" disabled={!selectedSubjectId || !chapterName.trim()} className="shrink-0">
-                    <Plus className="size-4" /> Add Chapter
-                  </Button>
-                </div>
+              <form onSubmit={handleAddChapter} className="p-3 bg-muted/30 rounded-xl border border-border">
+                <Field className="space-y-2">
+                  <FieldLabel>2. Add Chapter under Subject (Optional)</FieldLabel>
+                  <Select
+                    value={selectedSubjectId}
+                    onValueChange={(val) => {
+                      setSelectedSubjectId(val ?? "");
+                      setSelectedChapterId("");
+                    }}
+                  >
+                    <SelectTrigger className="w-full h-9 text-xs">
+                      <SelectValue placeholder="Select Target Subject..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {subjects.map((sub) => (
+                          <SelectItem key={sub.id} value={sub.id}>
+                            {sub.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Chapter Title (e.g. Cardiovascular)"
+                      value={chapterName}
+                      onChange={(e) => setChapterName(e.target.value)}
+                      className="text-sm h-9"
+                    />
+                    <Button type="submit" size="sm" disabled={!selectedSubjectId || !chapterName.trim()} className="shrink-0">
+                      <Plus className="size-4" /> Add Chapter
+                    </Button>
+                  </div>
+                </Field>
               </form>
             )}
 
             {/* Add Topic Form */}
             {subjects.length > 0 && (
-              <form onSubmit={handleAddTopic} className="space-y-3 p-3 bg-muted/30 rounded-xl border border-border">
-                <span className="text-xs font-semibold text-foreground block">3. Add Topic</span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <select
-                    value={selectedSubjectId}
-                    onChange={(e) => {
-                      setSelectedSubjectId(e.target.value);
-                      setSelectedChapterId("");
-                    }}
-                    className="w-full h-9 px-3 py-1 text-xs rounded-md border border-input bg-background text-foreground"
-                  >
-                    <option value="">Select Subject...</option>
-                    {subjects.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.name}
-                      </option>
-                    ))}
-                  </select>
+              <form onSubmit={handleAddTopic} className="p-3 bg-muted/30 rounded-xl border border-border">
+                <Field className="space-y-2">
+                  <FieldLabel>3. Add Topic</FieldLabel>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Select
+                      value={selectedSubjectId}
+                      onValueChange={(val) => {
+                        setSelectedSubjectId(val ?? "");
+                        setSelectedChapterId("");
+                      }}
+                    >
+                      <SelectTrigger className="w-full h-9 text-xs">
+                        <SelectValue placeholder="Select Subject..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {subjects.map((sub) => (
+                            <SelectItem key={sub.id} value={sub.id}>
+                              {sub.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
 
-                  <select
-                    value={selectedChapterId}
-                    onChange={(e) => setSelectedChapterId(e.target.value)}
-                    disabled={!selectedSubjectId}
-                    className="w-full h-9 px-3 py-1 text-xs rounded-md border border-input bg-background text-foreground disabled:opacity-50"
-                  >
-                    <option value="">No Chapter (Directly under Subject)</option>
-                    {chapters
-                      .filter((ch) => ch.subject_id === selectedSubjectId)
-                      .map((ch) => (
-                        <option key={ch.id} value={ch.id}>
-                          {ch.name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
+                    <Select
+                      value={selectedChapterId || "none"}
+                      onValueChange={(val) => setSelectedChapterId(!val || val === "none" ? "" : val)}
+                      disabled={!selectedSubjectId}
+                    >
+                      <SelectTrigger className="w-full h-9 text-xs disabled:opacity-50">
+                        <SelectValue placeholder="No Chapter (Directly under Subject)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="none">No Chapter (Directly under Subject)</SelectItem>
+                          {filteredChapters.map((ch) => (
+                            <SelectItem key={ch.id} value={ch.id}>
+                              {ch.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Topic Title (e.g. Action Potential)"
-                    value={topicName}
-                    onChange={(e) => setTopicName(e.target.value)}
-                    className="text-sm h-9"
-                  />
-                  <Button type="submit" size="sm" disabled={!selectedSubjectId || !topicName.trim()} className="shrink-0">
-                    <Plus className="size-4" /> Add Topic
-                  </Button>
-                </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Topic Title (e.g. Action Potential)"
+                      value={topicName}
+                      onChange={(e) => setTopicName(e.target.value)}
+                      className="text-sm h-9"
+                    />
+                    <Button type="submit" size="sm" disabled={!selectedSubjectId || !topicName.trim()} className="shrink-0">
+                      <Plus className="size-4" /> Add Topic
+                    </Button>
+                  </div>
+                </Field>
               </form>
             )}
 
@@ -307,19 +339,22 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
 
           {/* Tab 2: Manage Section Columns */}
           <TabsContent value="columns" className="space-y-6">
-            <form onSubmit={handleAddSection} className="space-y-2 p-3 bg-muted/30 rounded-xl border border-border">
-              <span className="text-xs font-semibold text-foreground block">Add Custom Section Column</span>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Column Name (e.g. Flashcards)"
-                  value={sectionName}
-                  onChange={(e) => setSectionName(e.target.value)}
-                  className="text-sm h-9"
-                />
-                <Button type="submit" size="sm" className="shrink-0">
-                  <Plus className="size-4" /> Add Column
-                </Button>
-              </div>
+            <form onSubmit={handleAddSection} className="p-3 bg-muted/30 rounded-xl border border-border">
+              <Field className="space-y-1.5">
+                <FieldLabel htmlFor="sectionColumnInput">Add Custom Section Column</FieldLabel>
+                <div className="flex gap-2">
+                  <Input
+                    id="sectionColumnInput"
+                    placeholder="Column Name (e.g. Flashcards)"
+                    value={sectionName}
+                    onChange={(e) => setSectionName(e.target.value)}
+                    className="text-sm h-9"
+                  />
+                  <Button type="submit" size="sm" className="shrink-0">
+                    <Plus className="size-4" /> Add Column
+                  </Button>
+                </div>
+              </Field>
             </form>
 
             <div className="space-y-2">

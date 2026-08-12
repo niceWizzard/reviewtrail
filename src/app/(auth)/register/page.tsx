@@ -5,10 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { Eye, EyeOff, Loader2, UserPlus, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, UserPlus, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -16,6 +17,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
+import {
+  FieldGroup,
+  Field,
+  FieldLabel,
+  FieldError,
+} from "@/src/components/ui/field";
 import { registerUser } from "@/src/lib/auth";
 
 const registerSchema = z
@@ -91,10 +98,10 @@ export default function RegisterPage() {
       </CardHeader>
       <CardContent>
         {errorMessage && (
-          <div className="mb-4 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-            <AlertCircle className="size-4 shrink-0 mt-0.5" />
-            <div className="flex-1 font-medium">{errorMessage}</div>
-          </div>
+          <Alert variant="destructive" className="mb-4">
+            <AlertTitle className="text-sm font-semibold">Error</AlertTitle>
+            <AlertDescription className="text-xs">{errorMessage}</AlertDescription>
+          </Alert>
         )}
 
         {successMessage && (
@@ -110,159 +117,117 @@ export default function RegisterPage() {
             e.stopPropagation();
             form.handleSubmit();
           }}
-          className="space-y-4"
+          className="space-y-6"
         >
-          <form.Field name="username">
-            {(field) => {
-              const { errors, isTouched, isDirty } = field.state.meta;
-              const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
-              return (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium leading-none" htmlFor={field.name}>
-                    Username
-                  </label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="text"
-                    placeholder="mariasantos"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    autoComplete="username"
-                  />
-                  {shouldShowErrors ? (
-                    <p className="text-xs font-medium text-destructive">
-                      {errors
-                        .map((err) =>
-                          typeof err === "string"
-                            ? err
-                            : (err as { message?: string })?.message || String(err)
-                        )
-                        .join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
+          <FieldGroup>
+            <form.Field name="username">
+              {(field) => {
+                const { errors, isTouched, isDirty } = field.state.meta;
+                const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
+                return (
+                  <Field data-invalid={shouldShowErrors}>
+                    <FieldLabel htmlFor={field.name}>Username</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="text"
+                      placeholder="mariasantos"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      autoComplete="username"
+                      aria-invalid={shouldShowErrors}
+                    />
+                    {shouldShowErrors && <FieldError errors={errors} />}
+                  </Field>
+                );
+              }}
+            </form.Field>
 
-          <form.Field name="email">
-            {(field) => {
-              const { errors, isTouched, isDirty } = field.state.meta;
-              const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
-              return (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium leading-none" htmlFor={field.name}>
-                    Email Address
-                  </label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="email"
-                    placeholder="name@example.com"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    autoComplete="email"
-                  />
-                  {shouldShowErrors ? (
-                    <p className="text-xs font-medium text-destructive">
-                      {errors
-                        .map((err) =>
-                          typeof err === "string"
-                            ? err
-                            : (err as { message?: string })?.message || String(err)
-                        )
-                        .join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
+            <form.Field name="email">
+              {(field) => {
+                const { errors, isTouched, isDirty } = field.state.meta;
+                const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
+                return (
+                  <Field data-invalid={shouldShowErrors}>
+                    <FieldLabel htmlFor={field.name}>Email Address</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="email"
+                      placeholder="name@example.com"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      autoComplete="email"
+                      aria-invalid={shouldShowErrors}
+                    />
+                    {shouldShowErrors && <FieldError errors={errors} />}
+                  </Field>
+                );
+              }}
+            </form.Field>
 
-          <form.Field name="password">
-            {(field) => {
-              const { errors, isTouched, isDirty } = field.state.meta;
-              const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
-              return (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium leading-none" htmlFor={field.name}>
-                    Password
-                  </label>
-                  <div className="relative">
+            <form.Field name="password">
+              {(field) => {
+                const { errors, isTouched, isDirty } = field.state.meta;
+                const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
+                return (
+                  <Field data-invalid={shouldShowErrors}>
+                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                    <div className="relative">
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type={showPassword ? "text" : "password"}
+                        placeholder="At least 6 characters"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        autoComplete="new-password"
+                        className="pr-10"
+                        aria-invalid={shouldShowErrors}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                        <span className="sr-only">Toggle password visibility</span>
+                      </button>
+                    </div>
+                    {shouldShowErrors && <FieldError errors={errors} />}
+                  </Field>
+                );
+              }}
+            </form.Field>
+
+            <form.Field name="confirmPassword">
+              {(field) => {
+                const { errors, isTouched, isDirty } = field.state.meta;
+                const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
+                return (
+                  <Field data-invalid={shouldShowErrors}>
+                    <FieldLabel htmlFor={field.name}>Confirm Password</FieldLabel>
                     <Input
                       id={field.name}
                       name={field.name}
                       type={showPassword ? "text" : "password"}
-                      placeholder="At least 6 characters"
+                      placeholder="Re-enter password"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       autoComplete="new-password"
-                      className="pr-10"
+                      aria-invalid={shouldShowErrors}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      tabIndex={-1}
-                    >
-                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                      <span className="sr-only">Toggle password visibility</span>
-                    </button>
-                  </div>
-                  {shouldShowErrors ? (
-                    <p className="text-xs font-medium text-destructive">
-                      {errors
-                        .map((err) =>
-                          typeof err === "string"
-                            ? err
-                            : (err as { message?: string })?.message || String(err)
-                        )
-                        .join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
-
-          <form.Field name="confirmPassword">
-            {(field) => {
-              const { errors, isTouched, isDirty } = field.state.meta;
-              const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
-              return (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium leading-none" htmlFor={field.name}>
-                    Confirm Password
-                  </label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Re-enter password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    autoComplete="new-password"
-                  />
-                  {shouldShowErrors ? (
-                    <p className="text-xs font-medium text-destructive">
-                      {errors
-                        .map((err) =>
-                          typeof err === "string"
-                            ? err
-                            : (err as { message?: string })?.message || String(err)
-                        )
-                        .join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
+                    {shouldShowErrors && <FieldError errors={errors} />}
+                  </Field>
+                );
+              }}
+            </form.Field>
+          </FieldGroup>
 
           <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
