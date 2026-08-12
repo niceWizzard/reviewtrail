@@ -11,7 +11,7 @@ CREATE FUNCTION public.handle_new_exam_tracker()
   SET search_path TO ''
   AS $function$
 BEGIN
-  INSERT INTO public.tracker_sections (exam_tracker_id, name, position)
+  INSERT INTO public.tracker_checklists (exam_tracker_id, name, position)
   VALUES
     (NEW.id, '1st Read', 1),
     (NEW.id, 'Notes', 2),
@@ -275,7 +275,7 @@ CREATE POLICY "Users manage own topics" ON public.topics
   USING (public.is_exam_owner(exam_tracker_id))
   WITH CHECK (public.is_exam_owner(exam_tracker_id));
 
-CREATE TABLE public.tracker_sections (
+CREATE TABLE public.tracker_checklists (
   id              uuid                     DEFAULT gen_random_uuid() NOT NULL,
   exam_tracker_id uuid                     NOT NULL,
   name            text                     NOT NULL,
@@ -284,30 +284,30 @@ CREATE TABLE public.tracker_sections (
   created_at      timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.tracker_sections
+ALTER TABLE public.tracker_checklists
   ENABLE ROW LEVEL SECURITY;
 
-ALTER TABLE public.tracker_sections
-  ADD CONSTRAINT tracker_sections_exam_tracker_id_fkey FOREIGN KEY (exam_tracker_id) REFERENCES public.exam_trackers(id) ON DELETE CASCADE;
+ALTER TABLE public.tracker_checklists
+  ADD CONSTRAINT tracker_checklists_exam_tracker_id_fkey FOREIGN KEY (exam_tracker_id) REFERENCES public.exam_trackers(id) ON DELETE CASCADE;
 
-ALTER TABLE public.tracker_sections
-  ADD CONSTRAINT tracker_sections_id_exam_key UNIQUE (id, exam_tracker_id);
+ALTER TABLE public.tracker_checklists
+  ADD CONSTRAINT tracker_checklists_id_exam_key UNIQUE (id, exam_tracker_id);
 
 ALTER TABLE public.topic_section_progress
-  ADD CONSTRAINT fk_progress_section_exam FOREIGN KEY (section_id, exam_tracker_id) REFERENCES public.tracker_sections(id, exam_tracker_id) ON DELETE CASCADE;
+  ADD CONSTRAINT fk_progress_section_exam FOREIGN KEY (section_id, exam_tracker_id) REFERENCES public.tracker_checklists(id, exam_tracker_id) ON DELETE CASCADE;
 
-ALTER TABLE public.tracker_sections
-  ADD CONSTRAINT tracker_sections_pkey PRIMARY KEY (id);
+ALTER TABLE public.tracker_checklists
+  ADD CONSTRAINT tracker_checklists_pkey PRIMARY KEY (id);
 
-GRANT MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON public.tracker_sections TO anon;
+GRANT MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON public.tracker_checklists TO anon;
 
-GRANT MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON public.tracker_sections TO authenticated;
+GRANT MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON public.tracker_checklists TO authenticated;
 
-GRANT MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON public.tracker_sections TO service_role;
+GRANT MAINTAIN, REFERENCES, TRIGGER, TRUNCATE ON public.tracker_checklists TO service_role;
 
-CREATE INDEX idx_tracker_sections_exam ON public.tracker_sections (exam_tracker_id, "position");
+CREATE INDEX idx_tracker_checklists_exam ON public.tracker_checklists (exam_tracker_id, "position");
 
-CREATE POLICY "Users manage own sections" ON public.tracker_sections
+CREATE POLICY "Users manage own checklists" ON public.tracker_checklists
   TO authenticated
   USING (public.is_exam_owner(exam_tracker_id))
   WITH CHECK (public.is_exam_owner(exam_tracker_id));

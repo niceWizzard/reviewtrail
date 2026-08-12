@@ -66,7 +66,7 @@ schema_paths = [
   "./schemas/exam_trackers.sql",
   "./schemas/subjects.sql",
   "./schemas/chapters.sql",
-  "./schemas/tracker_sections.sql",
+  "./schemas/tracker_checklists.sql",
   "./schemas/topics.sql",
   "./schemas/topic_section_progress.sql"
 ]

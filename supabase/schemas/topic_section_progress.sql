@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS public.topic_section_progress (
     CONSTRAINT fk_progress_topic_exam FOREIGN KEY (topic_id, exam_tracker_id)
       REFERENCES public.topics(id, exam_tracker_id) ON DELETE CASCADE,
     CONSTRAINT fk_progress_section_exam FOREIGN KEY (section_id, exam_tracker_id)
-      REFERENCES public.tracker_sections(id, exam_tracker_id) ON DELETE CASCADE,
+      REFERENCES public.tracker_checklists(id, exam_tracker_id) ON DELETE CASCADE,
     CONSTRAINT topic_section_progress_unique UNIQUE (topic_id, section_id)
 );
 

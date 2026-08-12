@@ -41,8 +41,8 @@ GRANT DELETE, INSERT, SELECT, UPDATE ON public.topics TO authenticated;
 
 GRANT DELETE, INSERT, SELECT, UPDATE ON public.topics TO service_role;
 
-GRANT DELETE, INSERT, SELECT, UPDATE ON public.tracker_sections TO anon;
+GRANT DELETE, INSERT, SELECT, UPDATE ON public.tracker_checklists TO anon;
 
-GRANT DELETE, INSERT, SELECT, UPDATE ON public.tracker_sections TO authenticated;
+GRANT DELETE, INSERT, SELECT, UPDATE ON public.tracker_checklists TO authenticated;
 
-GRANT DELETE, INSERT, SELECT, UPDATE ON public.tracker_sections TO service_role;
+GRANT DELETE, INSERT, SELECT, UPDATE ON public.tracker_checklists TO service_role;

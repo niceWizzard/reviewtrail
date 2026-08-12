@@ -180,7 +180,7 @@ export default function BuilderPage() {
   const handleAddSectionColumn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSectionName.trim()) return;
-    if (workspaceData.sections.length >= 10) {
+    if (workspaceData.checklists.length >= 10) {
       setErrorMessage("Maximum limit of 10 checklist columns reached.");
       return;
     }
@@ -228,7 +228,7 @@ export default function BuilderPage() {
     }
   };
 
-  const isMaxColumnsReached = workspaceData.sections.length >= 10;
+  const isMaxColumnsReached = workspaceData.checklists.length >= 10;
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 relative">
@@ -429,7 +429,7 @@ export default function BuilderPage() {
 
               <div className="flex items-center gap-2">
                 <Badge variant={isMaxColumnsReached ? "destructive" : "secondary"} className="px-3 py-1 text-xs">
-                  {workspaceData.sections.length}/10 Columns
+                  {workspaceData.checklists.length}/10 Columns
                 </Badge>
               </div>
             </div>
@@ -485,7 +485,7 @@ export default function BuilderPage() {
               <form onSubmit={handleAddSectionColumn} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground">Add New Checklist Column</span>
-                  <span className="text-[11px] text-muted-foreground">{workspaceData.sections.length}/10 max</span>
+                  <span className="text-[11px] text-muted-foreground">{workspaceData.checklists.length}/10 max</span>
                 </div>
                 <div className="flex gap-2">
                   <Input
@@ -593,7 +593,7 @@ export default function BuilderPage() {
                     </th>
 
                     {/* Dynamic Section Columns (Positioned Order) */}
-                    {workspaceData.sections.map((section) => (
+                    {workspaceData.checklists.map((section) => (
                       <th
                         key={section.id}
                         className="px-3 py-2.5 text-center min-w-[120px] font-semibold border-r border-border/40 group relative"
@@ -632,7 +632,7 @@ export default function BuilderPage() {
                   {workspaceData.subjects.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={workspaceData.sections.length + 2}
+                        colSpan={workspaceData.checklists.length + 2}
                         className="p-8 text-center text-muted-foreground text-xs italic"
                       >
                         No subjects added yet. Click <strong>+ Add Subject</strong> above to build your review matrix!
@@ -649,7 +649,7 @@ export default function BuilderPage() {
                           {/* Subject Row Header */}
                           <tr className="bg-muted/50 font-bold text-foreground border-t border-border">
                             <td
-                              colSpan={workspaceData.sections.length + 2}
+                              colSpan={workspaceData.checklists.length + 2}
                               className="px-4 py-2 bg-muted/60 sticky left-0 z-10"
                             >
                               <div className="flex items-center justify-between">
@@ -691,7 +691,7 @@ export default function BuilderPage() {
                           {subTopics.length === 0 ? (
                             <tr>
                               <td
-                                colSpan={workspaceData.sections.length + 2}
+                                colSpan={workspaceData.checklists.length + 2}
                                 className="px-8 py-2 text-xs text-muted-foreground/70 italic"
                               >
                                 No topics under {subject.name}. Click "+ Topic" to add one!
@@ -719,7 +719,7 @@ export default function BuilderPage() {
                                 </td>
 
                                 {/* Checklist Cells (Spreadsheet Matrix Preview) */}
-                                {workspaceData.sections.map((section) => (
+                                {workspaceData.checklists.map((section) => (
                                   <td
                                     key={section.id}
                                     className="px-2 py-2 text-center border-r border-border/40"

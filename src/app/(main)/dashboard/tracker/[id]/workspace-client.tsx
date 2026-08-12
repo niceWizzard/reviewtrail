@@ -104,7 +104,7 @@ export function TrackerWorkspaceClient({
             <span>•</span>
             <span className="flex items-center gap-1.5 font-medium">
               <CheckCircle2 className="size-3.5 text-primary" />
-              {workspaceData.sections.length} Section Columns
+              {workspaceData.checklists.length} Checklist Columns
             </span>
           </div>
         </CardContent>

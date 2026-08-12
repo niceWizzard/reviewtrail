@@ -19,7 +19,8 @@ interface MobileAccordionProps {
 }
 
 export function TrackerAccordionMobile({ workspaceData }: MobileAccordionProps) {
-  const { tracker, sections, subjectTree, progress } = workspaceData;
+  const { tracker, checklists, subjectTree, progress } = workspaceData;
+  const sections = checklists;
   const { toggleProgress } = useTopicProgress(tracker.id);
 
   const isChecked = (topicId: string, sectionId: string): boolean => {

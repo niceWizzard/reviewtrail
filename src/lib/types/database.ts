@@ -9,7 +9,7 @@ export interface ExamTracker {
   updated_at: string;
 }
 
-export interface TrackerSection {
+export interface TrackerChecklist {
   id: string;
   exam_tracker_id: string;
   name: string;
@@ -73,7 +73,7 @@ export interface SubjectWithTree extends Subject {
 
 export interface TrackerWorkspaceData {
   tracker: ExamTracker;
-  sections: TrackerSection[];
+  checklists: TrackerChecklist[];
   subjects: Subject[];
   chapters: Chapter[];
   topics: Topic[];

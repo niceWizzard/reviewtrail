@@ -22,7 +22,7 @@ interface StructureEditorProps {
 
 export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEditorProps) {
   const {
-    sections,
+    checklists,
     subjects,
     chapters,
     topics,
@@ -212,10 +212,10 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
 
             <div className="space-y-2">
               <span className="text-xs font-semibold text-muted-foreground block uppercase tracking-wider">
-                Active Columns ({sections.length})
+                Active Columns ({checklists.length})
               </span>
 
-              {sections.map((section) => (
+              {checklists.map((section) => (
                 <div
                   key={section.id}
                   className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-card text-sm"

@@ -13,7 +13,8 @@ interface DesktopGridProps {
 }
 
 export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: DesktopGridProps) {
-  const { tracker, sections, subjectTree, progress } = workspaceData;
+  const { tracker, checklists, subjectTree, progress } = workspaceData;
+  const sections = checklists;
   const { toggleProgress } = useTopicProgress(tracker.id);
 
   // Helper function to check if (topicId, sectionId) is completed

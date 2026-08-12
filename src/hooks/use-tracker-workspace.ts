@@ -6,10 +6,10 @@ import {
   createSubjectAction,
   createChapterAction,
   createTopicAction,
-  createTrackerSectionAction,
+  createTrackerChecklistAction,
   deleteTopicAction,
   deleteSubjectAction,
-  deleteTrackerSectionAction,
+  deleteTrackerChecklistAction,
 } from "@/src/lib/actions/structure";
 
 export function useTrackerWorkspace(examTrackerId: string) {
@@ -53,7 +53,7 @@ export function useTrackerWorkspace(examTrackerId: string) {
 
   const addSectionMutation = useMutation({
     mutationFn: (payload: { name: string; color?: string }) =>
-      createTrackerSectionAction({ exam_tracker_id: examTrackerId, ...payload }),
+      createTrackerChecklistAction({ exam_tracker_id: examTrackerId, ...payload }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
@@ -68,14 +68,15 @@ export function useTrackerWorkspace(examTrackerId: string) {
   });
 
   const removeSectionMutation = useMutation({
-    mutationFn: deleteTrackerSectionAction,
+    mutationFn: deleteTrackerChecklistAction,
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
   return {
     data: query.data,
     tracker: query.data?.tracker || null,
-    sections: query.data?.sections || [],
+    checklists: query.data?.checklists || [],
+    sections: query.data?.checklists || [],
     subjects: query.data?.subjects || [],
     chapters: query.data?.chapters || [],
     topics: query.data?.topics || [],

@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createExamTrackerAction } from "@/src/lib/actions/trackers";
 import {
-  createTrackerSectionAction,
-  clearTrackerSectionsAction,
+  createTrackerChecklistAction,
+  clearTrackerChecklistsAction,
   createSubjectAction,
   createChapterAction,
   createTopicAction,
@@ -31,7 +31,7 @@ export function useTrackerBuilder() {
       });
 
       if (payload.prepopulateColumns === false) {
-        await clearTrackerSectionsAction(tracker.id);
+        await clearTrackerChecklistsAction(tracker.id);
       }
 
       setTrackerId(tracker.id);
@@ -43,11 +43,11 @@ export function useTrackerBuilder() {
     },
   });
 
-  // Step 2: Add Section Column via Server Action
+  // Step 2: Add Checklist Column via Server Action
   const addSectionMutation = useMutation({
     mutationFn: (payload: { name: string; color?: string }) => {
       if (!trackerId) throw new Error("Tracker must be created first");
-      return createTrackerSectionAction({ exam_tracker_id: trackerId, ...payload });
+      return createTrackerChecklistAction({ exam_tracker_id: trackerId, ...payload });
     },
     onSuccess: () => {
       if (trackerId) {

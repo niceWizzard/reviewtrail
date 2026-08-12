@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { createClient, createStaticClient } from "@/src/lib/supabase/server";
 import type {
   ExamTracker,
-  TrackerSection,
+  TrackerChecklist,
   Subject,
   Chapter,
   Topic,
@@ -34,11 +34,11 @@ async function getCachedTrackerWorkspace(
 
 
 
-  const [trackerRes, sectionsRes, subjectsRes, chaptersRes, topicsRes, progressRes] =
+  const [trackerRes, checklistsRes, subjectsRes, chaptersRes, topicsRes, progressRes] =
     await Promise.all([
       supabase.from("exam_trackers").select("*").eq("id", examTrackerId).single(),
       supabase
-        .from("tracker_sections")
+        .from("tracker_checklists")
         .select("*")
         .eq("exam_tracker_id", examTrackerId)
         .order("position"),
@@ -65,7 +65,7 @@ async function getCachedTrackerWorkspace(
   }
 
   const tracker = trackerRes.data as ExamTracker;
-  const sections = (sectionsRes.data || []) as TrackerSection[];
+  const checklists = (checklistsRes.data || []) as TrackerChecklist[];
   const subjects = (subjectsRes.data || []) as Subject[];
   const chapters = (chaptersRes.data || []) as Chapter[];
   const topics = (topicsRes.data || []) as Topic[];
@@ -92,14 +92,14 @@ async function getCachedTrackerWorkspace(
   });
 
   const totalTopics = topics.length;
-  const totalCheckboxes = totalTopics * (sections.length || 1);
+  const totalCheckboxes = totalTopics * (checklists.length || 1);
   const completedCheckboxes = progress.filter((p) => p.is_completed).length;
   const overallPercentage =
     totalCheckboxes > 0 ? Math.round((completedCheckboxes / totalCheckboxes) * 100) : 0;
 
   return {
     tracker,
-    sections,
+    checklists,
     subjects,
     chapters,
     topics,

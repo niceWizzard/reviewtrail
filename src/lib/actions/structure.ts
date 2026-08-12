@@ -2,26 +2,26 @@
 
 import { updateTag } from "next/cache";
 import { createClient } from "@/src/lib/supabase/server";
-import type { TrackerSection, Subject, Chapter, Topic } from "@/src/lib/types/database";
+import type { TrackerChecklist, Subject, Chapter, Topic } from "@/src/lib/types/database";
 
-export async function createTrackerSectionAction(payload: {
+export async function createTrackerChecklistAction(payload: {
   exam_tracker_id: string;
   name: string;
   position?: number;
   color?: string | null;
-}): Promise<TrackerSection> {
+}): Promise<TrackerChecklist> {
   const supabase = await createClient();
 
   // Validate 10-column maximum limit
-  const { data: existingSections, error: fetchErr } = await supabase
-    .from("tracker_sections")
+  const { data: existingChecklists, error: fetchErr } = await supabase
+    .from("tracker_checklists")
     .select("id, position")
     .eq("exam_tracker_id", payload.exam_tracker_id)
     .order("position", { ascending: true });
 
   if (fetchErr) throw new Error(fetchErr.message);
 
-  const currentCount = existingSections?.length || 0;
+  const currentCount = existingChecklists?.length || 0;
   if (currentCount >= 10) {
     throw new Error("Maximum limit of 10 checklist columns reached.");
   }
@@ -29,7 +29,7 @@ export async function createTrackerSectionAction(payload: {
   const nextPosition = payload.position ?? currentCount + 1;
 
   const { data, error } = await supabase
-    .from("tracker_sections")
+    .from("tracker_checklists")
     .insert({
       exam_tracker_id: payload.exam_tracker_id,
       name: payload.name,
@@ -41,13 +41,13 @@ export async function createTrackerSectionAction(payload: {
 
   if (error) throw new Error(error.message);
   updateTag(`workspace-${payload.exam_tracker_id}`);
-  return data as TrackerSection;
+  return data as TrackerChecklist;
 }
 
-export async function clearTrackerSectionsAction(examTrackerId: string): Promise<void> {
+export async function clearTrackerChecklistsAction(examTrackerId: string): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase
-    .from("tracker_sections")
+    .from("tracker_checklists")
     .delete()
     .eq("exam_tracker_id", examTrackerId);
 
@@ -160,15 +160,15 @@ export async function deleteSubjectAction(subjectId: string): Promise<void> {
   updateTag("exam_trackers");
 }
 
-export async function deleteTrackerSectionAction(sectionId: string): Promise<void> {
+export async function deleteTrackerChecklistAction(checklistId: string): Promise<void> {
   const supabase = await createClient();
   const { data } = await supabase
-    .from("tracker_sections")
+    .from("tracker_checklists")
     .select("exam_tracker_id")
-    .eq("id", sectionId)
+    .eq("id", checklistId)
     .single();
 
-  const { error } = await supabase.from("tracker_sections").delete().eq("id", sectionId);
+  const { error } = await supabase.from("tracker_checklists").delete().eq("id", checklistId);
   if (error) throw new Error(error.message);
   if (data?.exam_tracker_id) {
     updateTag(`workspace-${data.exam_tracker_id}`);
