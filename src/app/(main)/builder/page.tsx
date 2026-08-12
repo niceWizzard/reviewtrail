@@ -1,53 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
-import {
-  Sparkles,
-  ArrowLeft,
-  ArrowRight,
-  Plus,
-  CheckCircle2,
-  BookOpen,
-  Trash2,
-  CheckSquare,
-  AlertCircle,
-  AlertTriangle,
-  X,
-  Layers,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
 import { Badge } from "@/src/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/src/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
 import { useTrackerBuilder } from "@/src/hooks/use-tracker-builder";
 import { useTrackerWorkspace } from "@/src/hooks/use-tracker-workspace";
 
-// Step 1 Zod Schema
-const step1Schema = z.object({
-  examName: z.string().min(1, "Exam name is required").max(32, "Exam name must be 32 characters or less"),
-  examDate: z.string(),
-  description: z.string(),
-  prepopulateColumns: z.boolean(),
-});
-
-// Discriminated Unions for Step 2 UI
-type ActiveAdderForm = "section" | "subject" | "chapter" | "topic" | null;
-type LeaveTarget =
-  | { type: "dashboard" }
-  | { type: "step1" }
-  | { type: "href"; href: string };
+import { ActiveAdderForm, LeaveTarget, Step1Values } from "./types";
+import { BuilderHeader } from "./components/builder-header";
+import { ErrorAlert } from "./components/error-alert";
+import { ExamInfoForm } from "./components/exam-info-form";
+import { MatrixToolbar } from "./components/matrix-toolbar";
+import { MatrixAdderForms } from "./components/matrix-adder-forms";
+import { ReviewMatrixTable } from "./components/review-matrix-table";
+import { LeaveConfirmDialog } from "./components/leave-confirm-dialog";
 
 export default function BuilderPage() {
   const router = useRouter();
@@ -73,45 +40,14 @@ export default function BuilderPage() {
 
   // Step 2 Inline Adder States
   const [activeAdderForm, setActiveAdderForm] = useState<ActiveAdderForm>(null);
-  const [newSectionName, setNewSectionName] = useState("");
-  const [newSubjectName, setNewSubjectName] = useState("");
-  const [newChapterName, setNewChapterName] = useState("");
-  const [newTopicName, setNewTopicName] = useState("");
   const [targetSubjectId, setTargetSubjectId] = useState("");
-  const [targetChapterId, setTargetChapterId] = useState("");
 
   // Accidental Navigation Target & Ref
   const [pendingLeaveTarget, setPendingLeaveTarget] = useState<LeaveTarget | null>(null);
   const stayBtnRef = useRef<HTMLButtonElement>(null);
 
-  // Derived Modal Visibility
   const isLeaveConfirmOpen = pendingLeaveTarget !== null;
-
-  // Step 1 TanStack Form
-  const step1Form = useForm({
-    defaultValues: {
-      examName: "",
-      examDate: "",
-      description: "",
-      prepopulateColumns: true,
-    },
-    validators: {
-      onChange: step1Schema,
-    },
-    onSubmit: async ({ value }) => {
-      setErrorMessage(null);
-      try {
-        await saveExamInfo({
-          exam_name: value.examName.trim(),
-          exam_date: value.examDate || undefined,
-          description: value.description.trim() || undefined,
-          prepopulateColumns: value.prepopulateColumns,
-        });
-      } catch (err: any) {
-        setErrorMessage(err?.message || "Failed to create exam tracker");
-      }
-    },
-  });
+  const isMaxColumnsReached = workspaceData.checklists.length >= 10;
 
   // Navigation Protection Effects
   useEffect(() => {
@@ -180,64 +116,18 @@ export default function BuilderPage() {
     }
   };
 
-  // Step 2 Handlers
-  const handleAddSectionColumn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newSectionName.trim()) return;
-    if (workspaceData.checklists.length >= 10) {
-      setErrorMessage("Maximum limit of 10 checklist columns reached.");
-      return;
-    }
+  // Step 1 Submission
+  const handleSaveExamInfo = async (value: Step1Values) => {
     setErrorMessage(null);
     try {
-      await addSectionColumn({ name: newSectionName.trim() });
-      setNewSectionName("");
-      setActiveAdderForm(null);
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Failed to add column");
-    }
-  };
-
-  const handleAddSubject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newSubjectName.trim()) return;
-    setErrorMessage(null);
-    try {
-      await addSubject({ name: newSubjectName.trim() });
-      setNewSubjectName("");
-      setActiveAdderForm(null);
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Failed to add subject");
-    }
-  };
-
-  const handleAddChapter = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!targetSubjectId || !newChapterName.trim()) return;
-    setErrorMessage(null);
-    try {
-      await addChapter({ subjectId: targetSubjectId, name: newChapterName.trim() });
-      setNewChapterName("");
-      setActiveAdderForm(null);
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Failed to add chapter");
-    }
-  };
-
-  const handleAddTopic = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!targetSubjectId || !newTopicName.trim()) return;
-    setErrorMessage(null);
-    try {
-      await addTopic({
-        subjectId: targetSubjectId,
-        chapterId: targetChapterId || null,
-        name: newTopicName.trim(),
+      await saveExamInfo({
+        exam_name: value.examName.trim(),
+        exam_date: value.examDate || undefined,
+        description: value.description.trim() || undefined,
+        prepopulateColumns: value.prepopulateColumns,
       });
-      setNewTopicName("");
-      setActiveAdderForm(null);
     } catch (err: any) {
-      setErrorMessage(err?.message || "Failed to add topic");
+      setErrorMessage(err?.message || "Failed to create exam tracker");
     }
   };
 
@@ -249,186 +139,23 @@ export default function BuilderPage() {
     }
   };
 
-  const isMaxColumnsReached = workspaceData.checklists.length >= 10;
+  const handleOpenAdderForm = (form: ActiveAdderForm, subjectId?: string) => {
+    if (subjectId) setTargetSubjectId(subjectId);
+    setActiveAdderForm((prev) => (prev === form ? null : form));
+  };
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 relative">
-      {/* Top Header Navigation */}
-      <div className="flex items-center justify-between">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => handleNavAttempt("dashboard")}
-          className="gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer"
-        >
-          <ArrowLeft className="size-4" />
-          Dashboard
-        </Button>
+      <BuilderHeader step={step as 1 | 2} onNavAttempt={handleNavAttempt} />
 
-        <Badge variant="outline" className="gap-1.5 border-primary/40 text-primary py-1 px-3">
-          <Sparkles className="size-3.5" />
-          Database Autosave Active
-        </Badge>
-      </div>
+      <ErrorAlert errorMessage={errorMessage} onClear={() => setErrorMessage(null)} />
 
-      {/* Stepper Progress Header (2 Steps) */}
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Create Custom Exam Tracker</h1>
-        <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-          {step === 1
-            ? "Enter your exam details to initialize your review tracker."
-            : "Customize your review matrix columns and syllabus topics live like a spreadsheet."}
-        </p>
-
-        <div className="flex items-center justify-center gap-2 pt-4 max-w-xs mx-auto">
-          {[1, 2].map((s) => (
-            <div
-              key={s}
-              className={`flex-1 h-2 rounded-full transition-all ${
-                s <= step ? "bg-primary" : "bg-muted"
-              }`}
-            />
-          ))}
-        </div>
-        <div className="flex justify-between text-xs text-muted-foreground max-w-xs mx-auto font-medium px-1">
-          <span className={step === 1 ? "text-primary font-semibold" : ""}>1. Exam Details</span>
-          <span className={step === 2 ? "text-primary font-semibold" : ""}>2. Matrix Builder</span>
-        </div>
-      </div>
-
-      {/* Error Alert Display */}
-      {errorMessage && (
-        <div className="p-3.5 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive text-sm flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="size-4 shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setErrorMessage(null)}
-            className="hover:opacity-80 transition-opacity cursor-pointer"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-      )}
-
-      {/* STEP 1: EXAM INFO FORM WITH TANSTACK FORM */}
+      {/* STEP 1: EXAM INFO FORM */}
       {step === 1 && (
-        <Card className="shadow-xs border-border max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span className="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                1
-              </span>
-              Exam Title & Target Date
-            </CardTitle>
-            <CardDescription>
-              Provide the details for your exam to set up your study tracking workspace.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                step1Form.handleSubmit();
-              }}
-              className="space-y-4"
-            >
-              {/* Field 1: Exam Name */}
-              <step1Form.Field
-                name="examName"
-                validators={{
-                  onChange: step1Schema.shape.examName,
-                }}
-                children={(field) => (
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-foreground">Exam Name *</label>
-                    <Input
-                      required
-                      placeholder="e.g. USMLE Step 1, CPA Board Exam 2026, NCLEX-RN"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                    {field.state.meta.errors.length > 0 && (
-                      <p className="text-[11px] text-destructive font-medium">
-                        {field.state.meta.errors[0]?.message}
-                      </p>
-                    )}
-                  </div>
-                )}
-              />
-
-              {/* Field 2: Target Exam Date */}
-              <step1Form.Field
-                name="examDate"
-                children={(field) => (
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-foreground">Target Exam Date</label>
-                    <Input
-                      type="date"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                  </div>
-                )}
-              />
-
-              {/* Field 3: Description */}
-              <step1Form.Field
-                name="description"
-                children={(field) => (
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-foreground">Description / Goal</label>
-                    <Input
-                      placeholder="e.g. Target score 250+, 3 review passes before scheduled exam"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                  </div>
-                )}
-              />
-
-              {/* Field 4: Pre-populate Columns Checkbox */}
-              <step1Form.Field
-                name="prepopulateColumns"
-                children={(field) => (
-                  <div className="pt-2">
-                    <label className="flex items-start gap-3 p-3.5 rounded-xl border border-border bg-muted/20 hover:bg-muted/40 cursor-pointer transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.checked)}
-                        className="mt-0.5 size-4 rounded-xs text-primary focus:ring-primary accent-primary"
-                      />
-                      <div className="space-y-0.5 text-xs">
-                        <span className="font-semibold text-foreground block">
-                          Pre-populate default checklist columns
-                        </span>
-                        <span className="text-muted-foreground block">
-                          Starts your table matrix with standard review columns: <strong>1st Read</strong>, <strong>Notes</strong>, and <strong>Practice Qs</strong>. Uncheck to start with an empty matrix.
-                        </span>
-                      </div>
-                    </label>
-                  </div>
-                )}
-              />
-
-              <div className="pt-4 flex justify-end">
-                <Button type="submit" disabled={isSavingExamInfo} className="gap-2">
-                  {isSavingExamInfo ? "Autosaving Exam Info..." : "Next: Build Review Matrix"}
-                  <ArrowRight className="size-4" />
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <ExamInfoForm
+          isSavingExamInfo={isSavingExamInfo}
+          onSubmit={handleSaveExamInfo}
+        />
       )}
 
       {/* STEP 2: SPREADSHEET-STYLE REVIEW MATRIX BUILDER */}
@@ -457,503 +184,65 @@ export default function BuilderPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Quick Toolbar for Matrix Editing */}
-            <div className="p-3 bg-muted/40 rounded-xl border border-border flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Add Column Button */}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={isMaxColumnsReached}
-                  onClick={() => setActiveAdderForm(activeAdderForm === "section" ? null : "section")}
-                  className="gap-1.5"
-                >
-                  <Plus className="size-3.5" />
-                  Add Column
-                </Button>
+            <MatrixToolbar
+              activeAdderForm={activeAdderForm}
+              setActiveAdderForm={setActiveAdderForm}
+              isMaxColumnsReached={isMaxColumnsReached}
+              subjectCount={workspaceData.subjects.length}
+              topicCount={workspaceData.topics.length}
+            />
 
-                {/* Add Subject Button */}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setActiveAdderForm(activeAdderForm === "subject" ? null : "subject")}
-                  className="gap-1.5"
-                >
-                  <Plus className="size-3.5" />
-                  Add Subject
-                </Button>
+            <MatrixAdderForms
+              activeAdderForm={activeAdderForm}
+              setActiveAdderForm={setActiveAdderForm}
+              subjects={workspaceData.subjects}
+              chapters={workspaceData.chapters}
+              checklistsLength={workspaceData.checklists.length}
+              targetSubjectId={targetSubjectId}
+              setTargetSubjectId={setTargetSubjectId}
+              onAddSectionColumn={async (name) => {
+                await addSectionColumn({ name });
+              }}
+              isAddingSection={isAddingSection}
+              onAddSubject={async (name) => {
+                await addSubject({ name });
+              }}
+              isAddingSubject={isAddingSubject}
+              onAddChapter={async (subjectId, name) => {
+                await addChapter({ subjectId, name });
+              }}
+              onAddTopic={async (subjectId, chapterId, name) => {
+                await addTopic({ subjectId, chapterId, name });
+              }}
+              isAddingTopic={isAddingTopic}
+              setErrorMessage={setErrorMessage}
+            />
 
-                {/* Add Chapter Button */}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={workspaceData.subjects.length === 0}
-                  onClick={() => setActiveAdderForm(activeAdderForm === "chapter" ? null : "chapter")}
-                  className="gap-1.5"
-                >
-                  <Plus className="size-3.5" />
-                  Add Chapter
-                </Button>
-
-                {/* Add Topic Button */}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={workspaceData.subjects.length === 0}
-                  onClick={() => setActiveAdderForm(activeAdderForm === "topic" ? null : "topic")}
-                  className="gap-1.5"
-                >
-                  <Plus className="size-3.5" />
-                  Add Topic
-                </Button>
-              </div>
-
-              <span className="text-xs text-muted-foreground">
-                {workspaceData.subjects.length} Subjects • {workspaceData.topics.length} Topics
-              </span>
-            </div>
-
-            {/* Inline Add Column Form */}
-            {activeAdderForm === "section" && (
-              <form onSubmit={handleAddSectionColumn} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-foreground">Add New Checklist Column</span>
-                  <span className="text-[11px] text-muted-foreground">{workspaceData.checklists.length}/10 max</span>
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    autoFocus
-                    placeholder="Column Name (e.g. Flashcards, Lecture Video)"
-                    value={newSectionName}
-                    onChange={(e) => setNewSectionName(e.target.value)}
-                    className="h-9 text-sm"
-                  />
-                  <Button type="submit" size="sm" disabled={isAddingSection || !newSectionName.trim()}>
-                    Add Column
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setActiveAdderForm(null)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            )}
-
-            {/* Inline Add Subject Form */}
-            {activeAdderForm === "subject" && (
-              <form onSubmit={handleAddSubject} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-2">
-                <span className="text-xs font-semibold text-foreground block">Add New Subject Row</span>
-                <div className="flex gap-2">
-                  <Input
-                    autoFocus
-                    placeholder="Subject Name (e.g. Pharmacology, Civil Law)"
-                    value={newSubjectName}
-                    onChange={(e) => setNewSubjectName(e.target.value)}
-                    className="h-9 text-sm"
-                  />
-                  <Button type="submit" size="sm" disabled={isAddingSubject || !newSubjectName.trim()}>
-                    Add Subject
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setActiveAdderForm(null)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            )}
-
-            {/* Inline Add Chapter Form */}
-            {activeAdderForm === "chapter" && (
-              <form onSubmit={handleAddChapter} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-3">
-                <span className="text-xs font-semibold text-foreground block">Add Chapter Row under Subject</span>
-                <div className="grid sm:grid-cols-2 gap-2">
-                  <select
-                    value={targetSubjectId}
-                    onChange={(e) => setTargetSubjectId(e.target.value)}
-                    className="h-9 px-3 py-1 text-xs sm:text-sm rounded-md border border-input bg-background text-foreground"
-                  >
-                    <option value="">Select Target Subject...</option>
-                    {workspaceData.subjects.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <Input
-                    autoFocus
-                    placeholder="Chapter Name (e.g. Cardiovascular)"
-                    value={newChapterName}
-                    onChange={(e) => setNewChapterName(e.target.value)}
-                    className="h-9 text-sm"
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <Button type="submit" size="sm" disabled={!targetSubjectId || !newChapterName.trim()}>
-                    Add Chapter
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setActiveAdderForm(null)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            )}
-
-            {/* Inline Add Topic Form */}
-            {activeAdderForm === "topic" && (
-              <form onSubmit={handleAddTopic} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-3">
-                <span className="text-xs font-semibold text-foreground block">Add Topic Row under Subject</span>
-                <div className="grid sm:grid-cols-3 gap-2">
-                  <select
-                    value={targetSubjectId}
-                    onChange={(e) => {
-                      setTargetSubjectId(e.target.value);
-                      setTargetChapterId("");
-                    }}
-                    className="h-9 px-3 py-1 text-xs sm:text-sm rounded-md border border-input bg-background text-foreground"
-                  >
-                    <option value="">Select Target Subject...</option>
-                    {workspaceData.subjects.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={targetChapterId}
-                    onChange={(e) => setTargetChapterId(e.target.value)}
-                    disabled={!targetSubjectId}
-                    className="h-9 px-3 py-1 text-xs sm:text-sm rounded-md border border-input bg-background text-foreground disabled:opacity-50"
-                  >
-                    <option value="">No Chapter (Ungrouped)</option>
-                    {workspaceData.chapters
-                      .filter((ch) => ch.subject_id === targetSubjectId)
-                      .map((ch) => (
-                        <option key={ch.id} value={ch.id}>
-                          {ch.name}
-                        </option>
-                      ))}
-                  </select>
-
-                  <Input
-                    autoFocus
-                    placeholder="Topic Title (e.g. Heart Failure)"
-                    value={newTopicName}
-                    onChange={(e) => setNewTopicName(e.target.value)}
-                    className="h-9 text-sm"
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <Button type="submit" size="sm" disabled={isAddingTopic || !targetSubjectId || !newTopicName.trim()}>
-                    Add Topic
-                  </Button>
-                </div>
-              </form>
-            )}
-
-            {/* Google Sheets-Style Interactive Matrix Table */}
-            <div className="w-full overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
-              <table className="w-full text-left text-sm border-collapse min-w-[650px]">
-                <thead>
-                  <tr className="border-b border-border bg-muted/60 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
-                    <th className="px-4 py-3 min-w-[260px] sticky left-0 z-10 bg-muted/90 backdrop-blur-xs border-r border-border">
-                      Syllabus Topic / Row
-                    </th>
-
-                    {/* Dynamic Section Columns (Positioned Order) */}
-                    {workspaceData.checklists.map((section) => (
-                      <th
-                        key={section.id}
-                        className="px-3 py-2.5 text-center min-w-[120px] font-semibold border-r border-border/40 group relative"
-                      >
-                        <div className="flex items-center justify-center gap-1">
-                          <span className="truncate max-w-[90px]">{section.name}</span>
-                          <button
-                            type="button"
-                            title={`Delete ${section.name} column`}
-                            onClick={() => workspaceData.deleteSectionColumn(section.id)}
-                            className="text-muted-foreground/60 hover:text-destructive p-0.5 rounded-xs transition-colors cursor-pointer"
-                          >
-                            <X className="size-3" />
-                          </button>
-                        </div>
-                      </th>
-                    ))}
-
-                    {/* Rightmost Cell to Add Column directly in Header (Google Sheets style) */}
-                    <th className="px-3 py-2.5 text-center min-w-[110px] bg-muted/30">
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        disabled={isMaxColumnsReached}
-                        onClick={() => setActiveAdderForm(activeAdderForm === "section" ? null : "section")}
-                        className="text-xs gap-1 text-muted-foreground hover:text-foreground"
-                      >
-                        <Plus className="size-3" />
-                        {isMaxColumnsReached ? "Limit (10)" : "Column"}
-                      </Button>
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-border/60">
-                  {workspaceData.subjects.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={workspaceData.checklists.length + 2}
-                        className="p-8 text-center text-muted-foreground text-xs italic"
-                      >
-                        No subjects added yet. Click <strong>+ Add Subject</strong> above to build your review matrix!
-                      </td>
-                    </tr>
-                  ) : (
-                    workspaceData.subjects.map((subject) => {
-                      const subChapters = workspaceData.chapters.filter(
-                        (ch) => ch.subject_id === subject.id
-                      );
-                      const subTopics = workspaceData.topics.filter(
-                        (t) => t.subject_id === subject.id
-                      );
-                      const ungroupedTopics = subTopics.filter(
-                        (t) => !t.chapter_id || t.chapter_id === null
-                      );
-
-                      return (
-                        <React.Fragment key={subject.id}>
-                          {/* Subject Row Header */}
-                          <tr className="bg-muted/50 font-bold text-foreground border-t border-border">
-                            <td
-                              colSpan={workspaceData.checklists.length + 2}
-                              className="px-4 py-2 bg-muted/60 sticky left-0 z-10"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <span className="size-2 rounded-full bg-primary" />
-                                  <span className="text-sm font-semibold">{subject.name}</span>
-                                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                                    {subTopics.length} Topics
-                                  </Badge>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="xs"
-                                    onClick={() => {
-                                      setTargetSubjectId(subject.id);
-                                      setActiveAdderForm("chapter");
-                                    }}
-                                    className="h-6 text-[11px] gap-1 text-primary hover:text-primary"
-                                  >
-                                    <Plus className="size-3" /> Chapter
-                                  </Button>
-
-                                  <Button
-                                    variant="ghost"
-                                    size="xs"
-                                    onClick={() => {
-                                      setTargetSubjectId(subject.id);
-                                      setActiveAdderForm("topic");
-                                    }}
-                                    className="h-6 text-[11px] gap-1 text-primary hover:text-primary"
-                                  >
-                                    <Plus className="size-3" /> Topic
-                                  </Button>
-
-                                  <button
-                                    type="button"
-                                    title={`Delete ${subject.name}`}
-                                    onClick={() => workspaceData.deleteSubject(subject.id)}
-                                    className="text-muted-foreground hover:text-destructive p-1 rounded-xs transition-colors cursor-pointer"
-                                  >
-                                    <Trash2 className="size-3.5" />
-                                  </button>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-
-                          {/* Chapter Groups */}
-                          {subChapters.map((chapter) => {
-                            const chapterTopics = subTopics.filter((t) => t.chapter_id === chapter.id);
-                            return (
-                              <React.Fragment key={chapter.id}>
-                                <tr className="bg-muted/20 text-xs font-semibold text-muted-foreground">
-                                  <td
-                                    colSpan={workspaceData.checklists.length + 2}
-                                    className="px-6 py-1.5 sticky left-0 z-10 flex items-center justify-between"
-                                  >
-                                    <div className="flex items-center gap-1.5">
-                                      <Layers className="size-3.5 text-primary" />
-                                      <span>{chapter.name}</span>
-                                    </div>
-                                    <button
-                                      type="button"
-                                      title={`Delete ${chapter.name}`}
-                                      onClick={() => workspaceData.deleteChapter(chapter.id)}
-                                      className="text-muted-foreground/60 hover:text-destructive p-0.5 rounded-xs transition-colors cursor-pointer"
-                                    >
-                                      <Trash2 className="size-3" />
-                                    </button>
-                                  </td>
-                                </tr>
-
-                                {chapterTopics.map((topic) => (
-                                  <tr
-                                    key={topic.id}
-                                    className="hover:bg-accent/40 transition-colors group"
-                                  >
-                                    <td className="px-8 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
-                                      <div className="flex items-center justify-between gap-2">
-                                        <span className="text-xs">{topic.name}</span>
-                                        <button
-                                          type="button"
-                                          title={`Delete ${topic.name}`}
-                                          onClick={() => workspaceData.deleteTopic(topic.id)}
-                                          className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
-                                        >
-                                          <Trash2 className="size-3" />
-                                        </button>
-                                      </div>
-                                    </td>
-
-                                    {workspaceData.checklists.map((section) => (
-                                      <td
-                                        key={section.id}
-                                        className="px-2 py-2 text-center border-r border-border/40"
-                                      >
-                                        <div
-                                          className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
-                                          title="Preview status checkbox cell"
-                                        >
-                                          <CheckSquare className="size-3 text-muted-foreground" />
-                                        </div>
-                                      </td>
-                                    ))}
-
-                                    <td className="px-2 py-2 bg-muted/10" />
-                                  </tr>
-                                ))}
-                              </React.Fragment>
-                            );
-                          })}
-
-                          {/* Ungrouped Topics */}
-                          {ungroupedTopics.map((topic) => (
-                            <tr
-                              key={topic.id}
-                              className="hover:bg-accent/40 transition-colors group"
-                            >
-                              <td className="px-6 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="text-xs">{topic.name}</span>
-                                  <button
-                                    type="button"
-                                    title={`Delete ${topic.name}`}
-                                    onClick={() => workspaceData.deleteTopic(topic.id)}
-                                    className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
-                                  >
-                                    <Trash2 className="size-3" />
-                                  </button>
-                                </div>
-                              </td>
-
-                              {workspaceData.checklists.map((section) => (
-                                <td
-                                  key={section.id}
-                                  className="px-2 py-2 text-center border-r border-border/40"
-                                >
-                                  <div
-                                    className="mx-auto size-6 rounded-md border border-input bg-background/50 flex items-center justify-center opacity-40"
-                                    title="Preview status checkbox cell"
-                                  >
-                                    <CheckSquare className="size-3 text-muted-foreground" />
-                                  </div>
-                                </td>
-                              ))}
-
-                              <td className="px-2 py-2 bg-muted/10" />
-                            </tr>
-                          ))}
-                        </React.Fragment>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Bottom Form Actions */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <Button variant="outline" onClick={() => handleNavAttempt("step1")}>
-                Back to Exam Info
-              </Button>
-              <Button onClick={handleFinish} className="gap-2 shadow-sm">
-                <CheckCircle2 className="size-4" />
-                Launch Tracker Workspace
-              </Button>
-            </div>
+            <ReviewMatrixTable
+              checklists={workspaceData.checklists}
+              subjects={workspaceData.subjects}
+              chapters={workspaceData.chapters}
+              topics={workspaceData.topics}
+              isMaxColumnsReached={isMaxColumnsReached}
+              onDeleteSectionColumn={workspaceData.deleteSectionColumn}
+              onDeleteSubject={workspaceData.deleteSubject}
+              onDeleteChapter={workspaceData.deleteChapter}
+              onDeleteTopic={workspaceData.deleteTopic}
+              onOpenAdderForm={handleOpenAdderForm}
+              onNavBack={() => handleNavAttempt("step1")}
+              onFinish={handleFinish}
+            />
           </CardContent>
         </Card>
       )}
 
-      {/* Accessible Dialog with Base UI Focus Trap & Initial Focus */}
-      <Dialog
-        open={isLeaveConfirmOpen}
-        onOpenChange={(open) => {
-          if (!open) setPendingLeaveTarget(null);
-        }}
-      >
-        <DialogContent initialFocus={stayBtnRef} showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
-              <AlertTriangle className="size-5 text-amber-500 shrink-0" />
-              Leave Matrix Builder?
-            </DialogTitle>
-            <DialogDescription className="text-xs pt-2 text-muted-foreground leading-relaxed">
-              Your exam tracker matrix is autosaved to your account database. You can launch your tracker workspace now or continue building your review matrix anytime from your dashboard.
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter className="gap-2 pt-2">
-            <Button
-              ref={stayBtnRef}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setPendingLeaveTarget(null)}
-              className="focus:ring-3 focus:ring-primary/40 focus:border-primary focus-visible:ring-3 focus-visible:ring-primary/40 focus-visible:border-primary outline-none"
-            >
-              Stay in Builder
-            </Button>
-
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={confirmLeave}
-            >
-              Leave Builder
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Accidental Navigation Confirmation Modal */}
+      <LeaveConfirmDialog
+        isOpen={isLeaveConfirmOpen}
+        onClose={() => setPendingLeaveTarget(null)}
+        onConfirm={confirmLeave}
+        stayBtnRef={stayBtnRef}
+      />
     </div>
   );
 }
