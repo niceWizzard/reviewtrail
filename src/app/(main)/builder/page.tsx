@@ -8,6 +8,10 @@ import { useTrackerBuilder } from "@/src/hooks/use-tracker-builder";
 import {
   BuilderProvider,
   useBuilderContext,
+  validateAddChecklist,
+  validateAddSubject,
+  validateAddChapter,
+  validateAddTopic,
   validateRenameChecklist,
   validateRenameSubject,
   validateRenameChapter,
@@ -231,15 +235,27 @@ function BuilderContent() {
               targetSubjectTempId={targetSubjectTempId}
               setTargetSubjectTempId={setTargetSubjectTempId}
               onAddSectionColumn={(name) => {
+                const err = validateAddChecklist(draft, name);
+                if (err) throw new Error(err);
+                setErrorMessage(null);
                 dispatch({ type: "ADD_CHECKLIST", payload: { name } });
               }}
               onAddSubject={(name) => {
+                const err = validateAddSubject(draft, name);
+                if (err) throw new Error(err);
+                setErrorMessage(null);
                 dispatch({ type: "ADD_SUBJECT", payload: { name } });
               }}
               onAddChapter={(subjectTempId, name) => {
+                const err = validateAddChapter(draft, subjectTempId, name);
+                if (err) throw new Error(err);
+                setErrorMessage(null);
                 dispatch({ type: "ADD_CHAPTER", payload: { subjectTempId, name } });
               }}
               onAddTopic={(subjectTempId, chapterTempId, name) => {
+                const err = validateAddTopic(draft, subjectTempId, chapterTempId, name);
+                if (err) throw new Error(err);
+                setErrorMessage(null);
                 dispatch({ type: "ADD_TOPIC", payload: { subjectTempId, chapterTempId, name } });
               }}
               setErrorMessage={setErrorMessage}

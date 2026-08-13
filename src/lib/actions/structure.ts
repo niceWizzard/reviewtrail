@@ -75,6 +75,17 @@ export async function createSubjectAction(payload: {
     throw new Error("Subject name cannot be empty.");
   }
 
+  const { data: existingSubjects, error: fetchErr } = await supabase
+    .from("subjects")
+    .select("name")
+    .eq("exam_tracker_id", payload.exam_tracker_id);
+
+  if (fetchErr) throw new Error(fetchErr.message);
+
+  if (existingSubjects?.some((s) => s.name.toLowerCase() === trimmedName.toLowerCase())) {
+    throw new Error(`A subject named "${trimmedName}" already exists.`);
+  }
+
   const { data, error } = await supabase
     .from("subjects")
     .insert({
@@ -102,6 +113,18 @@ export async function createChapterAction(payload: {
   const trimmedName = payload.name.trim();
   if (!trimmedName) {
     throw new Error("Chapter name cannot be empty.");
+  }
+
+  const { data: existingChapters, error: fetchErr } = await supabase
+    .from("chapters")
+    .select("name")
+    .eq("exam_tracker_id", payload.exam_tracker_id)
+    .eq("subject_id", payload.subject_id);
+
+  if (fetchErr) throw new Error(fetchErr.message);
+
+  if (existingChapters?.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase())) {
+    throw new Error(`A chapter named "${trimmedName}" already exists in this subject.`);
   }
 
   const { data, error } = await supabase
@@ -132,6 +155,25 @@ export async function createTopicAction(payload: {
   const trimmedName = payload.name.trim();
   if (!trimmedName) {
     throw new Error("Topic name cannot be empty.");
+  }
+
+  let topicsQuery = supabase
+    .from("topics")
+    .select("name")
+    .eq("exam_tracker_id", payload.exam_tracker_id)
+    .eq("subject_id", payload.subject_id);
+
+  if (payload.chapter_id) {
+    topicsQuery = topicsQuery.eq("chapter_id", payload.chapter_id);
+  } else {
+    topicsQuery = topicsQuery.is("chapter_id", null);
+  }
+
+  const { data: existingTopics, error: fetchErr } = await topicsQuery;
+  if (fetchErr) throw new Error(fetchErr.message);
+
+  if (existingTopics?.some((t) => t.name.toLowerCase() === trimmedName.toLowerCase())) {
+    throw new Error(`A topic named "${trimmedName}" already exists in this group.`);
   }
 
   const { data, error } = await supabase

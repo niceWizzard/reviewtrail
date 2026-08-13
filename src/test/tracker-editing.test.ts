@@ -2,6 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   validateDraft,
   draftReducer,
+  validateAddSubject,
+  validateAddChapter,
+  validateAddChecklist,
+  validateAddTopic,
   validateRenameSubject,
   validateRenameChapter,
   validateRenameChecklist,
@@ -68,6 +72,41 @@ describe("Tracker Editing & Rename Validation Rules", () => {
     ).rejects.toThrow("Target exam date cannot be in the past.");
   });
 
+  // --- Add validation ---
+
+  it("returns error when adding a duplicate subject", () => {
+    expect(validateAddSubject(initialDraft, "Anatomy")).toBe('A subject named "Anatomy" already exists.');
+    expect(validateAddSubject(initialDraft, "anatomy")).toBe('A subject named "anatomy" already exists.');
+    expect(validateAddSubject(initialDraft, "Biochemistry")).toBeNull();
+  });
+
+  it("returns error when adding a duplicate chapter in the same subject", () => {
+    expect(validateAddChapter(initialDraft, "sub-1", "Neuroanatomy")).toBe(
+      'A chapter named "Neuroanatomy" already exists in this subject.'
+    );
+    expect(validateAddChapter(initialDraft, "sub-1", "Physiology of the Heart")).toBeNull();
+    // Same name in different subject = OK
+    expect(validateAddChapter(initialDraft, "sub-2", "Neuroanatomy")).toBeNull();
+  });
+
+  it("returns error when adding a duplicate checklist column", () => {
+    expect(validateAddChecklist(initialDraft, "1st Read")).toBe(
+      'A checklist column named "1st Read" already exists.'
+    );
+    expect(validateAddChecklist(initialDraft, "2nd Read")).toBeNull();
+  });
+
+  it("returns error when adding a duplicate topic in the same subject/chapter group", () => {
+    expect(validateAddTopic(initialDraft, "sub-1", "ch-1", "Cranial Nerves")).toBe(
+      'A topic named "Cranial Nerves" already exists in this group.'
+    );
+    expect(validateAddTopic(initialDraft, "sub-1", "ch-1", "White Matter")).toBeNull();
+    // Same name in different group = OK
+    expect(validateAddTopic(initialDraft, "sub-2", null, "Cranial Nerves")).toBeNull();
+  });
+
+  // --- Rename validation ---
+
   it("returns error message when renaming a subject to an existing subject name", () => {
     const err = validateRenameSubject(initialDraft, "sub-2", "Anatomy");
     expect(err).toBe('A subject named "Anatomy" already exists.');
@@ -96,3 +135,4 @@ describe("Tracker Editing & Rename Validation Rules", () => {
     expect(nextState).toEqual(initialDraft);
   });
 });
+

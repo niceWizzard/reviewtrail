@@ -23,6 +23,10 @@ import { ActiveAdderForm } from "@/src/app/(main)/builder/types";
 import {
   draftReducer,
   validateDraft,
+  validateAddChecklist,
+  validateAddSubject,
+  validateAddChapter,
+  validateAddTopic,
   validateRenameChecklist,
   validateRenameSubject,
   validateRenameChapter,
@@ -274,15 +278,27 @@ export function TrackerEditorClient({
             targetSubjectId={targetSubjectTempId}
             setTargetSubjectId={setTargetSubjectTempId}
             onAddSectionColumn={(name) => {
+              const err = validateAddChecklist(draft, name);
+              if (err) throw new Error(err);
+              setErrorMessage(null);
               dispatch({ type: "ADD_CHECKLIST", payload: { name } });
             }}
             onAddSubject={(name) => {
+              const err = validateAddSubject(draft, name);
+              if (err) throw new Error(err);
+              setErrorMessage(null);
               dispatch({ type: "ADD_SUBJECT", payload: { name } });
             }}
             onAddChapter={(subTempId, name) => {
+              const err = validateAddChapter(draft, subTempId, name);
+              if (err) throw new Error(err);
+              setErrorMessage(null);
               dispatch({ type: "ADD_CHAPTER", payload: { subjectTempId: subTempId, name } });
             }}
             onAddTopic={(subTempId, chTempId, name) => {
+              const err = validateAddTopic(draft, subTempId, chTempId, name);
+              if (err) throw new Error(err);
+              setErrorMessage(null);
               dispatch({
                 type: "ADD_TOPIC",
                 payload: { subjectTempId: subTempId, chapterTempId: chTempId, name },

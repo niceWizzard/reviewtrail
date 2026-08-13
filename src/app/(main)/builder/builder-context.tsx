@@ -65,7 +65,13 @@ export function validateAddSubject(draft: TrackerDraft, name: string): string | 
 export function validateRenameSubject(draft: TrackerDraft, tempId: string, name: string): string | null {
   const trimmed = name.trim();
   if (!trimmed) return "Subject name cannot be empty.";
-  if (draft.subjects.some((s) => s.tempId !== tempId && s.name.toLowerCase() === trimmed.toLowerCase())) {
+  if (
+    draft.subjects.some(
+      (s) =>
+        (s.tempId !== tempId && (s as any).id !== tempId) &&
+        s.name.toLowerCase() === trimmed.toLowerCase()
+    )
+  ) {
     return `A subject named "${trimmed}" already exists.`;
   }
   return null;
@@ -74,7 +80,9 @@ export function validateRenameSubject(draft: TrackerDraft, tempId: string, name:
 export function validateAddChapter(draft: TrackerDraft, subjectTempId: string, name: string): string | null {
   const trimmedName = name.trim();
   if (!trimmedName || !subjectTempId) return "Chapter name and target subject are required.";
-  const subChapters = draft.chapters.filter((c) => c.subjectTempId === subjectTempId);
+  const subChapters = draft.chapters.filter(
+    (c) => c.subjectTempId === subjectTempId || (c as any).subject_id === subjectTempId
+  );
   if (subChapters.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase())) {
     return `A chapter named "${trimmedName}" already exists in this subject.`;
   }
@@ -84,13 +92,14 @@ export function validateAddChapter(draft: TrackerDraft, subjectTempId: string, n
 export function validateRenameChapter(draft: TrackerDraft, tempId: string, name: string): string | null {
   const trimmed = name.trim();
   if (!trimmed) return "Chapter name cannot be empty.";
-  const targetCh = draft.chapters.find((c) => c.tempId === tempId);
+  const targetCh = draft.chapters.find((c) => c.tempId === tempId || (c as any).id === tempId);
   if (!targetCh) return "Chapter not found.";
+  const targetSubId = targetCh.subjectTempId || (targetCh as any).subject_id;
   if (
     draft.chapters.some(
       (c) =>
-        c.tempId !== tempId &&
-        c.subjectTempId === targetCh.subjectTempId &&
+        (c.tempId !== tempId && (c as any).id !== tempId) &&
+        (c.subjectTempId === targetSubId || (c as any).subject_id === targetSubId) &&
         c.name.toLowerCase() === trimmed.toLowerCase()
     )
   ) {
@@ -99,17 +108,40 @@ export function validateRenameChapter(draft: TrackerDraft, tempId: string, name:
   return null;
 }
 
+export function validateAddTopic(
+  draft: TrackerDraft,
+  subjectTempId: string,
+  chapterTempId: string | null,
+  name: string
+): string | null {
+  const trimmedName = name.trim();
+  if (!trimmedName || !subjectTempId) return "Topic name and target subject are required.";
+  const normalizedChapterId = chapterTempId || null;
+  const groupTopics = draft.topics.filter(
+    (t) =>
+      (t.subjectTempId === subjectTempId || (t as any).subject_id === subjectTempId) &&
+      ((t.chapterTempId || (t as any).chapter_id || null) === normalizedChapterId)
+  );
+  if (groupTopics.some((t) => t.name.toLowerCase() === trimmedName.toLowerCase())) {
+    return `A topic named "${trimmedName}" already exists in this group.`;
+  }
+  return null;
+}
+
 export function validateRenameTopic(draft: TrackerDraft, tempId: string, name: string): string | null {
   const trimmed = name.trim();
   if (!trimmed) return "Topic name cannot be empty.";
-  const targetTopic = draft.topics.find((t) => t.tempId === tempId);
+  const targetTopic = draft.topics.find((t) => t.tempId === tempId || (t as any).id === tempId);
   if (!targetTopic) return "Topic not found.";
+  const targetSubId = targetTopic.subjectTempId || (targetTopic as any).subject_id;
+  const targetChId = targetTopic.chapterTempId || (targetTopic as any).chapter_id || null;
+
   if (
     draft.topics.some(
       (t) =>
-        t.tempId !== tempId &&
-        t.subjectTempId === targetTopic.subjectTempId &&
-        (t.chapterTempId || null) === (targetTopic.chapterTempId || null) &&
+        (t.tempId !== tempId && (t as any).id !== tempId) &&
+        (t.subjectTempId === targetSubId || (t as any).subject_id === targetSubId) &&
+        ((t.chapterTempId || (t as any).chapter_id || null) === targetChId) &&
         t.name.toLowerCase() === trimmed.toLowerCase()
     )
   ) {
@@ -133,7 +165,13 @@ export function validateAddChecklist(draft: TrackerDraft, name: string): string 
 export function validateRenameChecklist(draft: TrackerDraft, tempId: string, name: string): string | null {
   const trimmed = name.trim();
   if (!trimmed) return "Checklist column name cannot be empty.";
-  if (draft.checklists.some((c) => c.tempId !== tempId && c.name.toLowerCase() === trimmed.toLowerCase())) {
+  if (
+    draft.checklists.some(
+      (c) =>
+        (c.tempId !== tempId && (c as any).id !== tempId) &&
+        c.name.toLowerCase() === trimmed.toLowerCase()
+    )
+  ) {
     return `A checklist column named "${trimmed}" already exists.`;
   }
   return null;
