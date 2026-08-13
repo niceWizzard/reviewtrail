@@ -260,6 +260,30 @@ function BuilderContent() {
               onDeleteTopic={(tempId) => {
                 dispatch({ type: "DELETE_TOPIC", payload: { tempId } });
               }}
+              onRenameSectionColumn={(tempId, name) => {
+                try {
+                  dispatch({ type: "RENAME_CHECKLIST", payload: { tempId, name } });
+                } catch (err: any) {
+                  setErrorMessage(err?.message || "Failed to rename column");
+                }
+              }}
+              onRenameSubject={(tempId, name) => {
+                try {
+                  dispatch({ type: "RENAME_SUBJECT", payload: { tempId, name } });
+                } catch (err: any) {
+                  setErrorMessage(err?.message || "Failed to rename subject");
+                }
+              }}
+              onRenameChapter={(tempId, name) => {
+                try {
+                  dispatch({ type: "RENAME_CHAPTER", payload: { tempId, name } });
+                } catch (err: any) {
+                  setErrorMessage(err?.message || "Failed to rename chapter");
+                }
+              }}
+              onRenameTopic={(tempId, name) => {
+                dispatch({ type: "RENAME_TOPIC", payload: { tempId, name } });
+              }}
               onOpenAdderForm={handleOpenAdderForm}
               onNavBack={() => handleNavAttempt("step1")}
               onFinish={handleFinish}

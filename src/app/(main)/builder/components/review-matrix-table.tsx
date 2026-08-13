@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
+import { DoubleClickInlineInput } from "@/src/components/ui/double-click-inline-input";
 import { ActiveAdderForm } from "../types";
 
 export interface MatrixChecklist {
@@ -59,13 +60,18 @@ interface ReviewMatrixTableProps {
   topics: MatrixTopic[];
   isMaxColumnsReached: boolean;
   isCommitting?: boolean;
+  showBottomBar?: boolean;
   onDeleteSectionColumn: (id: string) => void;
   onDeleteSubject: (id: string) => void;
   onDeleteChapter: (id: string) => void;
   onDeleteTopic: (id: string) => void;
+  onRenameSectionColumn?: (id: string, newName: string) => void;
+  onRenameSubject?: (id: string, newName: string) => void;
+  onRenameChapter?: (id: string, newName: string) => void;
+  onRenameTopic?: (id: string, newName: string) => void;
   onOpenAdderForm: (form: ActiveAdderForm, subjectId?: string) => void;
-  onNavBack: () => void;
-  onFinish: () => void;
+  onNavBack?: () => void;
+  onFinish?: () => void;
 }
 
 export function ReviewMatrixTable({
@@ -75,10 +81,15 @@ export function ReviewMatrixTable({
   topics,
   isMaxColumnsReached,
   isCommitting = false,
+  showBottomBar = true,
   onDeleteSectionColumn,
   onDeleteSubject,
   onDeleteChapter,
   onDeleteTopic,
+  onRenameSectionColumn,
+  onRenameSubject,
+  onRenameChapter,
+  onRenameTopic,
   onOpenAdderForm,
   onNavBack,
   onFinish,
@@ -107,10 +118,14 @@ export function ReviewMatrixTable({
                 return (
                   <TableHead
                     key={sectionId}
-                    className="px-3 py-2.5 text-center min-w-[120px] font-semibold border-r border-border/40 group relative"
+                    className="px-3 py-2.5 text-center min-w-[140px] font-semibold border-r border-border/40 group relative"
                   >
-                    <div className="flex items-center justify-center gap-1">
-                      <span className="truncate max-w-[90px]">{section.name}</span>
+                    <div className="flex items-center justify-center gap-1 min-w-0">
+                      <DoubleClickInlineInput
+                        value={section.name}
+                        onSave={(val) => onRenameSectionColumn?.(sectionId, val)}
+                        className="truncate max-w-[110px]"
+                      />
                       <button
                         type="button"
                         disabled={isMinColumnsReached}
@@ -120,7 +135,7 @@ export function ReviewMatrixTable({
                             : `Delete ${section.name} column`
                         }
                         onClick={() => onDeleteSectionColumn(sectionId)}
-                        className="text-muted-foreground/60 hover:text-destructive disabled:opacity-30 disabled:hover:text-muted-foreground/60 p-0.5 rounded-xs transition-colors cursor-pointer disabled:cursor-not-allowed"
+                        className="text-muted-foreground/60 hover:text-destructive disabled:opacity-30 disabled:hover:text-muted-foreground/60 p-0.5 rounded-xs transition-colors cursor-pointer disabled:cursor-not-allowed shrink-0"
                       >
                         <X className="size-3" />
                       </button>
@@ -170,16 +185,20 @@ export function ReviewMatrixTable({
                         colSpan={checklists.length + 2}
                         className="px-4 py-2 bg-muted/60 sticky left-0 z-10"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="size-2 rounded-full bg-primary" />
-                            <span className="text-sm font-semibold">{subject.name}</span>
-                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="size-2 rounded-full bg-primary shrink-0" />
+                            <DoubleClickInlineInput
+                              value={subject.name}
+                              onSave={(val) => onRenameSubject?.(subjectId, val)}
+                              className="text-sm font-semibold"
+                            />
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shrink-0">
                               {subTopics.length} Topics
                             </Badge>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 shrink-0">
                             <Button
                               variant="ghost"
                               size="xs"
@@ -220,17 +239,20 @@ export function ReviewMatrixTable({
                           <TableRow className="bg-muted/20 text-xs font-semibold text-muted-foreground hover:bg-muted/20">
                             <TableCell
                               colSpan={checklists.length + 2}
-                              className="px-6 py-1.5 sticky left-0 z-10 flex items-center justify-between"
+                              className="px-6 py-1.5 sticky left-0 z-10 flex items-center justify-between gap-2"
                             >
-                              <div className="flex items-center gap-1.5">
-                                <Layers className="size-3.5 text-primary" />
-                                <span>{chapter.name}</span>
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <Layers className="size-3.5 text-primary shrink-0" />
+                                <DoubleClickInlineInput
+                                  value={chapter.name}
+                                  onSave={(val) => onRenameChapter?.(chapterId, val)}
+                                />
                               </div>
                               <button
                                 type="button"
                                 title={`Delete ${chapter.name}`}
                                 onClick={() => onDeleteChapter(chapterId)}
-                                className="text-muted-foreground/60 hover:text-destructive p-0.5 rounded-xs transition-colors cursor-pointer"
+                                className="text-muted-foreground/60 hover:text-destructive p-0.5 rounded-xs transition-colors cursor-pointer shrink-0"
                               >
                                 <Trash2 className="size-3" />
                               </button>
@@ -242,13 +264,17 @@ export function ReviewMatrixTable({
                             return (
                               <TableRow key={topicId} className="hover:bg-accent/40 transition-colors group">
                                 <TableCell className="px-8 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
-                                  <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs">{topic.name}</span>
+                                  <div className="flex items-center justify-between gap-2 min-w-0">
+                                    <DoubleClickInlineInput
+                                      value={topic.name}
+                                      onSave={(val) => onRenameTopic?.(topicId, val)}
+                                      className="text-xs min-w-0 flex-1"
+                                    />
                                     <button
                                       type="button"
                                       title={`Delete ${topic.name}`}
                                       onClick={() => onDeleteTopic(topicId)}
-                                      className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
+                                      className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer shrink-0"
                                     >
                                       <Trash2 className="size-3" />
                                     </button>
@@ -283,13 +309,17 @@ export function ReviewMatrixTable({
                       return (
                         <TableRow key={topicId} className="hover:bg-accent/40 transition-colors group">
                           <TableCell className="px-6 py-2 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-xs">{topic.name}</span>
+                            <div className="flex items-center justify-between gap-2 min-w-0">
+                              <DoubleClickInlineInput
+                                value={topic.name}
+                                onSave={(val) => onRenameTopic?.(topicId, val)}
+                                className="text-xs min-w-0 flex-1"
+                              />
                               <button
                                 type="button"
                                 title={`Delete ${topic.name}`}
                                 onClick={() => onDeleteTopic(topicId)}
-                                className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer"
+                                className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer shrink-0"
                               >
                                 <Trash2 className="size-3" />
                               </button>
@@ -323,24 +353,26 @@ export function ReviewMatrixTable({
       </div>
 
       {/* Bottom Form Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-border">
-        <Button variant="outline" onClick={onNavBack} disabled={isCommitting}>
-          Back to Exam Info
-        </Button>
-        <Button onClick={onFinish} disabled={isCommitting} className="gap-2 shadow-sm">
-          {isCommitting ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Saving Tracker...
-            </>
-          ) : (
-            <>
-              <CheckCircle2 className="size-4" />
-              Launch Tracker Workspace
-            </>
-          )}
-        </Button>
-      </div>
+      {showBottomBar && (
+        <div className="flex items-center justify-between pt-4 border-t border-border">
+          <Button variant="outline" onClick={onNavBack} disabled={isCommitting}>
+            Back to Exam Info
+          </Button>
+          <Button onClick={onFinish} disabled={isCommitting} className="gap-2 shadow-sm">
+            {isCommitting ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Saving Tracker...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="size-4" />
+                Launch Tracker Workspace
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
