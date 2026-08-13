@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -16,7 +16,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { useExamCountdown } from "@/src/hooks/use-exam-countdown";
-import { SignOutButton } from "./sign-out-button";
 import {
   archiveExamTrackerAction,
   deleteExamTrackerAction,
@@ -113,7 +112,6 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
             <Plus className="size-4" />
             Create New Tracker
           </Button>
-          <SignOutButton />
         </div>
       </div>
 
