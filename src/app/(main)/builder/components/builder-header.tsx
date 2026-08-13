@@ -38,7 +38,7 @@ export function BuilderHeader({ step, onNavAttempt }: BuilderHeaderProps) {
         <p className="text-sm text-muted-foreground max-w-lg mx-auto">
           {step === 1
             ? "Enter your exam details to initialize your review tracker."
-            : "Customize your review matrix columns and syllabus topics live like a spreadsheet."}
+            : "Customize your review table columns and syllabus topics live like a spreadsheet."}
         </p>
 
         <div className="flex items-center justify-center gap-2 pt-4 max-w-xs mx-auto">
@@ -53,7 +53,7 @@ export function BuilderHeader({ step, onNavAttempt }: BuilderHeaderProps) {
         </div>
         <div className="flex justify-between text-xs text-muted-foreground max-w-xs mx-auto font-medium px-1">
           <span className={step === 1 ? "text-primary font-semibold" : ""}>1. Exam Details</span>
-          <span className={step === 2 ? "text-primary font-semibold" : ""}>2. Matrix Builder</span>
+          <span className={step === 2 ? "text-primary font-semibold" : ""}>2. Table Builder</span>
         </div>
       </div>
     </div>

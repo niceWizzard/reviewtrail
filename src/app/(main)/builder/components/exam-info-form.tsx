@@ -185,7 +185,7 @@ export function ExamInfoForm({ isSavingExamInfo, onSubmit }: ExamInfoFormProps) 
                       Pre-populate default checklist columns
                     </FieldLabel>
                     <FieldDescription className="text-xs text-muted-foreground">
-                      Starts your table matrix with standard review columns: <strong>1st Read</strong>, <strong>Notes</strong>, and <strong>Practice Qs</strong>. Uncheck to start with an empty matrix.
+                      Starts your tracker table with standard review columns: <strong>1st Read</strong>, <strong>Notes</strong>, and <strong>Practice Qs</strong>. Uncheck to start with an empty table.
                     </FieldDescription>
                   </FieldContent>
                 </Field>
@@ -195,7 +195,7 @@ export function ExamInfoForm({ isSavingExamInfo, onSubmit }: ExamInfoFormProps) 
 
           <div className="pt-2 flex justify-end">
             <Button type="submit" disabled={isSavingExamInfo} className="gap-2">
-              {isSavingExamInfo ? "Autosaving Exam Info..." : "Next: Build Review Matrix"}
+              {isSavingExamInfo ? "Autosaving Exam Info..." : "Next: Build Review Table"}
               <ArrowRight className="size-4" />
             </Button>
           </div>

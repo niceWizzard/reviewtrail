@@ -31,7 +31,7 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
         </div>
         <h3 className="text-lg font-semibold mb-1">No Subjects Added Yet</h3>
         <p className="text-sm text-muted-foreground max-w-sm mb-6">
-          Get started by adding your exam subjects, chapters, and topics to populate the review matrix.
+          Get started by adding your exam subjects, chapters, and topics to populate the review table.
         </p>
         {onOpenStructureEditor && (
           <Button onClick={onOpenStructureEditor} size="sm" className="gap-2">

@@ -18,7 +18,7 @@ describe("ExamInfoForm Component", () => {
     expect(screen.getByLabelText(/Exam Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Description/i)).toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: /Pre-populate default checklist columns/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Next: Build Review Matrix/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Next: Build Review Table/i })).toBeInTheDocument();
   });
 
   it("submits form data correctly when valid inputs are provided", async () => {
@@ -33,7 +33,7 @@ describe("ExamInfoForm Component", () => {
     await user.type(examNameInput, "USMLE Step 1");
     await user.type(descriptionInput, "Pass on first attempt");
 
-    const submitBtn = screen.getByRole("button", { name: /Next: Build Review Matrix/i });
+    const submitBtn = screen.getByRole("button", { name: /Next: Build Review Table/i });
     await user.click(submitBtn);
 
     await waitFor(() => {

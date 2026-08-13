@@ -36,10 +36,10 @@ export function LeaveConfirmDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
             <AlertTriangle className="size-5 text-amber-500 shrink-0" />
-            Leave Matrix Builder?
+            Leave Table Builder?
           </DialogTitle>
           <DialogDescription className="text-xs pt-2 text-muted-foreground leading-relaxed">
-            Your exam tracker matrix is autosaved to your account database. You can launch your tracker workspace now or continue building your review matrix anytime from your dashboard.
+            Your exam tracker table is autosaved to your account database. You can launch your tracker workspace now or continue building your review table anytime from your dashboard.
           </DialogDescription>
         </DialogHeader>
 
