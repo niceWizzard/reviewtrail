@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { format, parseISO, isValid, startOfDay } from "date-fns";
 import { Loader2, Edit3 } from "lucide-react";
 import {
   Dialog,
@@ -36,6 +37,8 @@ export function EditTrackerDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const todayISO = format(new Date(), "yyyy-MM-dd");
+
   useEffect(() => {
     if (tracker) {
       setExamName(tracker.exam_name || "");
@@ -53,6 +56,14 @@ export function EditTrackerDialog({
     if (!trimmedName) {
       setErrorMsg("Exam name is required.");
       return;
+    }
+
+    if (examDate && examDate.trim()) {
+      const parsed = parseISO(examDate);
+      if (!isValid(parsed) || startOfDay(parsed) < startOfDay(new Date())) {
+        setErrorMsg("Target exam date cannot be in the past.");
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -112,6 +123,7 @@ export function EditTrackerDialog({
               <Input
                 id="edit-exam-date"
                 type="date"
+                min={todayISO}
                 value={examDate}
                 onChange={(e) => setExamDate(e.target.value)}
               />

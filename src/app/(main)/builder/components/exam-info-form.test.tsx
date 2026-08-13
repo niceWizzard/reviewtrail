@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ExamInfoForm } from "./exam-info-form";
+import { ExamInfoForm, isDateNotInPast } from "./exam-info-form";
 
 describe("ExamInfoForm Component", () => {
   const mockOnSubmit = vi.fn();
@@ -65,5 +65,11 @@ describe("ExamInfoForm Component", () => {
     await waitFor(() => {
       expect(screen.getByText("Description must be 255 characters or less")).toBeInTheDocument();
     });
+  });
+
+  it("validates target exam date is not in the past", () => {
+    expect(isDateNotInPast("2020-01-01")).toBe(false);
+    expect(isDateNotInPast("2099-12-31")).toBe(true);
+    expect(isDateNotInPast("")).toBe(true);
   });
 });

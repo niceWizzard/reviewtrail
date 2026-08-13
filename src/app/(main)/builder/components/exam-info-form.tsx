@@ -3,7 +3,7 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { format, parseISO, isValid } from "date-fns";
+import { format, parseISO, isValid, startOfDay } from "date-fns";
 import { ArrowRight, Calendar as CalendarIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
@@ -21,9 +21,18 @@ import {
 } from "@/src/components/ui/field";
 import { Step1Values } from "../types";
 
+export const isDateNotInPast = (val: string | null | undefined) => {
+  if (!val || !val.trim()) return true;
+  const parsed = parseISO(val);
+  if (!isValid(parsed)) return false;
+  const today = startOfDay(new Date());
+  const target = startOfDay(parsed);
+  return target >= today;
+};
+
 export const step1Schema = z.object({
   examName: z.string().min(1, "Exam name is required").max(32, "Exam name must be 32 characters or less"),
-  examDate: z.string(),
+  examDate: z.string().refine(isDateNotInPast, "Target exam date cannot be in the past"),
   description: z.string().max(255, "Description must be 255 characters or less"),
   prepopulateColumns: z.boolean(),
 });
@@ -102,14 +111,18 @@ export function ExamInfoForm({ isSavingExamInfo, onSubmit }: ExamInfoFormProps) 
             {/* Field 2: Target Exam Date (shadcn Popover + Calendar DatePicker) */}
             <step1Form.Field
               name="examDate"
+              validators={{
+                onChange: step1Schema.shape.examDate,
+              }}
               children={(field) => {
                 const dateVal = field.state.value
                   ? parseISO(field.state.value)
                   : undefined;
                 const validDate = dateVal && isValid(dateVal) ? dateVal : undefined;
+                const hasError = field.state.meta.errors.length > 0;
 
                 return (
-                  <Field>
+                  <Field data-invalid={hasError}>
                     <FieldLabel>Target Exam Date</FieldLabel>
                     <Popover>
                       <PopoverTrigger
@@ -132,6 +145,7 @@ export function ExamInfoForm({ isSavingExamInfo, onSubmit }: ExamInfoFormProps) 
                         <Calendar
                           mode="single"
                           selected={validDate}
+                          disabled={(date) => date < startOfDay(new Date())}
                           onSelect={(date) => {
                             field.handleChange(date ? format(date, "yyyy-MM-dd") : "");
                           }}
@@ -139,6 +153,7 @@ export function ExamInfoForm({ isSavingExamInfo, onSubmit }: ExamInfoFormProps) 
                         />
                       </PopoverContent>
                     </Popover>
+                    <FieldError errors={field.state.meta.errors} />
                   </Field>
                 );
               }}
