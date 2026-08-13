@@ -104,6 +104,87 @@ export async function deleteExamTrackerAction(trackerId: string): Promise<void> 
   updateTag("exam_trackers");
 }
 
+export async function markExamTakenAction(trackerId: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("exam_trackers")
+    .update({
+      status: "taken_waiting_results",
+      outcome_logged_at: new Date().toISOString(),
+    })
+    .eq("id", trackerId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  updateTag("exam_trackers");
+  updateTag(`workspace-${trackerId}`);
+}
+
+export async function logExamOutcomeAction(payload: {
+  trackerId: string;
+  status: "passed" | "retaking" | "postponed" | "in_progress";
+  newExamDate?: string | null;
+  resetProgress?: boolean;
+}): Promise<void> {
+  const supabase = await createClient();
+
+  if (payload.newExamDate) {
+    validateExamDateNotInPast(payload.newExamDate);
+  }
+
+  // 1. If resetProgress requested (e.g. for a retake pass), clear topic_section_progress rows
+  if (payload.resetProgress) {
+    const { error: resetErr } = await supabase
+      .from("topic_section_progress")
+      .delete()
+      .eq("exam_tracker_id", payload.trackerId);
+
+    if (resetErr) {
+      throw new Error(resetErr.message);
+    }
+  }
+
+  // 2. Fetch current retake_count if transitioning to retaking
+  let retakeCountIncrement = 0;
+  if (payload.status === "retaking") {
+    const { data: currentTracker } = await supabase
+      .from("exam_trackers")
+      .select("retake_count")
+      .eq("id", payload.trackerId)
+      .single();
+
+    retakeCountIncrement = (currentTracker?.retake_count || 0) + 1;
+  }
+
+  // 3. Update tracker status, exam date, and outcome timestamp
+  const updateData: Record<string, any> = {
+    status: payload.status,
+    outcome_logged_at: new Date().toISOString(),
+  };
+
+  if (payload.status === "retaking") {
+    updateData.retake_count = retakeCountIncrement;
+  }
+
+  if (payload.newExamDate !== undefined) {
+    updateData.exam_date = payload.newExamDate || null;
+  }
+
+  const { error } = await supabase
+    .from("exam_trackers")
+    .update(updateData)
+    .eq("id", payload.trackerId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  updateTag("exam_trackers");
+  updateTag(`workspace-${payload.trackerId}`);
+}
+
 export async function commitExamTrackerDraftAction(
   draft: TrackerDraft
 ): Promise<ExamTracker> {
