@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useTransition } from "react";
+import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Archive,
   Trash2,
+  Edit3,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
@@ -22,10 +23,12 @@ import {
   deleteExamTrackerAction,
 } from "@/src/lib/actions/trackers";
 import type { ExamTracker } from "@/src/lib/types/database";
+import { EditTrackerDialog } from "@/src/components/tracker/edit-tracker-dialog";
 
 export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [editingTracker, setEditingTracker] = useState<ExamTracker | null>(null);
 
   const handleArchive = (trackerId: string, isArchived: boolean) => {
     startTransition(async () => {
@@ -99,6 +102,7 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
               <TrackerCard
                 key={tracker.id}
                 tracker={tracker}
+                onEdit={() => setEditingTracker(tracker)}
                 onArchive={() => handleArchive(tracker.id, true)}
                 onDelete={() => handleDelete(tracker.id)}
                 isPending={isPending}
@@ -120,6 +124,7 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
               <TrackerCard
                 key={tracker.id}
                 tracker={tracker}
+                onEdit={() => setEditingTracker(tracker)}
                 onArchive={() => handleArchive(tracker.id, false)}
                 onDelete={() => handleDelete(tracker.id)}
                 isPending={isPending}
@@ -128,17 +133,27 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      <EditTrackerDialog
+        isOpen={editingTracker !== null}
+        onClose={() => setEditingTracker(null)}
+        tracker={editingTracker}
+        onSuccess={() => router.refresh()}
+      />
     </div>
   );
 }
 
 function TrackerCard({
   tracker,
+  onEdit,
   onArchive,
   onDelete,
   isPending,
 }: {
   tracker: ExamTracker;
+  onEdit: () => void;
   onArchive: () => void;
   onDelete: () => void;
   isPending: boolean;
@@ -179,6 +194,17 @@ function TrackerCard({
           >
             Open Workspace
             <ArrowRight className="size-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onEdit}
+            disabled={isPending}
+            title="Edit Tracker Details"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Edit3 className="size-4" />
           </Button>
 
           <Button
