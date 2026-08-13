@@ -29,14 +29,14 @@ import {
 import { cn } from "@/src/lib/utils";
 import { useUser } from "@/src/hooks/use-user";
 
-const navItems = [
+const publicNavItems = [
   { name: "Home", href: "/", icon: BookOpen },
   { name: "Exam Templates", href: "/templates", icon: Layers },
   { name: "Tracker Builder", href: "/builder", icon: LayoutGrid },
   { name: "About", href: "/about", icon: Info },
 ];
 
-function NavbarContent() {
+function PublicNavbarContent() {
   const pathname = usePathname();
   const { user } = useUser();
 
@@ -67,7 +67,7 @@ function NavbarContent() {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
+            {publicNavItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
               return (
@@ -151,7 +151,7 @@ function NavbarContent() {
               </SheetHeader>
               <div className="flex flex-col gap-6 py-6">
                 <div className="flex flex-col gap-1">
-                  {navItems.map((item) => {
+                  {publicNavItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
                     return (
@@ -238,10 +238,10 @@ function NavbarContent() {
   );
 }
 
-export function Navbar() {
+export function PublicNavbar() {
   return (
     <React.Suspense fallback={<header className="h-16 w-full border-b border-border/60 bg-background/80" />}>
-      <NavbarContent />
+      <PublicNavbarContent />
     </React.Suspense>
   );
 }

@@ -1,13 +1,13 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Navbar } from "./navbar";
+import { PublicNavbar } from "./public-navbar";
 
 import { mockGetUser, mockOnAuthStateChange } from "@/src/test/mocks/supabase";
 
 vi.mock("@/src/lib/supabase/client", () => import("@/src/test/mocks/supabase"));
 
-describe("Navbar Component", () => {
+describe("PublicNavbar Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetUser.mockResolvedValue({ data: { user: null } });
@@ -16,14 +16,15 @@ describe("Navbar Component", () => {
     });
   });
 
-  it("renders brand title and nav links correctly", async () => {
-    render(<Navbar />);
+  it("renders brand logo linking to / and all public nav links", async () => {
+    render(<PublicNavbar />);
 
     await waitFor(() => {
       expect(screen.getByText("Review")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Trail")).toBeInTheDocument();
+    const logoLink = screen.getByRole("link", { name: /review trail board exam/i });
+    expect(logoLink).toHaveAttribute("href", "/");
 
     expect(screen.getByRole("link", { name: /home/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /exam templates/i })).toBeInTheDocument();
@@ -32,7 +33,7 @@ describe("Navbar Component", () => {
   });
 
   it("renders login and register CTA buttons when user is logged out", async () => {
-    render(<Navbar />);
+    render(<PublicNavbar />);
 
     await waitFor(() => {
       const loginButtons = screen.getAllByRole("button", { name: /log in/i });
@@ -40,23 +41,6 @@ describe("Navbar Component", () => {
     });
 
     const registerButtons = screen.getAllByRole("button", { name: /register/i });
-
     expect(registerButtons.length).toBeGreaterThan(0);
-  });
-
-  it("renders dashboard button when user is logged in", async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: "user-123", email: "test@example.com" } },
-    });
-
-    render(<Navbar />);
-
-    await waitFor(() => {
-      const dashboardButtons = screen.getAllByRole("button", { name: /dashboard/i });
-      expect(dashboardButtons.length).toBeGreaterThan(0);
-    });
-
-    expect(screen.queryByRole("button", { name: /log in/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /register/i })).not.toBeInTheDocument();
   });
 });

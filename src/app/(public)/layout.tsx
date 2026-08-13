@@ -1,12 +1,12 @@
 import React, { Suspense } from "react";
-import { AppNavbar } from "@/src/components/app-navbar";
+import { PublicNavbar } from "@/src/components/public-navbar";
 import { Footer } from "@/src/components/footer";
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-full flex flex-col">
       <Suspense fallback={<header className="h-16 w-full border-b border-border/60 bg-background/80" />}>
-        <AppNavbar />
+        <PublicNavbar />
       </Suspense>
       <main className="flex-1">{children}</main>
       <Footer />
