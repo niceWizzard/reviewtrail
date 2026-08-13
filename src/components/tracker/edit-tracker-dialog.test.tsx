@@ -21,6 +21,9 @@ describe("EditTrackerDialog Component", () => {
     exam_date: "2026-10-15",
     description: "Aim for 90+ rating",
     is_archived: false,
+    status: "in_progress",
+    outcome_logged_at: null,
+    retake_count: 0,
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
   };

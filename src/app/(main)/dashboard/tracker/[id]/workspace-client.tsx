@@ -20,6 +20,11 @@ import { TrackerGridDesktop } from "@/src/components/tracker/tracker-grid-deskto
 import { TrackerAccordionMobile } from "@/src/components/tracker/tracker-accordion-mobile";
 import type { TrackerWorkspaceData } from "@/src/lib/types/database";
 
+import { ExamStatusBanner } from "@/src/components/tracker/exam-status-banner";
+import { ExamOutcomeDialog } from "@/src/components/tracker/exam-outcome-dialog";
+
+import { EditTrackerDialog } from "@/src/components/tracker/edit-tracker-dialog";
+
 export function TrackerWorkspaceClient({
   examTrackerId,
   workspaceData,
@@ -28,11 +33,44 @@ export function TrackerWorkspaceClient({
   workspaceData: TrackerWorkspaceData;
 }) {
   const { tracker, stats } = workspaceData;
-  const countdown = useExamCountdown(tracker.exam_date || null);
+  const countdown = useExamCountdown(
+    tracker.exam_date || null,
+    tracker.status,
+    tracker.retake_count
+  );
   const isMobile = useMediaQuery("(max-width: 767px)");
+  const [isOutcomeDialogOpen, setIsOutcomeDialogOpen] = React.useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+      {/* Status Banner Notice */}
+      <ExamStatusBanner
+        examTrackerId={examTrackerId}
+        examName={tracker.exam_name}
+        examDate={tracker.exam_date}
+        status={tracker.status}
+        isToday={countdown.isToday}
+        isPastUnchecked={countdown.isPastUnchecked}
+        isAwaitingResults={countdown.isAwaitingResults}
+        onOpenOutcomeDialog={() => setIsOutcomeDialogOpen(true)}
+      />
+
+      {/* Outcome Dialog Modal */}
+      <ExamOutcomeDialog
+        isOpen={isOutcomeDialogOpen}
+        onClose={() => setIsOutcomeDialogOpen(false)}
+        examTrackerId={examTrackerId}
+        examName={tracker.exam_name}
+      />
+
+      {/* Edit Tracker Dialog Modal */}
+      <EditTrackerDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        tracker={tracker}
+      />
+
       {/* Top Breadcrumb Navigation */}
       <div className="flex items-center justify-between">
         <Button
@@ -46,16 +84,28 @@ export function TrackerWorkspaceClient({
           Dashboard
         </Button>
 
-        <Button
-          render={<Link href={`/dashboard/tracker/${examTrackerId}/edit`} />}
-          variant="default"
-          size="sm"
-          className="gap-1.5 shadow-xs"
-          nativeButton={false}
-        >
-          <Edit3 className="size-4" />
-          Edit Table
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditDialogOpen(true)}
+            className="gap-1.5"
+          >
+            <Edit3 className="size-4" />
+            Edit Info
+          </Button>
+
+          <Button
+            render={<Link href={`/dashboard/tracker/${examTrackerId}/edit`} />}
+            variant="default"
+            size="sm"
+            className="gap-1.5 shadow-xs"
+            nativeButton={false}
+          >
+            <Edit3 className="size-4" />
+            Edit Table
+          </Button>
+        </div>
       </div>
 
       {/* Header Banner */}

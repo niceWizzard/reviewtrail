@@ -23,11 +23,14 @@ import {
 } from "@/src/lib/actions/trackers";
 import type { ExamTracker } from "@/src/lib/types/database";
 import { EditTrackerDialog } from "@/src/components/tracker/edit-tracker-dialog";
+import { ExamStatusBanner } from "@/src/components/tracker/exam-status-banner";
+import { ExamOutcomeDialog } from "@/src/components/tracker/exam-outcome-dialog";
 
 export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [editingTracker, setEditingTracker] = useState<ExamTracker | null>(null);
+  const [outcomeTracker, setOutcomeTracker] = useState<ExamTracker | null>(null);
 
   const handleArchive = (trackerId: string, isArchived: boolean) => {
     startTransition(async () => {
@@ -46,8 +49,52 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
   const activeTrackers = trackers.filter((t) => !t.is_archived);
   const archivedTrackers = trackers.filter((t) => t.is_archived);
 
+  // Find featured active tracker for Dashboard milestone notice (e.g. today, past due, or awaiting results)
+  const milestoneTracker = activeTrackers.find((t) => {
+    const isTodayStr =
+      t.exam_date &&
+      new Date(t.exam_date).toISOString().split("T")[0] ===
+        new Date().toISOString().split("T")[0];
+    const isPastStr = t.exam_date && new Date(t.exam_date) < new Date();
+    return (
+      (isTodayStr && (t.status === "in_progress" || t.status === "retaking" || !t.status)) ||
+      (isPastStr && (t.status === "in_progress" || t.status === "retaking" || !t.status)) ||
+      t.status === "taken_waiting_results"
+    );
+  });
+
+  const milestoneCountdown = useExamCountdown(
+    milestoneTracker?.exam_date || null,
+    milestoneTracker?.status,
+    milestoneTracker?.retake_count
+  );
+
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+      {/* Milestone Status Banner Notice */}
+      {milestoneTracker && (
+        <ExamStatusBanner
+          examTrackerId={milestoneTracker.id}
+          examName={milestoneTracker.exam_name}
+          examDate={milestoneTracker.exam_date}
+          status={milestoneTracker.status}
+          isToday={milestoneCountdown.isToday}
+          isPastUnchecked={milestoneCountdown.isPastUnchecked}
+          isAwaitingResults={milestoneCountdown.isAwaitingResults}
+          onOpenOutcomeDialog={() => setOutcomeTracker(milestoneTracker)}
+        />
+      )}
+
+      {/* Outcome Dialog */}
+      {outcomeTracker && (
+        <ExamOutcomeDialog
+          isOpen={true}
+          onClose={() => setOutcomeTracker(null)}
+          examTrackerId={outcomeTracker.id}
+          examName={outcomeTracker.exam_name}
+        />
+      )}
+
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
@@ -153,7 +200,11 @@ function TrackerCard({
   onDelete: () => void;
   isPending: boolean;
 }) {
-  const countdown = useExamCountdown(tracker.exam_date);
+  const countdown = useExamCountdown(
+    tracker.exam_date,
+    tracker.status,
+    tracker.retake_count
+  );
 
   return (
     <Card className="shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between border-border">
@@ -161,10 +212,10 @@ function TrackerCard({
         <div className="flex items-start justify-between gap-2 mb-1">
           <CardTitle className="text-lg font-bold truncate">{tracker.exam_name}</CardTitle>
           <Badge
-            variant={countdown.isUrgent ? "destructive" : "secondary"}
+            variant={countdown.statusBadgeVariant}
             className="shrink-0 text-[11px]"
           >
-            {countdown.statusLabel}
+            {countdown.statusBadgeLabel}
           </Badge>
         </div>
         <CardDescription className="line-clamp-2 text-xs">
