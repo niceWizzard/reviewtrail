@@ -12,6 +12,10 @@ import {
   deleteChapterAction,
   deleteTrackerChecklistAction,
   updateTopicChapterAction,
+  updateSubjectAction,
+  updateChapterAction,
+  updateTopicAction,
+  updateTrackerChecklistAction,
 } from "@/src/lib/actions/structure";
 
 export function useTrackerWorkspace(examTrackerId: string) {
@@ -84,6 +88,30 @@ export function useTrackerWorkspace(examTrackerId: string) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
+  const updateSubjectMutation = useMutation({
+    mutationFn: (payload: { subjectId: string; name: string; color?: string | null }) =>
+      updateSubjectAction(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const updateChapterMutation = useMutation({
+    mutationFn: (payload: { chapterId: string; name: string; description?: string | null }) =>
+      updateChapterAction(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const updateTopicMutation = useMutation({
+    mutationFn: (payload: { topicId: string; name: string }) =>
+      updateTopicAction(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const updateSectionColumnMutation = useMutation({
+    mutationFn: (payload: { checklistId: string; name: string; color?: string | null }) =>
+      updateTrackerChecklistAction(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
   return {
     data: query.data,
     tracker: query.data?.tracker || null,
@@ -113,5 +141,9 @@ export function useTrackerWorkspace(examTrackerId: string) {
     deleteChapter: removeChapterMutation.mutateAsync,
     deleteSectionColumn: removeSectionMutation.mutateAsync,
     updateTopicChapter: moveTopicChapterMutation.mutateAsync,
+    updateSubject: updateSubjectMutation.mutateAsync,
+    updateChapter: updateChapterMutation.mutateAsync,
+    updateTopic: updateTopicMutation.mutateAsync,
+    updateSectionColumn: updateSectionColumnMutation.mutateAsync,
   };
 }

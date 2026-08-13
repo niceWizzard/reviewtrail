@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Layers, BookOpen, CheckSquare, Sparkles } from "lucide-react";
+import { Plus, Trash2, Layers, BookOpen, CheckSquare, Sparkles, Edit3, Check, X } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Field, FieldLabel } from "@/src/components/ui/field";
@@ -43,6 +43,10 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
     deleteSubject,
     deleteChapter,
     deleteSectionColumn,
+    updateSubject,
+    updateChapter,
+    updateTopic,
+    updateSectionColumn,
   } = useTrackerWorkspace(examTrackerId);
 
   // Form states
@@ -53,6 +57,19 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
   const [topicName, setTopicName] = useState("");
   const [sectionName, setSectionName] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
+
+  // Inline Rename States
+  const [editingSubjectId, setEditingSubjectId] = useState<string | null>(null);
+  const [editSubjectName, setEditSubjectName] = useState("");
+
+  const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
+  const [editChapterName, setEditChapterName] = useState("");
+
+  const [editingTopicId, setEditingTopicId] = useState<string | null>(null);
+  const [editTopicName, setEditTopicName] = useState("");
+
+  const [editingColumnId, setEditingColumnId] = useState<string | null>(null);
+  const [editColumnName, setEditColumnName] = useState("");
 
   // Delete Confirmation Dialog State
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -111,6 +128,50 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
       setSectionName("");
     } catch (err: any) {
       setActionError(err?.message || "Failed to add section column");
+    }
+  };
+
+  const handleSaveSubjectRename = async (id: string) => {
+    if (!editSubjectName.trim()) return;
+    setActionError(null);
+    try {
+      await updateSubject({ subjectId: id, name: editSubjectName.trim() });
+      setEditingSubjectId(null);
+    } catch (err: any) {
+      setActionError(err?.message || "Failed to rename subject");
+    }
+  };
+
+  const handleSaveChapterRename = async (id: string) => {
+    if (!editChapterName.trim()) return;
+    setActionError(null);
+    try {
+      await updateChapter({ chapterId: id, name: editChapterName.trim() });
+      setEditingChapterId(null);
+    } catch (err: any) {
+      setActionError(err?.message || "Failed to rename chapter");
+    }
+  };
+
+  const handleSaveTopicRename = async (id: string) => {
+    if (!editTopicName.trim()) return;
+    setActionError(null);
+    try {
+      await updateTopic({ topicId: id, name: editTopicName.trim() });
+      setEditingTopicId(null);
+    } catch (err: any) {
+      setActionError(err?.message || "Failed to rename topic");
+    }
+  };
+
+  const handleSaveColumnRename = async (id: string) => {
+    if (!editColumnName.trim()) return;
+    setActionError(null);
+    try {
+      await updateSectionColumn({ checklistId: id, name: editColumnName.trim() });
+      setEditingColumnId(null);
+    } catch (err: any) {
+      setActionError(err?.message || "Failed to rename section column");
     }
   };
 
@@ -351,17 +412,60 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
 
                   return (
                     <div key={subject.id} className="p-3 rounded-lg border border-border bg-card space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm">{subject.name}</span>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => promptDeleteSubject(subject.id, subject.name)}
-                          className="text-destructive hover:bg-destructive/10"
-                          title={`Delete ${subject.name}`}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
+                      <div className="flex items-center justify-between gap-2">
+                        {editingSubjectId === subject.id ? (
+                          <div className="flex items-center gap-1.5 flex-1">
+                            <Input
+                              autoFocus
+                              value={editSubjectName}
+                              onChange={(e) => setEditSubjectName(e.target.value)}
+                              className="h-7 text-xs font-bold"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => handleSaveSubjectRename(subject.id)}
+                              className="text-primary hover:bg-primary/10"
+                            >
+                              <Check className="size-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => setEditingSubjectId(null)}
+                              className="text-muted-foreground"
+                            >
+                              <X className="size-3.5" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="font-bold text-sm truncate">{subject.name}</span>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => {
+                                  setEditingSubjectId(subject.id);
+                                  setEditSubjectName(subject.name);
+                                }}
+                                className="text-muted-foreground hover:text-foreground"
+                                title={`Rename ${subject.name}`}
+                              >
+                                <Edit3 className="size-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => promptDeleteSubject(subject.id, subject.name)}
+                                className="text-destructive hover:bg-destructive/10"
+                                title={`Delete ${subject.name}`}
+                              >
+                                <Trash2 className="size-3.5" />
+                              </Button>
+                            </div>
+                          </>
+                        )}
                       </div>
 
                       {/* Chapter Groups */}
@@ -369,34 +473,120 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                         const chapterTopics = topics.filter((t) => t.chapter_id === chapter.id);
                         return (
                           <div key={chapter.id} className="pl-2 border-l-2 border-primary/50 space-y-1">
-                            <div className="flex items-center justify-between py-1 bg-muted/30 px-2 rounded-md">
-                              <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                                <Layers className="size-3.5 text-primary" />
-                                {chapter.name}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => promptDeleteChapter(chapter.id, chapter.name)}
-                                className="text-muted-foreground hover:text-destructive"
-                                title={`Delete chapter ${chapter.name}`}
-                              >
-                                <Trash2 className="size-3" />
-                              </Button>
+                            <div className="flex items-center justify-between py-1 bg-muted/30 px-2 rounded-md gap-2">
+                              {editingChapterId === chapter.id ? (
+                                <div className="flex items-center gap-1.5 flex-1">
+                                  <Input
+                                    autoFocus
+                                    value={editChapterName}
+                                    onChange={(e) => setEditChapterName(e.target.value)}
+                                    className="h-6 text-xs font-semibold"
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={() => handleSaveChapterRename(chapter.id)}
+                                    className="text-primary"
+                                  >
+                                    <Check className="size-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={() => setEditingChapterId(null)}
+                                    className="text-muted-foreground"
+                                  >
+                                    <X className="size-3" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <>
+                                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5 truncate">
+                                    <Layers className="size-3.5 text-primary shrink-0" />
+                                    {chapter.name}
+                                  </span>
+                                  <div className="flex items-center gap-0.5">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => {
+                                        setEditingChapterId(chapter.id);
+                                        setEditChapterName(chapter.name);
+                                      }}
+                                      className="text-muted-foreground hover:text-foreground"
+                                      title={`Rename chapter ${chapter.name}`}
+                                    >
+                                      <Edit3 className="size-3" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => promptDeleteChapter(chapter.id, chapter.name)}
+                                      className="text-muted-foreground hover:text-destructive"
+                                      title={`Delete chapter ${chapter.name}`}
+                                    >
+                                      <Trash2 className="size-3" />
+                                    </Button>
+                                  </div>
+                                </>
+                              )}
                             </div>
 
                             <div className="pl-3 space-y-1 text-xs">
                               {chapterTopics.map((topic) => (
-                                <div key={topic.id} className="flex items-center justify-between py-0.5 group">
-                                  <span>{topic.name}</span>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon-xs"
-                                    onClick={() => deleteTopic(topic.id)}
-                                    className="text-muted-foreground hover:text-destructive opacity-80 group-hover:opacity-100"
-                                  >
-                                    <Trash2 className="size-3" />
-                                  </Button>
+                                <div key={topic.id} className="flex items-center justify-between py-0.5 group gap-2">
+                                  {editingTopicId === topic.id ? (
+                                    <div className="flex items-center gap-1.5 flex-1">
+                                      <Input
+                                        autoFocus
+                                        value={editTopicName}
+                                        onChange={(e) => setEditTopicName(e.target.value)}
+                                        className="h-6 text-xs"
+                                      />
+                                      <Button
+                                        variant="ghost"
+                                        size="icon-xs"
+                                        onClick={() => handleSaveTopicRename(topic.id)}
+                                        className="text-primary"
+                                      >
+                                        <Check className="size-3" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon-xs"
+                                        onClick={() => setEditingTopicId(null)}
+                                        className="text-muted-foreground"
+                                      >
+                                        <X className="size-3" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <span className="truncate">{topic.name}</span>
+                                      <div className="flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
+                                        <Button
+                                          variant="ghost"
+                                          size="icon-xs"
+                                          onClick={() => {
+                                            setEditingTopicId(topic.id);
+                                            setEditTopicName(topic.name);
+                                          }}
+                                          className="text-muted-foreground hover:text-foreground"
+                                          title={`Rename topic ${topic.name}`}
+                                        >
+                                          <Edit3 className="size-3" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon-xs"
+                                          onClick={() => deleteTopic(topic.id)}
+                                          className="text-muted-foreground hover:text-destructive"
+                                        >
+                                          <Trash2 className="size-3" />
+                                        </Button>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
                               ))}
                             </div>
@@ -411,16 +601,59 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                             <span className="text-[11px] text-muted-foreground font-medium block pt-1">Ungrouped Topics:</span>
                           )}
                           {ungroupedTopics.map((topic) => (
-                            <div key={topic.id} className="flex items-center justify-between py-0.5 group">
-                              <span>{topic.name}</span>
-                              <Button
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => deleteTopic(topic.id)}
-                                className="text-muted-foreground hover:text-destructive opacity-80 group-hover:opacity-100"
-                              >
-                                <Trash2 className="size-3" />
-                              </Button>
+                            <div key={topic.id} className="flex items-center justify-between py-0.5 group gap-2">
+                              {editingTopicId === topic.id ? (
+                                <div className="flex items-center gap-1.5 flex-1">
+                                  <Input
+                                    autoFocus
+                                    value={editTopicName}
+                                    onChange={(e) => setEditTopicName(e.target.value)}
+                                    className="h-6 text-xs"
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={() => handleSaveTopicRename(topic.id)}
+                                    className="text-primary"
+                                  >
+                                    <Check className="size-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={() => setEditingTopicId(null)}
+                                    className="text-muted-foreground"
+                                  >
+                                    <X className="size-3" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <>
+                                  <span className="truncate">{topic.name}</span>
+                                  <div className="flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => {
+                                        setEditingTopicId(topic.id);
+                                        setEditTopicName(topic.name);
+                                      }}
+                                      className="text-muted-foreground hover:text-foreground"
+                                      title={`Rename topic ${topic.name}`}
+                                    >
+                                      <Edit3 className="size-3" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => deleteTopic(topic.id)}
+                                      className="text-muted-foreground hover:text-destructive"
+                                    >
+                                      <Trash2 className="size-3" />
+                                    </Button>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -459,26 +692,69 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
                 {checklists.map((section) => (
                   <div
                     key={section.id}
-                    className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-card text-sm"
+                    className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-card text-sm gap-2"
                   >
-                    <div className="flex items-center gap-2">
-                      <CheckSquare className="size-4 text-primary" />
-                      <span className="font-medium">{section.name}</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      disabled={checklists.length <= 1}
-                      onClick={() => handleDeleteChecklistColumn(section.id)}
-                      className="text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:hover:bg-transparent"
-                      title={
-                        checklists.length <= 1
-                          ? "Trackers must have at least 1 section column"
-                          : `Delete ${section.name}`
-                      }
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
+                    {editingColumnId === section.id ? (
+                      <div className="flex items-center gap-1.5 flex-1">
+                        <Input
+                          autoFocus
+                          value={editColumnName}
+                          onChange={(e) => setEditColumnName(e.target.value)}
+                          className="h-7 text-xs font-medium"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => handleSaveColumnRename(section.id)}
+                          className="text-primary hover:bg-primary/10"
+                        >
+                          <Check className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => setEditingColumnId(null)}
+                          className="text-muted-foreground"
+                        >
+                          <X className="size-3.5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2 truncate">
+                          <CheckSquare className="size-4 text-primary shrink-0" />
+                          <span className="font-medium truncate">{section.name}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => {
+                              setEditingColumnId(section.id);
+                              setEditColumnName(section.name);
+                            }}
+                            className="text-muted-foreground hover:text-foreground"
+                            title={`Rename ${section.name}`}
+                          >
+                            <Edit3 className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            disabled={checklists.length <= 1}
+                            onClick={() => handleDeleteChecklistColumn(section.id)}
+                            className="text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:hover:bg-transparent"
+                            title={
+                              checklists.length <= 1
+                                ? "Trackers must have at least 1 section column"
+                                : `Delete ${section.name}`
+                            }
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

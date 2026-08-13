@@ -9,6 +9,7 @@ import {
   BookOpen,
   LayoutGrid,
   Layers,
+  Edit3,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
@@ -17,7 +18,6 @@ import { useExamCountdown } from "@/src/hooks/use-exam-countdown";
 import { useMediaQuery } from "@/src/hooks/use-media-query";
 import { TrackerGridDesktop } from "@/src/components/tracker/tracker-grid-desktop";
 import { TrackerAccordionMobile } from "@/src/components/tracker/tracker-accordion-mobile";
-import { WorkspaceStructureEditor } from "@/src/components/tracker/workspace-structure-editor";
 import type { TrackerWorkspaceData } from "@/src/lib/types/database";
 
 export function TrackerWorkspaceClient({
@@ -46,7 +46,16 @@ export function TrackerWorkspaceClient({
           Dashboard
         </Button>
 
-        <WorkspaceStructureEditor examTrackerId={examTrackerId} />
+        <Button
+          render={<Link href={`/dashboard/tracker/${examTrackerId}/edit`} />}
+          variant="default"
+          size="sm"
+          className="gap-1.5 shadow-xs"
+          nativeButton={false}
+        >
+          <Edit3 className="size-4" />
+          Edit Table & Syllabus
+        </Button>
       </div>
 
       {/* Header Banner */}

@@ -53,7 +53,7 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
               Syllabus Topic / Chapter
             </th>
             {sections.map((section) => (
-              <th key={section.id} className="px-4 py-3 text-center min-w-[120px] font-semibold">
+              <th key={section.id} className="px-4 py-3 text-center min-w-[140px] font-semibold">
                 <div className="flex items-center justify-center gap-1.5">
                   <span>{section.name}</span>
                 </div>
@@ -113,7 +113,7 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
                 {allSubTopics.length === 0 && (
                   <tr className="bg-muted/10 text-xs italic text-muted-foreground">
                     <td colSpan={sections.length + 2} className="px-6 py-3">
-                      No topics in this subject yet. Click <strong>Manage Syllabus & Columns</strong> above to add topics.
+                      No topics in this subject yet. Click <strong>Edit Table & Syllabus</strong> above to add topics.
                     </td>
                   </tr>
                 )}
