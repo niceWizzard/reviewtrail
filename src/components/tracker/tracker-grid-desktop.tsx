@@ -121,15 +121,15 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
                 {/* Chapter Rows & Topics */}
                 {subject.chapters.map((chapter) => (
                   <React.Fragment key={chapter.id}>
-                    <tr className="bg-muted/20 text-xs font-semibold text-muted-foreground">
+                    <tr className="bg-muted/20 text-sm font-semibold text-foreground">
                       <td
                         colSpan={sections.length + 2}
-                        className="px-6 py-1.5 sticky left-0 z-10 flex items-center gap-1.5"
+                        className="px-6 py-2 sticky left-0 z-10 flex items-center gap-1.5"
                       >
-                        <Layers className="size-3.5 text-primary/70" />
+                        <Layers className="size-4 text-primary" />
                         <span>{chapter.name}</span>
                         {chapter.description && (
-                          <span className="text-[11px] text-muted-foreground/80 font-normal">
+                          <span className="text-xs text-muted-foreground/80 font-normal">
                             — {chapter.description}
                           </span>
                         )}
@@ -151,7 +151,7 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
                           key={topic.id}
                           className="hover:bg-accent/40 transition-colors group"
                         >
-                          <td className="px-8 py-3 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
+                          <td className="px-8 py-2.5 text-xs font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
                             {topic.name}
                           </td>
 
@@ -192,7 +192,7 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
                       key={topic.id}
                       className="hover:bg-accent/40 transition-colors group"
                     >
-                      <td className="px-6 py-3 font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
+                      <td className="px-6 py-2.5 text-xs font-medium text-foreground sticky left-0 z-10 bg-card group-hover:bg-accent/40 border-r border-border/60">
                         {topic.name}
                       </td>
 

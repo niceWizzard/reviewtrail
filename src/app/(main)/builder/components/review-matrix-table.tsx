@@ -191,7 +191,7 @@ export function ReviewMatrixTable({
                             <DoubleClickInlineInput
                               value={subject.name}
                               onSave={(val) => onRenameSubject?.(subjectId, val)}
-                              className="text-sm font-semibold"
+                              className="text-base font-bold text-foreground"
                             />
                             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shrink-0">
                               {subTopics.length} Topics
@@ -236,16 +236,17 @@ export function ReviewMatrixTable({
                       const chapterTopics = subTopics.filter((t) => getChId(t) === chapterId);
                       return (
                         <React.Fragment key={chapterId}>
-                          <TableRow className="bg-muted/20 text-xs font-semibold text-muted-foreground hover:bg-muted/20">
+                          <TableRow className="bg-muted/20 text-sm font-semibold text-foreground hover:bg-muted/20">
                             <TableCell
                               colSpan={checklists.length + 2}
-                              className="px-6 py-1.5 sticky left-0 z-10 flex items-center justify-between gap-2"
+                              className="px-6 py-2 sticky left-0 z-10 flex items-center justify-between gap-2"
                             >
                               <div className="flex items-center gap-1.5 min-w-0">
-                                <Layers className="size-3.5 text-primary shrink-0" />
+                                <Layers className="size-4 text-primary shrink-0" />
                                 <DoubleClickInlineInput
                                   value={chapter.name}
                                   onSave={(val) => onRenameChapter?.(chapterId, val)}
+                                  className="text-sm font-semibold text-foreground"
                                 />
                               </div>
                               <button
@@ -254,7 +255,7 @@ export function ReviewMatrixTable({
                                 onClick={() => onDeleteChapter(chapterId)}
                                 className="text-muted-foreground/60 hover:text-destructive p-0.5 rounded-xs transition-colors cursor-pointer shrink-0"
                               >
-                                <Trash2 className="size-3" />
+                                <Trash2 className="size-3.5" />
                               </button>
                             </TableCell>
                           </TableRow>
@@ -268,7 +269,7 @@ export function ReviewMatrixTable({
                                     <DoubleClickInlineInput
                                       value={topic.name}
                                       onSave={(val) => onRenameTopic?.(topicId, val)}
-                                      className="text-xs min-w-0 flex-1"
+                                      className="text-xs font-medium text-foreground min-w-0 flex-1"
                                     />
                                     <button
                                       type="button"
@@ -313,7 +314,7 @@ export function ReviewMatrixTable({
                               <DoubleClickInlineInput
                                 value={topic.name}
                                 onSave={(val) => onRenameTopic?.(topicId, val)}
-                                className="text-xs min-w-0 flex-1"
+                                className="text-xs font-medium text-foreground min-w-0 flex-1"
                               />
                               <button
                                 type="button"
