@@ -205,7 +205,7 @@ function BuilderContent() {
                   Interactive Review Matrix Builder
                 </CardTitle>
                 <CardDescription className="mt-1">
-                  Add columns and rows (subjects & topics) directly in this Google Sheets-style preview table.
+                  Add columns, subjects, chapters, and topics to build your review table.
                 </CardDescription>
               </div>
 

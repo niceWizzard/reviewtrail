@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   CheckCircle2,
   Clock,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   TrendingUp,
@@ -239,15 +238,6 @@ export function HeroTrackerDemo() {
       <CardHeader className="bg-muted/40 pb-4 border-b border-border">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-background text-xs font-mono">
-                <Sparkles className="size-3 text-primary mr-1" />
-                Live Interactive Demo
-              </Badge>
-              <span className="text-xs text-muted-foreground font-medium">
-                Click items to interact
-              </span>
-            </div>
             <CardTitle className="text-lg font-bold mt-1">
               {PRESET_DATA[selectedExam].examName}
             </CardTitle>

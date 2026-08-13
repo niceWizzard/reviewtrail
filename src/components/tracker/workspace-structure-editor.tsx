@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Layers, BookOpen, CheckSquare, Sparkles, Edit3, Check, X } from "lucide-react";
+import { Plus, Trash2, Layers, BookOpen, CheckSquare, Settings2, Edit3, Check, X } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Field, FieldLabel } from "@/src/components/ui/field";
@@ -235,7 +235,7 @@ export function WorkspaceStructureEditor({ examTrackerId, trigger }: StructureEd
               (trigger as React.ReactElement)
             ) : (
               <Button variant="outline" size="sm" className="gap-1.5">
-                <Sparkles className="size-4" />
+                <Settings2 className="size-4" />
                 Manage Syllabus & Columns
               </Button>
             )

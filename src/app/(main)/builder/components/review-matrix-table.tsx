@@ -167,7 +167,7 @@ export function ReviewMatrixTable({
                   colSpan={checklists.length + 2}
                   className="p-8 text-center text-muted-foreground text-xs italic"
                 >
-                  No subjects added yet. Click <strong>+ Add Subject</strong> above to build your review table!
+                  No subjects added yet.
                 </TableCell>
               </TableRow>
             ) : (

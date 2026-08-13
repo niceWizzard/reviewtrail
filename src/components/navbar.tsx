@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   GraduationCap,
   Menu,
-  Sparkles,
+  LayoutGrid,
   Layers,
   Info,
   BookOpen,
@@ -32,7 +32,7 @@ import { useUser } from "@/src/hooks/use-user";
 const navItems = [
   { name: "Home", href: "/", icon: BookOpen },
   { name: "Exam Templates", href: "/templates", icon: Layers },
-  { name: "Tracker Builder", href: "/builder", icon: Sparkles },
+  { name: "Tracker Builder", href: "/builder", icon: LayoutGrid },
   { name: "About", href: "/about", icon: Info },
 ];
 
@@ -53,20 +53,15 @@ function NavbarContent() {
               <GraduationCap className="size-5" />
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-lg leading-none tracking-tight">
-                  Review<span className="text-primary">Trail</span>
-                </span>
-                <Badge
-                  variant="secondary"
-                  className="px-1.5 py-0 text-[10px] font-semibold uppercase"
-                >
-                  Board Exam
-                </Badge>
-              </div>
-              <span className="text-[11px] text-muted-foreground font-medium">
-                Passer-Grade Tracker Hub
+              <span className="font-bold text-lg leading-none tracking-tight">
+                Review<span className="text-primary">Trail</span>
               </span>
+              <Badge
+                variant="secondary"
+                className="px-1.5 py-0 text-[10px] font-semibold uppercase"
+              >
+                Board Exam
+              </Badge>
             </div>
           </Link>
 

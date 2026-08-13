@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   Plus,
   Layers,
-  Sparkles,
   CheckCircle2,
   TrendingUp,
   Brain,
@@ -141,9 +140,8 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Hero Text */}
             <div className="lg:col-span-6 flex flex-col gap-6 text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary w-fit">
-                <Sparkles className="size-3.5" />
-                <span>2026 Board Exam Review Platform</span>
+              <div className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary w-fit">
+                2026 Board Exam Review Platform
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">

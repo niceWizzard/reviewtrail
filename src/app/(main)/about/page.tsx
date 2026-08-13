@@ -3,7 +3,7 @@ import {
   GraduationCap,
   Target,
   Brain,
-  Sparkles,
+  Plus,
   ShieldCheck,
   Award,
   CheckCircle2,
@@ -96,7 +96,7 @@ export default function AboutPage() {
 
           <div className="flex items-center gap-4 pt-2">
             <Button render={<Link href="/builder" />} size="lg" className="gap-2 font-semibold" nativeButton={false}>
-              <Sparkles className="size-4" />
+              <Plus className="size-4" />
               Build Your Review Tracker
             </Button>
             <Button render={<Link href="/templates" />} variant="outline" size="lg"  nativeButton={false}>

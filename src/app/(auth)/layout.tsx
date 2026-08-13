@@ -6,8 +6,6 @@ import { Badge } from "@/src/components/ui/badge";
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-muted/30 px-4 py-12 sm:px-6 lg:px-8">
-      {/* Background Decorative Pattern */}
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
 
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
@@ -31,9 +29,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   Board Exam
                 </Badge>
               </div>
-              <span className="text-xs text-muted-foreground font-medium">
-                Passer-Grade Tracker Hub
-              </span>
             </div>
           </Link>
         </div>

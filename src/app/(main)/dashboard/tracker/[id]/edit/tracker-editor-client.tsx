@@ -205,9 +205,6 @@ export function TrackerEditorClient({
               <Edit3 className="size-5 text-primary" />
               Edit Tracker Table: {draft.examName}
             </h1>
-            <p className="text-xs text-muted-foreground">
-              Edits run in local draft mode. Click <strong>Save Changes</strong> when finished.
-            </p>
           </div>
         </div>
 
@@ -245,10 +242,10 @@ export function TrackerEditorClient({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <CardTitle className="text-lg font-bold flex items-center gap-2">
-                Syllabus & Column Table Editor (Local Draft)
+                Syllabus & Column Editor
               </CardTitle>
               <CardDescription className="mt-1">
-                Add columns, subjects, chapters, and topics. Double-click any name in the table to rename it inline.
+                Add columns, subjects, chapters, and topics.
               </CardDescription>
             </div>
 

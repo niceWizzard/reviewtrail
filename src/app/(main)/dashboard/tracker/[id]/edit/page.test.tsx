@@ -48,7 +48,7 @@ describe("TrackerEditorClient Component (Local Draft State)", () => {
 
     expect(screen.getByText(/Edit Tracker Table: CPA Licensure Exam/i)).toBeInTheDocument();
     expect(screen.getAllByText("Save Changes")[0]).toBeInTheDocument();
-    expect(screen.getByText("Cancel / Back to Workspace")).toBeInTheDocument();
+    expect(screen.getByText("Cancel")).toBeInTheDocument();
   });
 
   it("updates item name locally when double-clicked without immediately calling server action", async () => {

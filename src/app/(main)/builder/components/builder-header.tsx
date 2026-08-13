@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 
@@ -25,11 +25,6 @@ export function BuilderHeader({ step, onNavAttempt }: BuilderHeaderProps) {
           <ArrowLeft className="size-4" />
           Dashboard
         </Button>
-
-        <Badge variant="outline" className="gap-1.5 border-primary/40 text-primary py-1 px-3">
-          <Sparkles className="size-3.5" />
-          Database Autosave Active
-        </Badge>
       </div>
 
       {/* Stepper Progress Header (2 Steps) */}
@@ -38,7 +33,7 @@ export function BuilderHeader({ step, onNavAttempt }: BuilderHeaderProps) {
         <p className="text-sm text-muted-foreground max-w-lg mx-auto">
           {step === 1
             ? "Enter your exam details to initialize your review tracker."
-            : "Customize your review table columns and syllabus topics live like a spreadsheet."}
+            : "Add subjects, chapters, and topics to build your review table."}
         </p>
 
         <div className="flex items-center justify-center gap-2 pt-4 max-w-xs mx-auto">
