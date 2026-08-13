@@ -56,10 +56,6 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               Examinee Dashboard
             </h1>
-            <Badge variant="outline" className="gap-1 border-primary/40 text-primary">
-              <Sparkles className="size-3" />
-              Active Review
-            </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
             Manage your board exam review trackers, syllabus topics, and checklist progress.

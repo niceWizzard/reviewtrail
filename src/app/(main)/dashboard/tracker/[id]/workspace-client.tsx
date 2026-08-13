@@ -54,7 +54,7 @@ export function TrackerWorkspaceClient({
           nativeButton={false}
         >
           <Edit3 className="size-4" />
-          Edit Table & Syllabus
+          Edit Table
         </Button>
       </div>
 
@@ -124,12 +124,8 @@ export function TrackerWorkspaceClient({
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
             <LayoutGrid className="size-5 text-primary" />
-            Syllabus Review Matrix
+            Review Table
           </h2>
-
-          <Badge variant="outline" className="text-xs font-normal">
-            {isMobile ? "Mobile Accordion View" : "Desktop Matrix Table View"}
-          </Badge>
         </div>
 
         {isMobile ? (

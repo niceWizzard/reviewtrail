@@ -195,7 +195,7 @@ export function TrackerEditorClient({
             className="gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <ArrowLeft className="size-4" />
-            Cancel / Back to Workspace
+            Cancel 
           </Button>
 
           <span className="text-muted-foreground/40">|</span>
@@ -206,7 +206,7 @@ export function TrackerEditorClient({
               Edit Tracker Table: {draft.examName}
             </h1>
             <p className="text-xs text-muted-foreground">
-              Edits run in local draft mode with 0ms latency. Click <strong>Save Changes</strong> when finished.
+              Edits run in local draft mode. Click <strong>Save Changes</strong> when finished.
             </p>
           </div>
         </div>
