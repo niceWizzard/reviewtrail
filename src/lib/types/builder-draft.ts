@@ -1,5 +1,6 @@
 export interface DraftChecklist {
   tempId: string;
+  id?: string;
   name: string;
   position: number;
   color?: string | null;
@@ -7,6 +8,7 @@ export interface DraftChecklist {
 
 export interface DraftSubject {
   tempId: string;
+  id?: string;
   name: string;
   position: number;
   color?: string | null;
@@ -14,6 +16,7 @@ export interface DraftSubject {
 
 export interface DraftChapter {
   tempId: string;
+  id?: string;
   subjectTempId: string;
   name: string;
   description?: string | null;
@@ -22,6 +25,7 @@ export interface DraftChapter {
 
 export interface DraftTopic {
   tempId: string;
+  id?: string;
   subjectTempId: string;
   chapterTempId?: string | null;
   name: string;

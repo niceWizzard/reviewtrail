@@ -46,10 +46,18 @@ type Action =
   | { type: "DELETE_TOPIC"; payload: { tempId: string } }
   | { type: "ADD_CHECKLIST"; payload: { name: string } }
   | { type: "DELETE_CHECKLIST"; payload: { tempId: string } }
+  | { type: "RENAME_SUBJECT"; payload: { tempId: string; name: string } }
+  | { type: "RENAME_CHAPTER"; payload: { tempId: string; name: string } }
+  | { type: "RENAME_TOPIC"; payload: { tempId: string; name: string } }
+  | { type: "RENAME_CHECKLIST"; payload: { tempId: string; name: string } }
+  | { type: "SET_DRAFT"; payload: TrackerDraft }
   | { type: "RESET_DRAFT" };
 
-function draftReducer(state: TrackerDraft, action: Action): TrackerDraft {
+export function draftReducer(state: TrackerDraft, action: Action): TrackerDraft {
   switch (action.type) {
+    case "SET_DRAFT": {
+      return action.payload;
+    }
     case "SET_EXAM_INFO": {
       const trimmedName = action.payload.examName.trim();
       const prepopulate = action.payload.prepopulateColumns !== false;
@@ -80,6 +88,24 @@ function draftReducer(state: TrackerDraft, action: Action): TrackerDraft {
       return {
         ...state,
         subjects: [...state.subjects, newSubject],
+      };
+    }
+
+    case "RENAME_SUBJECT": {
+      const trimmed = action.payload.name.trim();
+      if (!trimmed) return state;
+      if (
+        state.subjects.some(
+          (s) => s.tempId !== action.payload.tempId && s.name.toLowerCase() === trimmed.toLowerCase()
+        )
+      ) {
+        throw new Error(`A subject named "${trimmed}" already exists.`);
+      }
+      return {
+        ...state,
+        subjects: state.subjects.map((s) =>
+          s.tempId === action.payload.tempId ? { ...s, name: trimmed } : s
+        ),
       };
     }
 
@@ -124,6 +150,29 @@ function draftReducer(state: TrackerDraft, action: Action): TrackerDraft {
       };
     }
 
+    case "RENAME_CHAPTER": {
+      const trimmed = action.payload.name.trim();
+      if (!trimmed) return state;
+      const targetCh = state.chapters.find((c) => c.tempId === action.payload.tempId);
+      if (!targetCh) return state;
+      if (
+        state.chapters.some(
+          (c) =>
+            c.tempId !== action.payload.tempId &&
+            c.subjectTempId === targetCh.subjectTempId &&
+            c.name.toLowerCase() === trimmed.toLowerCase()
+        )
+      ) {
+        throw new Error(`A chapter named "${trimmed}" already exists in this subject.`);
+      }
+      return {
+        ...state,
+        chapters: state.chapters.map((c) =>
+          c.tempId === action.payload.tempId ? { ...c, name: trimmed } : c
+        ),
+      };
+    }
+
     case "DELETE_CHAPTER": {
       const { tempId } = action.payload;
       // When deleting a chapter, unassign topics or delete topics belonging to it
@@ -158,6 +207,17 @@ function draftReducer(state: TrackerDraft, action: Action): TrackerDraft {
       };
     }
 
+    case "RENAME_TOPIC": {
+      const trimmed = action.payload.name.trim();
+      if (!trimmed) return state;
+      return {
+        ...state,
+        topics: state.topics.map((t) =>
+          t.tempId === action.payload.tempId ? { ...t, name: trimmed } : t
+        ),
+      };
+    }
+
     case "DELETE_TOPIC": {
       return {
         ...state,
@@ -186,6 +246,24 @@ function draftReducer(state: TrackerDraft, action: Action): TrackerDraft {
       return {
         ...state,
         checklists: [...state.checklists, newChecklist],
+      };
+    }
+
+    case "RENAME_CHECKLIST": {
+      const trimmed = action.payload.name.trim();
+      if (!trimmed) return state;
+      if (
+        state.checklists.some(
+          (c) => c.tempId !== action.payload.tempId && c.name.toLowerCase() === trimmed.toLowerCase()
+        )
+      ) {
+        throw new Error(`A checklist column named "${trimmed}" already exists.`);
+      }
+      return {
+        ...state,
+        checklists: state.checklists.map((c) =>
+          c.tempId === action.payload.tempId ? { ...c, name: trimmed } : c
+        ),
       };
     }
 
