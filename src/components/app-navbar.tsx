@@ -52,6 +52,9 @@ function AppNavbarContent() {
     await signOutUser();
   };
 
+  const username = (user?.user_metadata?.username as string) || "User";
+  const avatarInitial = username.charAt(0).toUpperCase();
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-md transition-colors">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -110,11 +113,11 @@ function AppNavbarContent() {
                   <Button variant="ghost" size="sm" className="gap-2 px-2 focus-visible:ring-1">
                     <Avatar className="size-7">
                       <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                        {user.email ? user.email.charAt(0).toUpperCase() : "U"}
+                        {avatarInitial}
                       </AvatarFallback>
                     </Avatar>
                     <span className="max-w-[130px] truncate text-xs font-medium max-lg:hidden">
-                      {user.email}
+                      {username}
                     </span>
                     <ChevronDown className="size-3.5 text-muted-foreground" />
                   </Button>
@@ -122,7 +125,7 @@ function AppNavbarContent() {
               />
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-3 py-2 text-xs text-muted-foreground border-b border-border/50 mb-1">
-                  <p className="text-sm font-medium leading-none text-foreground mb-1">Account</p>
+                  <p className="text-sm font-medium leading-none text-foreground mb-1">{username}</p>
                   <p className="text-xs leading-none text-muted-foreground truncate">
                     {user.email}
                   </p>
@@ -222,7 +225,7 @@ function AppNavbarContent() {
                   {user ? (
                     <>
                       <div className="px-1 py-1.5 text-xs text-muted-foreground truncate">
-                        Signed in as <span className="font-medium text-foreground">{user.email}</span>
+                        Signed in as <span className="font-medium text-foreground">{username}</span>
                       </div>
                       <SheetClose
                         render={
