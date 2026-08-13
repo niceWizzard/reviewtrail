@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS public.exam_trackers (
     exam_date date,
     description text,
     is_archived boolean DEFAULT false NOT NULL,
+    status text DEFAULT 'in_progress' NOT NULL CHECK (status IN ('in_progress', 'taken_waiting_results', 'passed', 'retaking', 'postponed')),
+    outcome_logged_at timestamptz,
+    retake_count integer DEFAULT 0 NOT NULL,
     created_at timestamptz DEFAULT now() NOT NULL,
     updated_at timestamptz DEFAULT now() NOT NULL
 );

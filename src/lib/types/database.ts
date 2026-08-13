@@ -1,3 +1,10 @@
+export type ExamStatus =
+  | "in_progress"
+  | "taken_waiting_results"
+  | "passed"
+  | "retaking"
+  | "postponed";
+
 export interface ExamTracker {
   id: string;
   user_id: string;
@@ -5,6 +12,9 @@ export interface ExamTracker {
   exam_date: string | null;
   description: string | null;
   is_archived: boolean;
+  status: ExamStatus;
+  outcome_logged_at: string | null;
+  retake_count: number;
   created_at: string;
   updated_at: string;
 }
