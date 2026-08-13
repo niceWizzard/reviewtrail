@@ -65,10 +65,10 @@ interface ReviewMatrixTableProps {
   onDeleteSubject: (id: string) => void;
   onDeleteChapter: (id: string) => void;
   onDeleteTopic: (id: string) => void;
-  onRenameSectionColumn?: (id: string, newName: string) => void;
-  onRenameSubject?: (id: string, newName: string) => void;
-  onRenameChapter?: (id: string, newName: string) => void;
-  onRenameTopic?: (id: string, newName: string) => void;
+  onRenameSectionColumn?: (id: string, newName: string) => boolean | void | Promise<boolean | void>;
+  onRenameSubject?: (id: string, newName: string) => boolean | void | Promise<boolean | void>;
+  onRenameChapter?: (id: string, newName: string) => boolean | void | Promise<boolean | void>;
+  onRenameTopic?: (id: string, newName: string) => boolean | void | Promise<boolean | void>;
   onOpenAdderForm: (form: ActiveAdderForm, subjectId?: string) => void;
   onNavBack?: () => void;
   onFinish?: () => void;

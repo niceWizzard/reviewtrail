@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
 import { useTrackerBuilder } from "@/src/hooks/use-tracker-builder";
-import { BuilderProvider, useBuilderContext } from "./builder-context";
+import {
+  BuilderProvider,
+  useBuilderContext,
+  validateRenameChecklist,
+  validateRenameSubject,
+  validateRenameChapter,
+  validateRenameTopic,
+  validateDeleteChecklist,
+} from "./builder-context";
 
 import { ActiveAdderForm, LeaveTarget, Step1Values } from "./types";
 import { BuilderHeader } from "./components/builder-header";
@@ -245,11 +253,13 @@ function BuilderContent() {
               isMaxColumnsReached={isMaxColumnsReached}
               isCommitting={isCommitting}
               onDeleteSectionColumn={(tempId) => {
-                try {
-                  dispatch({ type: "DELETE_CHECKLIST", payload: { tempId } });
-                } catch (err: any) {
-                  setErrorMessage(err?.message || "Failed to delete column");
+                const err = validateDeleteChecklist(draft);
+                if (err) {
+                  setErrorMessage(err);
+                  return;
                 }
+                setErrorMessage(null);
+                dispatch({ type: "DELETE_CHECKLIST", payload: { tempId } });
               }}
               onDeleteSubject={(tempId) => {
                 dispatch({ type: "DELETE_SUBJECT", payload: { tempId } });
@@ -261,28 +271,44 @@ function BuilderContent() {
                 dispatch({ type: "DELETE_TOPIC", payload: { tempId } });
               }}
               onRenameSectionColumn={(tempId, name) => {
-                try {
-                  dispatch({ type: "RENAME_CHECKLIST", payload: { tempId, name } });
-                } catch (err: any) {
-                  setErrorMessage(err?.message || "Failed to rename column");
+                const err = validateRenameChecklist(draft, tempId, name);
+                if (err) {
+                  setErrorMessage(err);
+                  return false;
                 }
+                setErrorMessage(null);
+                dispatch({ type: "RENAME_CHECKLIST", payload: { tempId, name } });
+                return true;
               }}
               onRenameSubject={(tempId, name) => {
-                try {
-                  dispatch({ type: "RENAME_SUBJECT", payload: { tempId, name } });
-                } catch (err: any) {
-                  setErrorMessage(err?.message || "Failed to rename subject");
+                const err = validateRenameSubject(draft, tempId, name);
+                if (err) {
+                  setErrorMessage(err);
+                  return false;
                 }
+                setErrorMessage(null);
+                dispatch({ type: "RENAME_SUBJECT", payload: { tempId, name } });
+                return true;
               }}
               onRenameChapter={(tempId, name) => {
-                try {
-                  dispatch({ type: "RENAME_CHAPTER", payload: { tempId, name } });
-                } catch (err: any) {
-                  setErrorMessage(err?.message || "Failed to rename chapter");
+                const err = validateRenameChapter(draft, tempId, name);
+                if (err) {
+                  setErrorMessage(err);
+                  return false;
                 }
+                setErrorMessage(null);
+                dispatch({ type: "RENAME_CHAPTER", payload: { tempId, name } });
+                return true;
               }}
               onRenameTopic={(tempId, name) => {
+                const err = validateRenameTopic(draft, tempId, name);
+                if (err) {
+                  setErrorMessage(err);
+                  return false;
+                }
+                setErrorMessage(null);
                 dispatch({ type: "RENAME_TOPIC", payload: { tempId, name } });
+                return true;
               }}
               onOpenAdderForm={handleOpenAdderForm}
               onNavBack={() => handleNavAttempt("step1")}

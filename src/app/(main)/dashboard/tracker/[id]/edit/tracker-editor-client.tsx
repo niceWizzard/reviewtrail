@@ -20,7 +20,15 @@ import { LeaveConfirmDialog } from "@/src/app/(main)/builder/components/leave-co
 import type { TrackerWorkspaceData } from "@/src/lib/types/database";
 import type { TrackerDraft } from "@/src/lib/types/builder-draft";
 import { ActiveAdderForm } from "@/src/app/(main)/builder/types";
-import { draftReducer, validateDraft } from "@/src/app/(main)/builder/builder-context";
+import {
+  draftReducer,
+  validateDraft,
+  validateRenameChecklist,
+  validateRenameSubject,
+  validateRenameChapter,
+  validateRenameTopic,
+  validateDeleteChecklist,
+} from "@/src/app/(main)/builder/builder-context";
 import { saveTrackerWorkspaceEditAction } from "@/src/lib/actions/trackers";
 
 interface TrackerEditorClientProps {
@@ -292,11 +300,13 @@ export function TrackerEditorClient({
             isCommitting={isSaving}
             showBottomBar={false}
             onDeleteSectionColumn={(tempId) => {
-              try {
-                dispatch({ type: "DELETE_CHECKLIST", payload: { tempId } });
-              } catch (err: any) {
-                setErrorMessage(err?.message || "Failed to delete column");
+              const err = validateDeleteChecklist(draft);
+              if (err) {
+                setErrorMessage(err);
+                return;
               }
+              setErrorMessage(null);
+              dispatch({ type: "DELETE_CHECKLIST", payload: { tempId } });
             }}
             onDeleteSubject={handlePromptDeleteSubject}
             onDeleteChapter={handlePromptDeleteChapter}
@@ -304,28 +314,44 @@ export function TrackerEditorClient({
               dispatch({ type: "DELETE_TOPIC", payload: { tempId } });
             }}
             onRenameSectionColumn={(tempId, name) => {
-              try {
-                dispatch({ type: "RENAME_CHECKLIST", payload: { tempId, name } });
-              } catch (err: any) {
-                setErrorMessage(err?.message || "Failed to rename column");
+              const err = validateRenameChecklist(draft, tempId, name);
+              if (err) {
+                setErrorMessage(err);
+                return false;
               }
+              setErrorMessage(null);
+              dispatch({ type: "RENAME_CHECKLIST", payload: { tempId, name } });
+              return true;
             }}
             onRenameSubject={(tempId, name) => {
-              try {
-                dispatch({ type: "RENAME_SUBJECT", payload: { tempId, name } });
-              } catch (err: any) {
-                setErrorMessage(err?.message || "Failed to rename subject");
+              const err = validateRenameSubject(draft, tempId, name);
+              if (err) {
+                setErrorMessage(err);
+                return false;
               }
+              setErrorMessage(null);
+              dispatch({ type: "RENAME_SUBJECT", payload: { tempId, name } });
+              return true;
             }}
             onRenameChapter={(tempId, name) => {
-              try {
-                dispatch({ type: "RENAME_CHAPTER", payload: { tempId, name } });
-              } catch (err: any) {
-                setErrorMessage(err?.message || "Failed to rename chapter");
+              const err = validateRenameChapter(draft, tempId, name);
+              if (err) {
+                setErrorMessage(err);
+                return false;
               }
+              setErrorMessage(null);
+              dispatch({ type: "RENAME_CHAPTER", payload: { tempId, name } });
+              return true;
             }}
             onRenameTopic={(tempId, name) => {
+              const err = validateRenameTopic(draft, tempId, name);
+              if (err) {
+                setErrorMessage(err);
+                return false;
+              }
+              setErrorMessage(null);
               dispatch({ type: "RENAME_TOPIC", payload: { tempId, name } });
+              return true;
             }}
             onOpenAdderForm={handleOpenAdderForm}
             onNavBack={handleCancel}

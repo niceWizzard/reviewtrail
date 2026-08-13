@@ -378,6 +378,31 @@ export async function updateTopicAction(payload: {
     throw new Error("Topic name cannot be empty.");
   }
 
+  const { data: currentTopic } = await supabase
+    .from("topics")
+    .select("exam_tracker_id, subject_id, chapter_id")
+    .eq("id", payload.topicId)
+    .single();
+
+  if (!currentTopic) throw new Error("Topic not found.");
+
+  let query = supabase
+    .from("topics")
+    .select("id, name")
+    .eq("subject_id", currentTopic.subject_id)
+    .neq("id", payload.topicId);
+
+  if (currentTopic.chapter_id) {
+    query = query.eq("chapter_id", currentTopic.chapter_id);
+  } else {
+    query = query.is("chapter_id", null);
+  }
+
+  const { data: existingTopics } = await query;
+  if (existingTopics?.some((t) => t.name.toLowerCase() === trimmedName.toLowerCase())) {
+    throw new Error(`A topic named "${trimmedName}" already exists in this group.`);
+  }
+
   const { data, error } = await supabase
     .from("topics")
     .update({ name: trimmedName })

@@ -6,7 +6,7 @@ import { cn } from "@/src/lib/utils";
 
 export interface DoubleClickInlineInputProps {
   value: string;
-  onSave: (newValue: string) => void | Promise<unknown>;
+  onSave: (newValue: string) => boolean | void | Promise<boolean | void | unknown>;
   className?: string;
   inputClassName?: string;
   placeholder?: string;
@@ -68,7 +68,12 @@ export function DoubleClickInlineInput({
     }
 
     try {
-      await onSave(trimmed);
+      const res = await onSave(trimmed);
+      if (res === false) {
+        setTempValue(value);
+        setIsEditing(false);
+        return;
+      }
       setIsEditing(false);
     } catch {
       setTempValue(value);

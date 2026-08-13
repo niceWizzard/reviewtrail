@@ -88,4 +88,28 @@ describe("ReviewMatrixTable Double-Click Renaming", () => {
 
     expect(defaultProps.onRenameTopic).toHaveBeenCalledWith("top-1", "Atropine Sulfate");
   });
+
+  it("reverts input field to original name when onRename handler returns false due to duplicate error", async () => {
+    const user = userEvent.setup();
+    const mockOnRenameSubject = vi.fn().mockReturnValue(false);
+
+    render(
+      <ReviewMatrixTable
+        {...defaultProps}
+        onRenameSubject={mockOnRenameSubject}
+      />
+    );
+
+    const subTitle = screen.getByText("Pharmacology");
+    fireEvent.doubleClick(subTitle);
+
+    const input = screen.getByRole("textbox");
+    await user.clear(input);
+    await user.type(input, "Anatomy{Enter}");
+
+    expect(mockOnRenameSubject).toHaveBeenCalledWith("sub-1", "Anatomy");
+    // Inline input should close and display original value "Pharmacology"
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByText("Pharmacology")).toBeInTheDocument();
+  });
 });
