@@ -11,7 +11,11 @@ describe("useExamCountdown Hook", () => {
   });
 
   it("identifies exam date as today", () => {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const todayStr = `${year}-${month}-${day}`;
     const { result } = renderHook(() => useExamCountdown(todayStr, "in_progress"));
     expect(result.current.isToday).toBe(true);
     expect(result.current.statusBadgeLabel).toBe("Exam Today");
