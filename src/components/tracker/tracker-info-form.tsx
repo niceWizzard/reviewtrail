@@ -56,6 +56,11 @@ export interface TrackerInfoFormProps {
   cardTitle?: React.ReactNode;
   cardDescription?: React.ReactNode;
 }
+const now = new Date();
+const CALENDAR_BOUNDS = {
+  startMonth: now,
+  endMonth: new Date(now.getFullYear() + 2, 11),
+}
 
 export function TrackerInfoForm({
   initialValues,
@@ -169,8 +174,8 @@ export function TrackerInfoForm({
                       onSelect={(date) => {
                         field.handleChange(date ? format(date, "yyyy-MM-dd") : "");
                       }}
-                      endMonth={new Date( new Date().getFullYear()+2, 11)}
-                      startMonth={new Date()}
+                      endMonth={CALENDAR_BOUNDS.endMonth}
+                      startMonth={CALENDAR_BOUNDS.startMonth}
                       captionLayout="dropdown"
                     />
                   </PopoverContent>
