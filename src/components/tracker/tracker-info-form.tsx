@@ -169,6 +169,8 @@ export function TrackerInfoForm({
                       onSelect={(date) => {
                         field.handleChange(date ? format(date, "yyyy-MM-dd") : "");
                       }}
+                      endMonth={new Date( new Date().getFullYear()+2, 11)}
+                      startMonth={new Date()}
                       captionLayout="dropdown"
                     />
                   </PopoverContent>
