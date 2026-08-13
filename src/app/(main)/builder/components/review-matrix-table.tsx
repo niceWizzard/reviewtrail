@@ -274,7 +274,7 @@ export function ReviewMatrixTable({
                                       type="button"
                                       title={`Delete ${topic.name}`}
                                       onClick={() => onDeleteTopic(topicId)}
-                                      className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer shrink-0"
+                                      className="text-muted-foreground/60 hover:text-destructive p-0.5 cursor-pointer shrink-0"
                                     >
                                       <Trash2 className="size-3" />
                                     </button>
@@ -319,7 +319,7 @@ export function ReviewMatrixTable({
                                 type="button"
                                 title={`Delete ${topic.name}`}
                                 onClick={() => onDeleteTopic(topicId)}
-                                className="text-muted-foreground/60 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-0.5 cursor-pointer shrink-0"
+                                className="text-muted-foreground/60 hover:text-destructive p-0.5 cursor-pointer shrink-0"
                               >
                                 <Trash2 className="size-3" />
                               </button>
