@@ -277,3 +277,162 @@ export async function updateTopicChapterAction(payload: {
     updateTag(`workspace-${data.exam_tracker_id}`);
   }
 }
+
+export async function updateSubjectAction(payload: {
+  subjectId: string;
+  name: string;
+  color?: string | null;
+}): Promise<Subject> {
+  const supabase = await createClient();
+  const trimmedName = payload.name.trim();
+  if (!trimmedName) {
+    throw new Error("Subject name cannot be empty.");
+  }
+
+  const { data: currentSubject } = await supabase
+    .from("subjects")
+    .select("exam_tracker_id")
+    .eq("id", payload.subjectId)
+    .single();
+
+  if (!currentSubject) throw new Error("Subject not found.");
+
+  const { data: existingSubs } = await supabase
+    .from("subjects")
+    .select("id, name")
+    .eq("exam_tracker_id", currentSubject.exam_tracker_id)
+    .neq("id", payload.subjectId);
+
+  if (existingSubs?.some((s) => s.name.toLowerCase() === trimmedName.toLowerCase())) {
+    throw new Error(`A subject named "${trimmedName}" already exists.`);
+  }
+
+  const updateFields: { name: string; color?: string | null } = { name: trimmedName };
+  if (payload.color !== undefined) updateFields.color = payload.color;
+
+  const { data, error } = await supabase
+    .from("subjects")
+    .update(updateFields)
+    .eq("id", payload.subjectId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  updateTag(`workspace-${currentSubject.exam_tracker_id}`);
+  return data as Subject;
+}
+
+export async function updateChapterAction(payload: {
+  chapterId: string;
+  name: string;
+  description?: string | null;
+}): Promise<Chapter> {
+  const supabase = await createClient();
+  const trimmedName = payload.name.trim();
+  if (!trimmedName) {
+    throw new Error("Chapter name cannot be empty.");
+  }
+
+  const { data: currentChapter } = await supabase
+    .from("chapters")
+    .select("exam_tracker_id, subject_id")
+    .eq("id", payload.chapterId)
+    .single();
+
+  if (!currentChapter) throw new Error("Chapter not found.");
+
+  const { data: existingChapters } = await supabase
+    .from("chapters")
+    .select("id, name")
+    .eq("subject_id", currentChapter.subject_id)
+    .neq("id", payload.chapterId);
+
+  if (existingChapters?.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase())) {
+    throw new Error(`A chapter named "${trimmedName}" already exists in this subject.`);
+  }
+
+  const updateFields: { name: string; description?: string | null } = { name: trimmedName };
+  if (payload.description !== undefined) {
+    updateFields.description = payload.description ? payload.description.trim() : null;
+  }
+
+  const { data, error } = await supabase
+    .from("chapters")
+    .update(updateFields)
+    .eq("id", payload.chapterId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  updateTag(`workspace-${currentChapter.exam_tracker_id}`);
+  return data as Chapter;
+}
+
+export async function updateTopicAction(payload: {
+  topicId: string;
+  name: string;
+}): Promise<Topic> {
+  const supabase = await createClient();
+  const trimmedName = payload.name.trim();
+  if (!trimmedName) {
+    throw new Error("Topic name cannot be empty.");
+  }
+
+  const { data, error } = await supabase
+    .from("topics")
+    .update({ name: trimmedName })
+    .eq("id", payload.topicId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  if (data?.exam_tracker_id) {
+    updateTag(`workspace-${data.exam_tracker_id}`);
+  }
+  return data as Topic;
+}
+
+export async function updateTrackerChecklistAction(payload: {
+  checklistId: string;
+  name: string;
+  color?: string | null;
+}): Promise<TrackerChecklist> {
+  const supabase = await createClient();
+  const trimmedName = payload.name.trim();
+  if (!trimmedName) {
+    throw new Error("Checklist column name cannot be empty.");
+  }
+
+  const { data: currentChecklist } = await supabase
+    .from("tracker_checklists")
+    .select("exam_tracker_id")
+    .eq("id", payload.checklistId)
+    .single();
+
+  if (!currentChecklist) throw new Error("Checklist column not found.");
+
+  const { data: existingChecklists } = await supabase
+    .from("tracker_checklists")
+    .select("id, name")
+    .eq("exam_tracker_id", currentChecklist.exam_tracker_id)
+    .neq("id", payload.checklistId);
+
+  if (existingChecklists?.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase())) {
+    throw new Error(`A checklist column named "${trimmedName}" already exists.`);
+  }
+
+  const updateFields: { name: string; color?: string | null } = { name: trimmedName };
+  if (payload.color !== undefined) updateFields.color = payload.color;
+
+  const { data, error } = await supabase
+    .from("tracker_checklists")
+    .update(updateFields)
+    .eq("id", payload.checklistId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  updateTag(`workspace-${currentChecklist.exam_tracker_id}`);
+  return data as TrackerChecklist;
+}
+
