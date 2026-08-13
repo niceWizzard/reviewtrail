@@ -29,11 +29,24 @@ async function getCachedExamTrackers(cookieString: string): Promise<ExamTracker[
   return (data as ExamTracker[]) || [];
 }
 
+function validateExamDateNotInPast(dateStr?: string | null) {
+  if (!dateStr || !dateStr.trim()) return;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr);
+  target.setHours(0, 0, 0, 0);
+  if (isNaN(target.getTime()) || target < today) {
+    throw new Error("Target exam date cannot be in the past.");
+  }
+}
+
 export async function createExamTrackerAction(payload: {
   exam_name: string;
   exam_date?: string | null;
   description?: string | null;
 }): Promise<ExamTracker> {
+  validateExamDateNotInPast(payload.exam_date);
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -94,6 +107,8 @@ export async function deleteExamTrackerAction(trackerId: string): Promise<void> 
 export async function commitExamTrackerDraftAction(
   draft: TrackerDraft
 ): Promise<ExamTracker> {
+  validateExamDateNotInPast(draft.examDate);
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -238,6 +253,8 @@ export async function updateExamTrackerAction(payload: {
   exam_date?: string | null;
   description?: string | null;
 }): Promise<ExamTracker> {
+  validateExamDateNotInPast(payload.exam_date);
+
   const supabase = await createClient();
   const trimmedName = payload.exam_name.trim();
   if (!trimmedName) {
@@ -268,8 +285,10 @@ export async function saveTrackerWorkspaceEditAction(payload: {
   trackerId: string;
   draft: TrackerDraft;
 }): Promise<void> {
-  const supabase = await createClient();
   const { trackerId, draft } = payload;
+  validateExamDateNotInPast(draft.examDate);
+
+  const supabase = await createClient();
 
   const trimmedExamName = draft.examName.trim();
   if (!trimmedExamName) {

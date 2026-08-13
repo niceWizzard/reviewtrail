@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { validateDraft } from "@/src/app/(main)/builder/builder-context";
+import { updateExamTrackerAction } from "@/src/lib/actions/trackers";
 import type { TrackerDraft } from "@/src/lib/types/builder-draft";
 
 describe("Tracker Editing & Rename Validation Rules", () => {
@@ -44,5 +45,15 @@ describe("Tracker Editing & Rename Validation Rules", () => {
   it("rejects renaming an exam to an empty string in validateDraft", () => {
     const invalidDraft = { ...initialDraft, examName: "  " };
     expect(validateDraft(invalidDraft)).toBe("Please enter an Exam Name before launching.");
+  });
+
+  it("rejects creating or updating a tracker with a past date in server actions", async () => {
+    await expect(
+      updateExamTrackerAction({
+        trackerId: "tracker-123",
+        exam_name: "Test Exam",
+        exam_date: "2020-01-01",
+      })
+    ).rejects.toThrow("Target exam date cannot be in the past.");
   });
 });
