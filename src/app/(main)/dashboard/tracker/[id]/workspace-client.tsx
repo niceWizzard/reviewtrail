@@ -14,6 +14,7 @@ import {
   Edit3,
   Lock,
   RotateCcw,
+  Trophy,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
@@ -96,6 +97,7 @@ export function TrackerWorkspaceClient({
         examTrackerId={examTrackerId}
         examName={tracker.exam_name}
         examDate={tracker.exam_date}
+        outcomeLoggedAt={tracker.outcome_logged_at}
         status={tracker.status}
         isToday={countdown.isToday}
         isPastUnchecked={countdown.isPastUnchecked}
@@ -234,6 +236,19 @@ export function TrackerWorkspaceClient({
               <CheckCircle2 className="size-3.5 text-primary" />
               {workspaceData.checklists.length} Checklist Columns
             </span>
+            {tracker.status === "passed" && (
+              <>
+                <span>•</span>
+                <span className="flex items-center gap-1.5 font-semibold text-emerald-600 dark:text-emerald-400">
+                  <Trophy className="size-3.5" />
+                  Passed on{" "}
+                  {new Date(tracker.outcome_logged_at || tracker.exam_date || Date.now()).toLocaleDateString(
+                    "en-US",
+                    { month: "short", day: "numeric", year: "numeric" }
+                  )}
+                </span>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>

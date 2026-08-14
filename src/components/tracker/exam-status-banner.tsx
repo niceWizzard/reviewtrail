@@ -12,6 +12,7 @@ interface ExamStatusBannerProps {
   examTrackerId: string;
   examName: string;
   examDate: string | null;
+  outcomeLoggedAt?: string | null;
   status: ExamStatus;
   isToday: boolean;
   isPastUnchecked: boolean;
@@ -22,6 +23,8 @@ interface ExamStatusBannerProps {
 
 export function ExamStatusBanner({
   examTrackerId,
+  examDate,
+  outcomeLoggedAt,
   status,
   isToday,
   isPastUnchecked,
@@ -171,6 +174,15 @@ export function ExamStatusBanner({
   }
 
   if (status === "passed") {
+    const rawPassedDate = outcomeLoggedAt || examDate;
+    const formattedPassedDate = rawPassedDate
+      ? new Date(rawPassedDate).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : null;
+
     return (
       <Card className="border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-500/15 shadow-xs">
         <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -179,9 +191,16 @@ export function ExamStatusBanner({
               <Trophy className="size-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-foreground">Congratulations on Passing!</h3>
+              <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                <h3 className="font-bold text-sm text-foreground">Congratulations on Passing!</h3>
+                {formattedPassedDate && (
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                    Passed on {formattedPassedDate}
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
-                Your hard work paid off. You passed your licensure exam!
+                Your hard work paid off. You passed your licensure exam!{formattedPassedDate ? ` (Logged on ${formattedPassedDate})` : ""}
               </p>
             </div>
           </div>
