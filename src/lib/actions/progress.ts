@@ -17,6 +17,16 @@ export async function upsertTopicProgressAction(
 ): Promise<TopicSectionProgress> {
   const supabase = await createClient();
 
+  const { data: tracker } = await supabase
+    .from("exam_trackers")
+    .select("is_archived")
+    .eq("id", payload.exam_tracker_id)
+    .single();
+
+  if (tracker?.is_archived) {
+    throw new Error("Cannot modify an archived tracker workspace.");
+  }
+
   const { data, error } = await supabase
     .from("topic_section_progress")
     .upsert(
@@ -45,6 +55,16 @@ export async function updateProgressNotesAction(
   payload: Omit<UpsertProgressActionPayload, "is_completed"> & { notes: string }
 ): Promise<TopicSectionProgress> {
   const supabase = await createClient();
+
+  const { data: tracker } = await supabase
+    .from("exam_trackers")
+    .select("is_archived")
+    .eq("id", payload.exam_tracker_id)
+    .single();
+
+  if (tracker?.is_archived) {
+    throw new Error("Cannot modify an archived tracker workspace.");
+  }
 
   const { data, error } = await supabase
     .from("topic_section_progress")

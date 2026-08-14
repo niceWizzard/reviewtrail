@@ -249,9 +249,9 @@ function TrackerCard({
             variant="ghost"
             size="icon-sm"
             onClick={onEdit}
-            disabled={isPending}
-            title="Edit Tracker Details"
-            className="text-muted-foreground hover:text-foreground"
+            disabled={isPending || tracker.is_archived}
+            title={tracker.is_archived ? "Unarchive tracker to edit details" : "Edit Tracker Details"}
+            className="text-muted-foreground hover:text-foreground disabled:opacity-40"
           >
             <Edit3 className="size-4" />
           </Button>

@@ -18,6 +18,11 @@ import {
   mockFrom,
 } from "@/src/test/mocks/supabase";
 
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(),
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 vi.mock("../supabase/client", () => import("@/src/test/mocks/supabase"));
 
 describe("Auth Helpers (lib/auth)", () => {

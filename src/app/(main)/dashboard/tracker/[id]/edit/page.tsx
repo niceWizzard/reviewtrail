@@ -23,6 +23,25 @@ async function EditorContent({ paramsPromise }: { paramsPromise: Promise<{ id: s
       );
     }
 
+    if (workspaceData.tracker.is_archived) {
+      return (
+        <div className="container mx-auto max-w-7xl px-4 py-12 text-center space-y-4">
+          <h2 className="text-xl font-bold text-amber-600 dark:text-amber-400">Tracker is Archived</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            This exam tracker is archived and cannot be edited. Please unarchive it from the workspace or dashboard to make changes.
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Button render={<Link href={`/dashboard/tracker/${id}`} />} size="sm" nativeButton={false}>
+              Go to Workspace
+            </Button>
+            <Button variant="outline" render={<Link href="/dashboard" />} size="sm" nativeButton={false}>
+              Back to Dashboard
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <TrackerEditorClient
         key={workspaceData.tracker.updated_at || id}

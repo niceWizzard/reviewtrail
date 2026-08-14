@@ -10,9 +10,10 @@ import { useTopicProgress } from "@/src/hooks/use-topic-progress";
 interface DesktopGridProps {
   workspaceData: TrackerWorkspaceData;
   onOpenStructureEditor?: () => void;
+  readOnly?: boolean;
 }
 
-export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: DesktopGridProps) {
+export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor, readOnly = false }: DesktopGridProps) {
   const { tracker, checklists, subjectTree, progress } = workspaceData;
   const sections = checklists;
   const { toggleProgress } = useTopicProgress(tracker.id);
@@ -161,10 +162,13 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
                               <td key={section.id} className="px-2 py-3 text-center">
                                 <button
                                   type="button"
-                                  onClick={() => toggleProgress(topic.id, section.id, !checked)}
-                                  className={`mx-auto size-7 rounded-md border flex items-center justify-center transition-all cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring ${
+                                  disabled={readOnly}
+                                  onClick={() => !readOnly && toggleProgress(topic.id, section.id, !checked)}
+                                  className={`mx-auto size-7 rounded-md border flex items-center justify-center transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring ${
+                                    readOnly ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+                                  } ${
                                     checked
-                                      ? "bg-primary border-primary text-primary-foreground shadow-xs scale-105"
+                                      ? "bg-primary border-primary text-primary-foreground shadow-xs"
                                       : "border-input bg-background hover:bg-muted text-transparent"
                                   }`}
                                   aria-label={`Toggle ${section.name} for ${topic.name}`}
@@ -202,10 +206,13 @@ export function TrackerGridDesktop({ workspaceData, onOpenStructureEditor }: Des
                           <td key={section.id} className="px-2 py-3 text-center">
                             <button
                               type="button"
-                              onClick={() => toggleProgress(topic.id, section.id, !checked)}
-                              className={`mx-auto size-7 rounded-md border flex items-center justify-center transition-all cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring ${
+                              disabled={readOnly}
+                              onClick={() => !readOnly && toggleProgress(topic.id, section.id, !checked)}
+                              className={`mx-auto size-7 rounded-md border flex items-center justify-center transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring ${
+                                readOnly ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+                              } ${
                                 checked
-                                  ? "bg-primary border-primary text-primary-foreground shadow-xs scale-105"
+                                  ? "bg-primary border-primary text-primary-foreground shadow-xs"
                                   : "border-input bg-background hover:bg-muted text-transparent"
                               }`}
                               aria-label={`Toggle ${section.name} for ${topic.name}`}

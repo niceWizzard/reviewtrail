@@ -91,6 +91,7 @@ export async function archiveExamTrackerAction(
   }
 
   updateTag("exam_trackers");
+  updateTag(`workspace-${trackerId}`);
 }
 
 export async function deleteExamTrackerAction(trackerId: string): Promise<void> {
@@ -337,6 +338,17 @@ export async function updateExamTrackerAction(payload: {
   validateExamDateNotInPast(payload.exam_date);
 
   const supabase = await createClient();
+
+  const { data: currentTracker } = await supabase
+    .from("exam_trackers")
+    .select("is_archived")
+    .eq("id", payload.trackerId)
+    .single();
+
+  if (currentTracker?.is_archived) {
+    throw new Error("Cannot modify details of an archived tracker. Unarchive it first.");
+  }
+
   const trimmedName = payload.exam_name.trim();
   if (!trimmedName) {
     throw new Error("Exam name cannot be empty.");
@@ -370,6 +382,16 @@ export async function saveTrackerWorkspaceEditAction(payload: {
   validateExamDateNotInPast(draft.examDate);
 
   const supabase = await createClient();
+
+  const { data: currentTracker } = await supabase
+    .from("exam_trackers")
+    .select("is_archived")
+    .eq("id", trackerId)
+    .single();
+
+  if (currentTracker?.is_archived) {
+    throw new Error("Cannot modify an archived tracker workspace. Unarchive it first.");
+  }
 
   const trimmedExamName = draft.examName.trim();
   if (!trimmedExamName) {

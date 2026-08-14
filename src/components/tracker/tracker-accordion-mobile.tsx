@@ -16,9 +16,10 @@ import { useTopicProgress } from "@/src/hooks/use-topic-progress";
 interface MobileAccordionProps {
   workspaceData: TrackerWorkspaceData;
   onOpenStructureEditor?: () => void;
+  readOnly?: boolean;
 }
 
-export function TrackerAccordionMobile({ workspaceData }: MobileAccordionProps) {
+export function TrackerAccordionMobile({ workspaceData, readOnly = false }: MobileAccordionProps) {
   const { tracker, checklists, subjectTree, progress } = workspaceData;
   const sections = checklists;
   const { toggleProgress } = useTopicProgress(tracker.id);
@@ -119,8 +120,13 @@ export function TrackerAccordionMobile({ workspaceData }: MobileAccordionProps) 
                                 <button
                                   key={section.id}
                                   type="button"
-                                  onClick={() => toggleProgress(topic.id, section.id, !checked)}
-                                  className={`min-h-[44px] min-w-[90px] px-3 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 shrink-0 transition-all active:scale-95 touch-manipulation cursor-pointer ${
+                                  disabled={readOnly}
+                                  onClick={() => !readOnly && toggleProgress(topic.id, section.id, !checked)}
+                                  className={`min-h-[44px] min-w-[90px] px-3 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 shrink-0 transition-all touch-manipulation ${
+                                    readOnly
+                                      ? "cursor-not-allowed opacity-60"
+                                      : "cursor-pointer active:scale-95"
+                                  } ${
                                     checked
                                       ? "bg-primary text-primary-foreground border-primary font-semibold shadow-xs"
                                       : "bg-muted/40 text-muted-foreground border-border hover:bg-muted"
@@ -163,8 +169,13 @@ export function TrackerAccordionMobile({ workspaceData }: MobileAccordionProps) 
                               <button
                                 key={section.id}
                                 type="button"
-                                onClick={() => toggleProgress(topic.id, section.id, !checked)}
-                                className={`min-h-[44px] min-w-[90px] px-3 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 shrink-0 transition-all active:scale-95 touch-manipulation cursor-pointer ${
+                                disabled={readOnly}
+                                onClick={() => !readOnly && toggleProgress(topic.id, section.id, !checked)}
+                                className={`min-h-[44px] min-w-[90px] px-3 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 shrink-0 transition-all touch-manipulation ${
+                                  readOnly
+                                    ? "cursor-not-allowed opacity-60"
+                                    : "cursor-pointer active:scale-95"
+                                } ${
                                   checked
                                     ? "bg-primary text-primary-foreground border-primary font-semibold shadow-xs"
                                     : "bg-muted/40 text-muted-foreground border-border hover:bg-muted"

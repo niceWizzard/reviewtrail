@@ -17,6 +17,7 @@ interface ExamStatusBannerProps {
   isPastUnchecked: boolean;
   isAwaitingResults: boolean;
   onOpenOutcomeDialog: () => void;
+  readOnly?: boolean;
 }
 
 export function ExamStatusBanner({
@@ -26,11 +27,13 @@ export function ExamStatusBanner({
   isPastUnchecked,
   isAwaitingResults,
   onOpenOutcomeDialog,
+  readOnly = false,
 }: ExamStatusBannerProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const handleMarkTaken = () => {
+    if (readOnly) return;
     startTransition(async () => {
       await markExamTakenAction(examTrackerId);
       router.refresh();
@@ -58,8 +61,9 @@ export function ExamStatusBanner({
             <Button
               size="sm"
               onClick={handleMarkTaken}
-              disabled={isPending}
-              className="gap-1.5 w-full sm:w-auto shadow-xs"
+              disabled={isPending || readOnly}
+              title={readOnly ? "Unarchive tracker to enable" : undefined}
+              className="gap-1.5 w-full sm:w-auto shadow-xs disabled:opacity-50"
             >
               {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
               I Took the Exam Today
@@ -90,8 +94,9 @@ export function ExamStatusBanner({
               size="sm"
               variant="outline"
               onClick={handleMarkTaken}
-              disabled={isPending}
-              className="gap-1 text-xs"
+              disabled={isPending || readOnly}
+              title={readOnly ? "Unarchive tracker to enable" : undefined}
+              className="gap-1 text-xs disabled:opacity-50"
             >
               {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
               I Took the Exam
@@ -99,8 +104,9 @@ export function ExamStatusBanner({
             <Button
               size="sm"
               onClick={onOpenOutcomeDialog}
-              disabled={isPending}
-              className="gap-1 text-xs shadow-xs"
+              disabled={isPending || readOnly}
+              title={readOnly ? "Unarchive tracker to enable" : undefined}
+              className="gap-1 text-xs shadow-xs disabled:opacity-50"
             >
               Log Result
             </Button>
@@ -111,6 +117,7 @@ export function ExamStatusBanner({
   }
 
   const handleResetStatus = () => {
+    if (readOnly) return;
     startTransition(async () => {
       await logExamOutcomeAction({
         trackerId: examTrackerId,
@@ -139,8 +146,9 @@ export function ExamStatusBanner({
             <Button
               size="sm"
               onClick={onOpenOutcomeDialog}
-              disabled={isPending}
-              className="gap-1.5 shadow-xs"
+              disabled={isPending || readOnly}
+              title={readOnly ? "Unarchive tracker to enable" : undefined}
+              className="gap-1.5 shadow-xs disabled:opacity-50"
             >
               <CalendarIcon className="size-3.5" />
               Log Official Result
@@ -149,8 +157,9 @@ export function ExamStatusBanner({
               size="sm"
               variant="outline"
               onClick={handleResetStatus}
-              disabled={isPending}
-              className="gap-1 text-xs text-muted-foreground hover:text-foreground"
+              disabled={isPending || readOnly}
+              title={readOnly ? "Unarchive tracker to enable" : undefined}
+              className="gap-1 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
             >
               {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Clock className="size-3.5" />}
               Undo Check-in

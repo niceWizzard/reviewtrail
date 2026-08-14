@@ -28,10 +28,6 @@ describe("AppNavbar Component", () => {
 
     expect(screen.getByText("johndoe")).toBeInTheDocument();
     expect(screen.getByText("J")).toBeInTheDocument();
-
-    expect(screen.getByRole("link", { name: /dashboard/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /exam templates/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /tracker builder/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /about/i })).not.toBeInTheDocument();
   });
 

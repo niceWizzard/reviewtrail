@@ -2,6 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Calendar,
@@ -10,15 +12,19 @@ import {
   LayoutGrid,
   Layers,
   Edit3,
+  Lock,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent } from "@/src/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { useExamCountdown } from "@/src/hooks/use-exam-countdown";
 import { useMediaQuery } from "@/src/hooks/use-media-query";
 import { TrackerGridDesktop } from "@/src/components/tracker/tracker-grid-desktop";
 import { TrackerAccordionMobile } from "@/src/components/tracker/tracker-accordion-mobile";
 import type { TrackerWorkspaceData } from "@/src/lib/types/database";
+import { archiveExamTrackerAction } from "@/src/lib/actions/trackers";
 
 import { ExamStatusBanner } from "@/src/components/tracker/exam-status-banner";
 import { ExamOutcomeDialog } from "@/src/components/tracker/exam-outcome-dialog";
@@ -32,6 +38,8 @@ export function TrackerWorkspaceClient({
   examTrackerId: string;
   workspaceData: TrackerWorkspaceData;
 }) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { tracker, stats } = workspaceData;
   const countdown = useExamCountdown(
     tracker.exam_date || null,
@@ -41,9 +49,48 @@ export function TrackerWorkspaceClient({
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [isOutcomeDialogOpen, setIsOutcomeDialogOpen] = React.useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+  const [isUnarchiving, setIsUnarchiving] = React.useState(false);
+
+  const handleUnarchive = async () => {
+    setIsUnarchiving(true);
+    try {
+      await archiveExamTrackerAction(examTrackerId, false);
+      queryClient.invalidateQueries({ queryKey: ["workspace", examTrackerId] });
+      router.refresh();
+    } finally {
+      setIsUnarchiving(false);
+    }
+  };
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+      {/* Archived Read-Only Banner Notice */}
+      {tracker.is_archived && (
+        <Alert variant="destructive" className="bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+            <div className="flex items-center gap-2">
+              <Lock className="size-4 text-amber-600 dark:text-amber-400 shrink-0" />
+              <div>
+                <AlertTitle className="text-sm font-semibold">Archived Workspace (Read-Only)</AlertTitle>
+                <AlertDescription className="text-xs text-amber-800 dark:text-amber-300">
+                  This tracker is archived. The workspace is currently in read-only mode and progress updates are disabled.
+                </AlertDescription>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={handleUnarchive}
+              disabled={isUnarchiving}
+              className="gap-1 bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/40 text-amber-900 dark:text-amber-100 shrink-0"
+            >
+              <RotateCcw className="size-3.5" />
+              {isUnarchiving ? "Unarchiving..." : "Unarchive Tracker"}
+            </Button>
+          </div>
+        </Alert>
+      )}
+
       {/* Status Banner Notice */}
       <ExamStatusBanner
         examTrackerId={examTrackerId}
@@ -54,6 +101,7 @@ export function TrackerWorkspaceClient({
         isPastUnchecked={countdown.isPastUnchecked}
         isAwaitingResults={countdown.isAwaitingResults}
         onOpenOutcomeDialog={() => setIsOutcomeDialogOpen(true)}
+        readOnly={tracker.is_archived}
       />
 
       {/* Outcome Dialog Modal */}
@@ -88,23 +136,38 @@ export function TrackerWorkspaceClient({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsEditDialogOpen(true)}
-            className="gap-1.5"
+            onClick={() => !tracker.is_archived && setIsEditDialogOpen(true)}
+            disabled={tracker.is_archived}
+            title={tracker.is_archived ? "Unarchive tracker to enable" : undefined}
+            className="gap-1.5 disabled:opacity-50"
           >
             <Edit3 className="size-4" />
             Edit Info
           </Button>
 
-          <Button
-            render={<Link href={`/dashboard/tracker/${examTrackerId}/edit`} />}
-            variant="default"
-            size="sm"
-            className="gap-1.5 shadow-xs"
-            nativeButton={false}
-          >
-            <Edit3 className="size-4" />
-            Edit Table
-          </Button>
+          {tracker.is_archived ? (
+            <Button
+              variant="default"
+              size="sm"
+              disabled={true}
+              title="Unarchive tracker to enable"
+              className="gap-1.5 shadow-xs disabled:opacity-50"
+            >
+              <Edit3 className="size-4" />
+              Edit Table
+            </Button>
+          ) : (
+            <Button
+              render={<Link href={`/dashboard/tracker/${examTrackerId}/edit`} />}
+              variant="default"
+              size="sm"
+              className="gap-1.5 shadow-xs"
+              nativeButton={false}
+            >
+              <Edit3 className="size-4" />
+              Edit Table
+            </Button>
+          )}
         </div>
       </div>
 
@@ -124,6 +187,12 @@ export function TrackerWorkspaceClient({
                   <Calendar className="size-3" />
                   {countdown.statusLabel}
                 </Badge>
+                {tracker.is_archived && (
+                  <Badge variant="outline" className="gap-1 text-amber-600 dark:text-amber-400 border-amber-500/30">
+                    <Lock className="size-3" />
+                    Archived
+                  </Badge>
+                )}
               </div>
               {tracker.description && (
                 <p className="text-sm text-muted-foreground max-w-2xl">{tracker.description}</p>
@@ -179,9 +248,9 @@ export function TrackerWorkspaceClient({
         </div>
 
         {isMobile ? (
-          <TrackerAccordionMobile workspaceData={workspaceData} />
+          <TrackerAccordionMobile workspaceData={workspaceData} readOnly={tracker.is_archived} />
         ) : (
-          <TrackerGridDesktop workspaceData={workspaceData} />
+          <TrackerGridDesktop workspaceData={workspaceData} readOnly={tracker.is_archived} />
         )}
       </div>
     </div>
