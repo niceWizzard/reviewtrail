@@ -4,7 +4,9 @@ export const mockSignInWithPassword = vi.fn();
 export const mockSignUp = vi.fn();
 export const mockSignOut = vi.fn();
 export const mockGetUser = vi.fn();
+export const mockUpdateUser = vi.fn();
 export const mockOnAuthStateChange = vi.fn();
+export const mockFrom = vi.fn();
 
 export const createClient = vi.fn(() => ({
   auth: {
@@ -12,6 +14,8 @@ export const createClient = vi.fn(() => ({
     signUp: mockSignUp,
     signOut: mockSignOut,
     getUser: mockGetUser,
+    updateUser: mockUpdateUser,
     onAuthStateChange: mockOnAuthStateChange,
   },
+  from: mockFrom,
 }));

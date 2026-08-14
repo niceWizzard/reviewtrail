@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   ChevronDown,
   LogOut,
+  Settings,
 } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
@@ -134,6 +135,10 @@ function AppNavbarContent() {
                   <LayoutDashboard className="size-4 mr-2" />
                   Dashboard
                 </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/settings" />}>
+                  <Settings className="size-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
                   <LogOut className="size-4 mr-2" />
@@ -237,6 +242,20 @@ function AppNavbarContent() {
                           >
                             <LayoutDashboard className="size-4" />
                             Dashboard
+                          </Button>
+                        }
+                      />
+                      <SheetClose
+                        render={
+                          <Button
+                            render={<Link href="/settings" />}
+                            variant="outline"
+                            size="default"
+                            className="w-full justify-center gap-2"
+                            nativeButton={false}
+                          >
+                            <Settings className="size-4" />
+                            Settings
                           </Button>
                         }
                       />

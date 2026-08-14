@@ -40,8 +40,12 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // Protected routes check: /dashboard requires authentication
-  if (!claim && pathname.startsWith("/dashboard")) {
+  // Protected routes check: /dashboard, /settings, /builder, /templates require authentication
+  if (
+    !claim &&
+    (pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/settings"))
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirectTo", pathname);

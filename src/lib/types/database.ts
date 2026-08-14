@@ -5,6 +5,13 @@ export type ExamStatus =
   | "retaking"
   | "postponed";
 
+export interface Profile {
+  id: string;
+  username: string | null;
+  email: string | null;
+  updated_at: string | null;
+}
+
 export interface ExamTracker {
   id: string;
   user_id: string;
