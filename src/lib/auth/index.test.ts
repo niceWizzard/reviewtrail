@@ -6,6 +6,7 @@ import {
   updateUsername,
   updateEmail,
   updatePassword,
+  requestPasswordReset,
 } from "./index";
 
 import {
@@ -13,6 +14,7 @@ import {
   mockSignUp,
   mockSignOut,
   mockUpdateUser,
+  mockResetPasswordForEmail,
   mockFrom,
 } from "@/src/test/mocks/supabase";
 
@@ -174,6 +176,23 @@ describe("Auth Helpers (lib/auth)", () => {
         password: "securePassword123",
       });
       expect(res).toEqual({ user: { id: "user-1" } });
+    });
+  });
+
+  describe("requestPasswordReset", () => {
+    it("throws error if email is empty", () => {
+      expect(() => requestPasswordReset("   ")).toThrow("Email cannot be empty");
+    });
+
+    it("calls resetPasswordForEmail with trimmed email and redirect URL", () => {
+      mockResetPasswordForEmail.mockReturnValue({ data: {}, error: null });
+
+      const res = requestPasswordReset(" User@Example.com ");
+
+      expect(mockResetPasswordForEmail).toHaveBeenCalledWith("user@example.com", {
+        redirectTo: "http://localhost:3000/auth/callback?next=/reset-password",
+      });
+      expect(res).toEqual({ data: {}, error: null });
     });
   });
 });

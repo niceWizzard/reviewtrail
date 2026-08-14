@@ -121,7 +121,15 @@ function LoginForm() {
                 const shouldShowErrors = (isTouched || isDirty) && errors && errors.length > 0;
                 return (
                   <Field data-invalid={shouldShowErrors}>
-                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <Link
+                        href="/forgot-password"
+                        className="text-xs text-primary hover:underline font-medium"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
                     <div className="relative">
                       <Input
                         id={field.name}

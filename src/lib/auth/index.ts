@@ -140,6 +140,17 @@ export async function updatePassword(password: string) {
     password,
   });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Failed to update password.");
   return data;
+}
+
+export function requestPasswordReset(email: string) {
+  const supabase = createClient();
+  const trimmed = email.trim().toLowerCase();
+  if (!trimmed) {
+    throw new Error("Email cannot be empty");
+  }
+  return supabase.auth.resetPasswordForEmail(trimmed, {
+    redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+  });
 }
