@@ -43,11 +43,11 @@ const mockWorkspaceData: TrackerWorkspaceData = {
     { id: "sec-1", exam_tracker_id: "tracker-1", name: "Read", position: 1, color: null, created_at: "" },
   ],
   subjects: [
-    { id: "sub-1", exam_tracker_id: "tracker-1", name: "Anatomy", position: 1, color: null, created_at: "" },
+    { id: "sub-1", exam_tracker_id: "tracker-1", name: "Anatomy", position: 1, color: null, created_at: "", updated_at: "" },
   ],
   chapters: [],
   topics: [
-    { id: "top-1", exam_tracker_id: "tracker-1", subject_id: "sub-1", chapter_id: null, name: "Gross Anatomy", position: 1, created_at: "" },
+    { id: "top-1", exam_tracker_id: "tracker-1", subject_id: "sub-1", chapter_id: null, name: "Gross Anatomy", position: 1, created_at: "", updated_at: "" },
   ],
   progress: [],
   subjectTree: [
@@ -58,9 +58,10 @@ const mockWorkspaceData: TrackerWorkspaceData = {
       position: 1,
       color: null,
       created_at: "",
+      updated_at: "",
       chapters: [],
       ungroupedTopics: [
-        { id: "top-1", exam_tracker_id: "tracker-1", subject_id: "sub-1", chapter_id: null, name: "Gross Anatomy", position: 1, created_at: "" },
+        { id: "top-1", exam_tracker_id: "tracker-1", subject_id: "sub-1", chapter_id: null, name: "Gross Anatomy", position: 1, created_at: "", updated_at: "" },
       ],
     },
   ],

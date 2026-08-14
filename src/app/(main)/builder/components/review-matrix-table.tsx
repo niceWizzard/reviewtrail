@@ -72,6 +72,8 @@ interface ReviewMatrixTableProps {
   onOpenAdderForm: (form: ActiveAdderForm, subjectId?: string) => void;
   onNavBack?: () => void;
   onFinish?: () => void;
+  finishLabel?: string;
+  backLabel?: string;
 }
 
 export function ReviewMatrixTable({
@@ -93,6 +95,8 @@ export function ReviewMatrixTable({
   onOpenAdderForm,
   onNavBack,
   onFinish,
+  finishLabel = "Launch Tracker Workspace",
+  backLabel = "Back to Exam Info",
 }: ReviewMatrixTableProps) {
   const isMinColumnsReached = checklists.length <= 1;
 
@@ -100,6 +104,7 @@ export function ReviewMatrixTable({
   const getSubId = (item: { subjectTempId?: string; subject_id?: string }) => item.subjectTempId || item.subject_id || "";
   const getChId = (item: { chapterTempId?: string | null; chapter_id?: string | null }) =>
     item.chapterTempId !== undefined ? item.chapterTempId : item.chapter_id ?? null;
+
 
   return (
     <div className="space-y-6">
@@ -357,18 +362,18 @@ export function ReviewMatrixTable({
       {showBottomBar && (
         <div className="flex items-center justify-between pt-4 border-t border-border">
           <Button variant="outline" onClick={onNavBack} disabled={isCommitting}>
-            Back to Exam Info
+            {backLabel}
           </Button>
           <Button onClick={onFinish} disabled={isCommitting} className="gap-2 shadow-sm">
             {isCommitting ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Saving Tracker...
+                Saving...
               </>
             ) : (
               <>
                 <CheckCircle2 className="size-4" />
-                Launch Tracker Workspace
+                {finishLabel}
               </>
             )}
           </Button>

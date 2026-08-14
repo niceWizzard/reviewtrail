@@ -25,12 +25,15 @@ import type { ExamTracker } from "@/src/lib/types/database";
 import { EditTrackerDialog } from "@/src/components/tracker/edit-tracker-dialog";
 import { ExamStatusBanner } from "@/src/components/tracker/exam-status-banner";
 import { ExamOutcomeDialog } from "@/src/components/tracker/exam-outcome-dialog";
+import { SaveAsTemplateModal } from "@/src/components/trackers/save-as-template-modal";
+import { Bookmark } from "lucide-react";
 
 export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [editingTracker, setEditingTracker] = useState<ExamTracker | null>(null);
   const [outcomeTracker, setOutcomeTracker] = useState<ExamTracker | null>(null);
+  const [templateSavingTracker, setTemplateSavingTracker] = useState<ExamTracker | null>(null);
 
   const handleArchive = (trackerId: string, isArchived: boolean) => {
     startTransition(async () => {
@@ -148,6 +151,7 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
                 key={tracker.id}
                 tracker={tracker}
                 onEdit={() => setEditingTracker(tracker)}
+                onSaveAsTemplate={() => setTemplateSavingTracker(tracker)}
                 onArchive={() => handleArchive(tracker.id, true)}
                 onDelete={() => handleDelete(tracker.id)}
                 isPending={isPending}
@@ -170,6 +174,7 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
                 key={tracker.id}
                 tracker={tracker}
                 onEdit={() => setEditingTracker(tracker)}
+                onSaveAsTemplate={() => setTemplateSavingTracker(tracker)}
                 onArchive={() => handleArchive(tracker.id, false)}
                 onDelete={() => handleDelete(tracker.id)}
                 isPending={isPending}
@@ -186,6 +191,17 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
         tracker={editingTracker}
         onSuccess={() => router.refresh()}
       />
+
+      {/* Save as Template Modal */}
+      {templateSavingTracker && (
+        <SaveAsTemplateModal
+          isOpen={true}
+          onClose={() => setTemplateSavingTracker(null)}
+          trackerId={templateSavingTracker.id}
+          defaultTitle={templateSavingTracker.exam_name}
+          onSuccess={() => router.refresh()}
+        />
+      )}
     </div>
   );
 }
@@ -193,12 +209,14 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
 function TrackerCard({
   tracker,
   onEdit,
+  onSaveAsTemplate,
   onArchive,
   onDelete,
   isPending,
 }: {
   tracker: ExamTracker;
   onEdit: () => void;
+  onSaveAsTemplate: () => void;
   onArchive: () => void;
   onDelete: () => void;
   isPending: boolean;
@@ -234,7 +252,7 @@ function TrackerCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 pt-1">
+        <div className="flex items-center justify-between gap-1.5 pt-1">
           <Button
             render={<Link href={`/dashboard/tracker/${tracker.id}`} />}
             size="sm"
@@ -243,6 +261,17 @@ function TrackerCard({
           >
             Open Workspace
             <ArrowRight className="size-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onSaveAsTemplate}
+            disabled={isPending}
+            title="Save as Reusable Template"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Bookmark className="size-4" />
           </Button>
 
           <Button
