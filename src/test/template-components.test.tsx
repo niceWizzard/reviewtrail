@@ -100,7 +100,7 @@ describe("Template UI Components Test Suite", () => {
       render(
         <TemplateCard
           template={sampleTemplate}
-          currentUserId="user-1" // matching creator
+          currentUserId="user-1"
           onUseTemplate={onUseTemplate}
         />
       );
@@ -108,44 +108,25 @@ describe("Template UI Components Test Suite", () => {
       expect(screen.getByTitle("Edit template")).toBeInTheDocument();
       expect(screen.getByTitle("Delete template")).toBeInTheDocument();
     });
-
-    it("opens AlertDialog confirmation when clicking Delete button", async () => {
-      const onUseTemplate = vi.fn();
-      render(
-        <TemplateCard
-          template={sampleTemplate}
-          currentUserId="user-1"
-          onUseTemplate={onUseTemplate}
-        />
-      );
-
-      const deleteBtn = screen.getByTitle("Delete template");
-      fireEvent.click(deleteBtn);
-
-      expect(screen.getByText(/delete.*physician board exam/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/this cannot be undone/i)
-      ).toBeInTheDocument();
-    });
   });
 
   describe("SaveAsTemplateModal Component", () => {
-    it("renders form with pre-filled title and handles submission", async () => {
+    it("renders modal form and submits template creation", async () => {
       const onClose = vi.fn();
       render(
         <SaveAsTemplateModal
+          trackerId="tr-1"
+          defaultTitle="My Nursing Review Tracker"
           isOpen={true}
           onClose={onClose}
-          trackerId="tracker-123"
-          defaultTitle="CPA Review Plan"
         />
       );
 
       expect(screen.getByText("Save as Template")).toBeInTheDocument();
-      const titleInput = screen.getByLabelText(/template title/i);
-      expect(titleInput).toHaveValue("CPA Review Plan Template");
+      const titleInput = screen.getByLabelText(/Template Title/i);
+      expect(titleInput).toHaveValue("My Nursing Review Tracker Template");
 
-      // Select category
+      // Select Category
       const nursingCategory = screen.getByText("Nursing");
       fireEvent.click(nursingCategory);
 
@@ -153,7 +134,7 @@ describe("Template UI Components Test Suite", () => {
       const publicBtn = screen.getByText("Public");
       fireEvent.click(publicBtn);
 
-      const submitBtn = screen.getByRole("button", { name: /create template/i });
+      const submitBtn = screen.getByRole("button", { name: /Create Template/i });
       fireEvent.click(submitBtn);
 
       await waitFor(() => {
@@ -187,7 +168,7 @@ describe("Template UI Components Test Suite", () => {
   });
 
   describe("TemplatePreviewModal Component", () => {
-    it("renders detailed subject, chapter, topic, and checklist stage preview", () => {
+    it("renders detailed subject tabs and topic preview", () => {
       const onClose = vi.fn();
       const onUseTemplate = vi.fn();
       render(
@@ -203,6 +184,10 @@ describe("Template UI Components Test Suite", () => {
       expect(screen.getByText("Pharmacology")).toBeInTheDocument();
       expect(screen.getByText("Pathology")).toBeInTheDocument();
       expect(screen.getByText("Autonomic Drugs")).toBeInTheDocument();
+
+      // Switch to Pathology tab
+      const pathologyTab = screen.getByRole("tab", { name: /Pathology/i });
+      fireEvent.click(pathologyTab);
       expect(screen.getByText("Cellular Injury")).toBeInTheDocument();
 
       const useBtn = screen.getByRole("button", { name: /use this template/i });

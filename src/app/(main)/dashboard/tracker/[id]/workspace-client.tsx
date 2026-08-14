@@ -21,15 +21,11 @@ import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { useExamCountdown } from "@/src/hooks/use-exam-countdown";
-import { useMediaQuery } from "@/src/hooks/use-media-query";
 import { TrackerGridDesktop } from "@/src/components/tracker/tracker-grid-desktop";
-import { TrackerAccordionMobile } from "@/src/components/tracker/tracker-accordion-mobile";
 import type { TrackerWorkspaceData } from "@/src/lib/types/database";
 import { archiveExamTrackerAction } from "@/src/lib/actions/trackers";
-
 import { ExamStatusBanner } from "@/src/components/tracker/exam-status-banner";
 import { ExamOutcomeDialog } from "@/src/components/tracker/exam-outcome-dialog";
-
 import { EditTrackerDialog } from "@/src/components/tracker/edit-tracker-dialog";
 
 export function TrackerWorkspaceClient({
@@ -47,7 +43,6 @@ export function TrackerWorkspaceClient({
     tracker.status,
     tracker.retake_count
   );
-  const isMobile = useMediaQuery("(max-width: 767px)");
   const [isOutcomeDialogOpen, setIsOutcomeDialogOpen] = React.useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [isUnarchiving, setIsUnarchiving] = React.useState(false);
@@ -174,7 +169,7 @@ export function TrackerWorkspaceClient({
       </div>
 
       {/* Header Banner */}
-      <Card className="border-border shadow-xs bg-linear-to-r from-card via-card to-primary/5">
+      <Card className="border-border shadow-xs bg-card">
         <CardContent className="p-6 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -204,7 +199,7 @@ export function TrackerWorkspaceClient({
             {/* Overall Progress Stat Box */}
             <div className="flex items-center gap-4 p-4 rounded-xl bg-background border border-border shrink-0">
               <div className="flex flex-col text-right sm:text-left">
-                <span className="text-xs text-muted-foreground font-medium">Overall Mastery</span>
+                <span className="text-xs text-muted-foreground font-medium">Overall Progress</span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-extrabold text-primary">
                     {stats.overallPercentage}%
@@ -253,7 +248,7 @@ export function TrackerWorkspaceClient({
         </CardContent>
       </Card>
 
-      {/* Main Responsive Grid / Accordion Area */}
+      {/* Main Tabbed Tracker Table Area */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
@@ -262,11 +257,7 @@ export function TrackerWorkspaceClient({
           </h2>
         </div>
 
-        {isMobile ? (
-          <TrackerAccordionMobile workspaceData={workspaceData} readOnly={tracker.is_archived} />
-        ) : (
-          <TrackerGridDesktop workspaceData={workspaceData} readOnly={tracker.is_archived} />
-        )}
+        <TrackerGridDesktop workspaceData={workspaceData} readOnly={tracker.is_archived} />
       </div>
     </div>
   );

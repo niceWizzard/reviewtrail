@@ -60,11 +60,10 @@ describe("ReviewMatrixTable Component", () => {
     expect(addColBtn).toBeDisabled();
   });
 
-  it("renders subject header, chapter header, and topic rows", () => {
+  it("renders subject tab, chapter header, and topic rows", () => {
     render(<ReviewMatrixTable {...defaultProps} />);
 
-    expect(screen.getByText("Pharmacology")).toBeInTheDocument();
-    expect(screen.getByText("2 Topics")).toBeInTheDocument();
+    expect(screen.getAllByText("Pharmacology").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Autonomic Drugs")).toBeInTheDocument();
     expect(screen.getByText("Atropine")).toBeInTheDocument();
     expect(screen.getByText("Aspirin")).toBeInTheDocument();
@@ -75,8 +74,8 @@ describe("ReviewMatrixTable Component", () => {
     render(<ReviewMatrixTable {...defaultProps} />);
 
     // Delete Subject
-    const deleteSubBtn = screen.getByTitle("Delete Pharmacology");
-    await user.click(deleteSubBtn);
+    const deleteSubBtns = screen.getAllByTitle("Delete Pharmacology");
+    await user.click(deleteSubBtns[0]);
     expect(defaultProps.onDeleteSubject).toHaveBeenCalledWith("sub-1");
 
     // Delete Chapter
@@ -90,17 +89,13 @@ describe("ReviewMatrixTable Component", () => {
     expect(defaultProps.onDeleteTopic).toHaveBeenCalledWith("top-1");
   });
 
-  it("triggers onOpenAdderForm callbacks when clicking row actions", async () => {
+  it("triggers onOpenAdderForm callbacks when clicking add actions", async () => {
     const user = userEvent.setup();
     render(<ReviewMatrixTable {...defaultProps} />);
 
-    const addChapterBtn = screen.getByRole("button", { name: /Chapter/i });
-    await user.click(addChapterBtn);
-    expect(defaultProps.onOpenAdderForm).toHaveBeenCalledWith("chapter", "sub-1");
-
-    const addTopicBtn = screen.getByRole("button", { name: /Topic/i });
-    await user.click(addTopicBtn);
-    expect(defaultProps.onOpenAdderForm).toHaveBeenCalledWith("topic", "sub-1");
+    const addSubjectBtns = screen.getAllByRole("button", { name: /Subject/i });
+    await user.click(addSubjectBtns[0]);
+    expect(defaultProps.onOpenAdderForm).toHaveBeenCalledWith("subject");
 
     const addColumnBtn = screen.getByRole("button", { name: /^Column$/i });
     await user.click(addColumnBtn);

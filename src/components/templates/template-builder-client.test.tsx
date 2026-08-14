@@ -36,8 +36,8 @@ describe("TemplateBuilderClient State Resets and Lifecycles", () => {
     expect(screen.getByText("Configure Review Table")).toBeInTheDocument();
 
     // 2. Add a Subject
-    const toolbarAddSubjectBtn = screen.getByRole("button", { name: "Add Subject" });
-    await user.click(toolbarAddSubjectBtn);
+    const addSubjectBtns = screen.getAllByRole("button", { name: /Add Subject/i });
+    await user.click(addSubjectBtns[0]);
 
     const subjectInput = screen.getByPlaceholderText(/Subject Name/i);
     await user.type(subjectInput, "Structural Engineering");
@@ -45,11 +45,11 @@ describe("TemplateBuilderClient State Resets and Lifecycles", () => {
     const formSubmitBtn = subjectForm.querySelector('button[type="submit"]') as HTMLElement;
     await user.click(formSubmitBtn);
 
-    expect(screen.getByText("Structural Engineering")).toBeInTheDocument();
+    expect(screen.getAllByText("Structural Engineering").length).toBeGreaterThanOrEqual(1);
 
-    // 3. Add a Topic via Subject row
-    const rowAddTopicBtn = screen.getByRole("button", { name: "Topic" });
-    await user.click(rowAddTopicBtn);
+    // 3. Add a Topic via Add Topic button
+    const addTopicBtn = screen.getByRole("button", { name: "Add Topic" });
+    await user.click(addTopicBtn);
 
     const topicInput = screen.getByPlaceholderText(/Topic Title/i);
     await user.type(topicInput, "Reinforced Concrete Design");

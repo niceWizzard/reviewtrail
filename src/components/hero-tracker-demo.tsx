@@ -5,7 +5,13 @@ import { Check, ArrowRight, Calendar, Layers } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
 import { cn } from "@/src/lib/utils";
 import Link from "next/link";
 
@@ -161,10 +167,18 @@ export function HeroTrackerDemo() {
 
   const percentage = Math.round((completedSlots / (totalSlots || 1)) * 100);
 
+  const selectItems = subjects.map((sub) => {
+    const count = sub.chapters.reduce((acc, c) => acc + c.topics.length, 0);
+    return {
+      value: sub.id,
+      label: `${sub.name} (${count} topics)`,
+    };
+  });
+
   return (
     <Card className="w-full shadow-lg border border-border bg-card overflow-hidden">
-      <CardHeader className="bg-muted/30 pb-4 border-b border-border/80">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <CardHeader className="bg-muted/30 pb-0 border-b border-border/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3">
           <div>
             <Badge variant="outline" className="text-xs font-medium text-muted-foreground mb-1">
               Live Preview
@@ -185,17 +199,65 @@ export function HeroTrackerDemo() {
           </div>
         </div>
 
-        {/* Subjects Tab Switcher */}
-        <div className="mt-3">
-          <Tabs value={selectedSubjectId} onValueChange={setSelectedSubjectId}>
-            <TabsList className="grid grid-cols-3 w-full h-8 text-xs">
-              {subjects.map((sub) => (
-                <TabsTrigger key={sub.id} value={sub.id}>
-                  {sub.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        {/* Mobile: Shadcn Select Subject Dropdown */}
+        <div className="sm:hidden pb-3">
+          <Select
+            items={selectItems}
+            value={selectedSubjectId}
+            onValueChange={(val) => val && setSelectedSubjectId(val)}
+          >
+            <SelectTrigger className="w-full bg-background border-border">
+              <SelectValue placeholder="Choose subject..." />
+            </SelectTrigger>
+            <SelectContent>
+              {subjects.map((sub) => {
+                const count = sub.chapters.reduce((acc, c) => acc + c.topics.length, 0);
+                return (
+                  <SelectItem
+                    key={sub.id}
+                    value={sub.id}
+                    label={`${sub.name} (${count} topics)`}
+                  >
+                    {sub.name} ({count} topics)
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Desktop / Tablet: Tab Bar */}
+        <div className="hidden sm:flex items-center gap-1 overflow-x-auto max-w-full -mb-px" role="tablist">
+          {subjects.map((sub) => {
+            const isActive = sub.id === selectedSubjectId;
+            const topicCount = sub.chapters.reduce((acc, c) => acc + c.topics.length, 0);
+            return (
+              <button
+                key={sub.id}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setSelectedSubjectId(sub.id)}
+                className={cn(
+                  "relative flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-all border-t border-x cursor-pointer shrink-0",
+                  isActive
+                    ? "bg-card text-foreground border-border shadow-xs z-10 font-bold -mb-[1px] bg-clip-padding border-b-transparent"
+                    : "bg-muted/50 text-muted-foreground border-transparent hover:bg-muted hover:text-foreground border-b border-b-border"
+                )}
+              >
+                <span>{sub.name}</span>
+                <span
+                  className={cn(
+                    "text-[10px] px-1 py-0.2 rounded-full font-normal",
+                    isActive
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {topicCount}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </CardHeader>
 
@@ -311,7 +373,7 @@ export function HeroTrackerDemo() {
       </CardContent>
 
       <CardFooter className="bg-muted/10 px-4 sm:px-5 py-3 border-t border-border/80 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-        <span>Click any box to test live progress updating.</span>
+        <span>Click tabs to switch subjects, and click checkboxes to log progress.</span>
         <Button
           render={<Link href="/builder" />}
           size="xs"

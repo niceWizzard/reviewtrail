@@ -76,7 +76,10 @@ export function MatrixAdderForms({
   const getItemId = (item: { tempId?: string; id?: string }) => item.tempId || item.id || "";
   const getSubId = (item: { subjectTempId?: string; subject_id?: string }) => item.subjectTempId || item.subject_id || "";
 
-  const activeTargetSubjectId = targetSubjectTempId ?? targetSubjectId ?? "";
+  const passedSubjectId = targetSubjectTempId ?? targetSubjectId ?? "";
+  const defaultSubjectId = subjects[0] ? getItemId(subjects[0]) : "";
+  const activeTargetSubjectId = passedSubjectId || defaultSubjectId;
+
   const updateTargetSubjectId = (val: string) => {
     if (setTargetSubjectTempId) setTargetSubjectTempId(val);
     if (setTargetSubjectId) setTargetSubjectId(val);
@@ -158,27 +161,33 @@ export function MatrixAdderForms({
           <Field className="space-y-1">
             <div className="flex items-center justify-between">
               <FieldLabel htmlFor="sectionName">Add New Checklist Column</FieldLabel>
-              <span className="text-[11px] text-muted-foreground">{checklistsLength}/10 max</span>
-            </div>
-            <div className="flex gap-2">
-              <Input
-                id="sectionName"
-                autoFocus
-                placeholder="Column Name (e.g. Flashcards, Lecture Video)"
-                value={newSectionName}
-                onChange={(e) => setNewSectionName(e.target.value)}
-                className="h-9 text-sm"
-              />
-              <Button type="submit" size="sm" disabled={isAddingSection || !newSectionName.trim()}>
-                Add Column
-              </Button>
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
+                size="xs"
                 onClick={() => setActiveAdderForm(null)}
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
               >
                 Cancel
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                id="sectionName"
+                autoFocus
+                placeholder="Column Name (e.g. 1st Read, Flashcards)"
+                value={newSectionName}
+                onChange={(e) => setNewSectionName(e.target.value)}
+                maxLength={40}
+                className="h-9 text-xs sm:text-sm"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isAddingSection || !newSectionName.trim()}
+                className="h-9 shrink-0 text-xs sm:text-sm"
+              >
+                {isAddingSection ? "Adding..." : "Add Column"}
               </Button>
             </div>
           </Field>
@@ -189,26 +198,35 @@ export function MatrixAdderForms({
       {activeAdderForm === "subject" && (
         <form onSubmit={handleSubjectSubmit} className="p-3.5 bg-accent/30 rounded-xl border border-primary/30 space-y-2">
           <Field className="space-y-1">
-            <FieldLabel htmlFor="subjectName">Add New Subject Row</FieldLabel>
-            <div className="flex gap-2">
-              <Input
-                id="subjectName"
-                autoFocus
-                placeholder="Subject Name (e.g. Pharmacology, Civil Law)"
-                value={newSubjectName}
-                onChange={(e) => setNewSubjectName(e.target.value)}
-                className="h-9 text-sm"
-              />
-              <Button type="submit" size="sm" disabled={isAddingSubject || !newSubjectName.trim()}>
-                Add Subject
-              </Button>
+            <div className="flex items-center justify-between">
+              <FieldLabel htmlFor="subjectName">Add New Subject</FieldLabel>
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
+                size="xs"
                 onClick={() => setActiveAdderForm(null)}
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
               >
                 Cancel
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                id="subjectName"
+                autoFocus
+                placeholder="Subject Name (e.g. Pharmacology, Tax Law)"
+                value={newSubjectName}
+                onChange={(e) => setNewSubjectName(e.target.value)}
+                maxLength={80}
+                className="h-9 text-xs sm:text-sm"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isAddingSubject || !newSubjectName.trim()}
+                className="h-9 shrink-0 text-xs sm:text-sm"
+              >
+                {isAddingSubject ? "Adding..." : "Add Subject"}
               </Button>
             </div>
           </Field>
@@ -237,7 +255,7 @@ export function MatrixAdderForms({
                     {subjects.map((sub) => {
                       const subId = getItemId(sub);
                       return (
-                        <SelectItem key={subId} value={subId}>
+                        <SelectItem key={subId} value={subId} label={sub.name}>
                           {sub.name}
                         </SelectItem>
                       );
@@ -248,27 +266,34 @@ export function MatrixAdderForms({
 
               <Input
                 autoFocus
-                placeholder="Chapter Name (e.g. Cardiovascular)"
+                placeholder="Chapter name (e.g. Autonomic Nervous System)"
                 value={newChapterName}
                 onChange={(e) => setNewChapterName(e.target.value)}
-                className="h-9 text-sm"
+                maxLength={100}
+                className="h-9 text-xs sm:text-sm"
               />
             </div>
-
-            <div className="flex gap-2 pt-1">
-              <Button type="submit" size="sm" disabled={!activeTargetSubjectId || !newChapterName.trim()}>
-                Add Chapter
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setActiveAdderForm(null)}
-              >
-                Cancel
-              </Button>
-            </div>
           </Field>
+
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              onClick={() => setActiveAdderForm(null)}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={!newChapterName.trim() || !activeTargetSubjectId}
+              className="h-8 text-xs sm:text-sm"
+            >
+              Add Chapter Row
+            </Button>
+          </div>
         </form>
       )}
 
@@ -297,7 +322,7 @@ export function MatrixAdderForms({
                     {subjects.map((sub) => {
                       const subId = getItemId(sub);
                       return (
-                        <SelectItem key={subId} value={subId}>
+                        <SelectItem key={subId} value={subId} label={sub.name}>
                           {sub.name}
                         </SelectItem>
                       );
@@ -340,27 +365,34 @@ export function MatrixAdderForms({
 
               <Input
                 autoFocus
-                placeholder="Topic Title (e.g. Heart Failure)"
+                placeholder="Topic Title (e.g. Beta Blockers, Injunctions)"
                 value={newTopicName}
                 onChange={(e) => setNewTopicName(e.target.value)}
-                className="h-9 text-sm"
+                maxLength={100}
+                className="h-9 text-xs sm:text-sm"
               />
             </div>
-
-            <div className="flex gap-2 pt-1">
-              <Button type="submit" size="sm" disabled={isAddingTopic || !activeTargetSubjectId || !newTopicName.trim()}>
-                Add Topic
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setActiveAdderForm(null)}
-              >
-                Cancel
-              </Button>
-            </div>
           </Field>
+
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              onClick={() => setActiveAdderForm(null)}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={isAddingTopic || !newTopicName.trim() || !activeTargetSubjectId}
+              className="h-8 text-xs sm:text-sm"
+            >
+              {isAddingTopic ? "Adding..." : "Add Topic Row"}
+            </Button>
+          </div>
         </form>
       )}
     </>

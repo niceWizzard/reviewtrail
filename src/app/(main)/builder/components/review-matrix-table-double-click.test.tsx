@@ -47,12 +47,12 @@ describe("ReviewMatrixTable Double-Click Renaming", () => {
     expect(defaultProps.onRenameSectionColumn).toHaveBeenCalledWith("col-1", "Initial Reading");
   });
 
-  it("triggers onRenameSubject on double-clicking a subject row title", async () => {
+  it("triggers onRenameSubject on double-clicking a subject title in the active toolbar", async () => {
     const user = userEvent.setup();
     render(<ReviewMatrixTable {...defaultProps} />);
 
-    const subTitle = screen.getByText("Pharmacology");
-    fireEvent.doubleClick(subTitle);
+    const renameSubjectEl = screen.getByLabelText("Rename Pharmacology");
+    fireEvent.doubleClick(renameSubjectEl);
 
     const input = screen.getByRole("textbox");
     await user.clear(input);
@@ -100,8 +100,8 @@ describe("ReviewMatrixTable Double-Click Renaming", () => {
       />
     );
 
-    const subTitle = screen.getByText("Pharmacology");
-    fireEvent.doubleClick(subTitle);
+    const renameSubjectEl = screen.getByLabelText("Rename Pharmacology");
+    fireEvent.doubleClick(renameSubjectEl);
 
     const input = screen.getByRole("textbox");
     await user.clear(input);
@@ -110,6 +110,6 @@ describe("ReviewMatrixTable Double-Click Renaming", () => {
     expect(mockOnRenameSubject).toHaveBeenCalledWith("sub-1", "Anatomy");
     // Inline input should close and display original value "Pharmacology"
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
-    expect(screen.getByText("Pharmacology")).toBeInTheDocument();
+    expect(screen.getAllByText("Pharmacology").length).toBeGreaterThanOrEqual(1);
   });
 });

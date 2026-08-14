@@ -127,4 +127,25 @@
   html {
     @apply font-sans;
   }
+
+  /* Hide vertical scrollbars where overflow-y is not intended */
+  body, html {
+    scrollbar-width: thin;
+  }
+
+  /* Compact, clean horizontal scrollbars */
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
 }
