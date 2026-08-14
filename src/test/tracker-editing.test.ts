@@ -134,5 +134,46 @@ describe("Tracker Editing & Rename Validation Rules", () => {
     });
     expect(nextState).toEqual(initialDraft);
   });
+
+  it("preserves existing checklist columns in SET_EXAM_INFO when prepopulateColumns is false (template editing)", () => {
+    const stateWithColumns: TrackerDraft = {
+      ...initialDraft,
+      checklists: [
+        { tempId: "custom-1", name: "Flashcards", position: 1 },
+        { tempId: "custom-2", name: "Question Bank", position: 2 },
+      ],
+    };
+
+    const nextState = draftReducer(stateWithColumns, {
+      type: "SET_EXAM_INFO",
+      payload: {
+        examName: "Updated Template Title",
+        description: "Updated description",
+        prepopulateColumns: false,
+      },
+    });
+
+    expect(nextState.checklists).toEqual(stateWithColumns.checklists);
+    expect(nextState.examName).toBe("Updated Template Title");
+    expect(nextState.description).toBe("Updated description");
+  });
+
+  it("prepopulates DEFAULT_CHECKLISTS only when prepopulateColumns is true and draft has no columns", () => {
+    const emptyColumnsDraft: TrackerDraft = {
+      ...initialDraft,
+      checklists: [],
+    };
+
+    const nextState = draftReducer(emptyColumnsDraft, {
+      type: "SET_EXAM_INFO",
+      payload: {
+        examName: "Brand New Tracker",
+        prepopulateColumns: true,
+      },
+    });
+
+    expect(nextState.checklists.length).toBeGreaterThan(0);
+    expect(nextState.checklists[0].name).toBe("1st Read");
+  });
 });
 

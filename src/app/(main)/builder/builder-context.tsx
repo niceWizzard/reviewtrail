@@ -191,13 +191,18 @@ export function draftReducer(state: TrackerDraft, action: Action): TrackerDraft 
     }
     case "SET_EXAM_INFO": {
       const trimmedName = action.payload.examName.trim();
-      const prepopulate = action.payload.prepopulateColumns !== false;
+      let updatedChecklists = state.checklists;
+      if (action.payload.prepopulateColumns) {
+        if (state.checklists.length === 0) {
+          updatedChecklists = DEFAULT_CHECKLISTS;
+        }
+      }
       return {
         ...state,
         examName: trimmedName,
         examDate: action.payload.examDate || null,
         description: action.payload.description ? action.payload.description.trim() : null,
-        checklists: prepopulate ? state.checklists.length > 0 ? state.checklists : DEFAULT_CHECKLISTS : [],
+        checklists: updatedChecklists,
       };
     }
 
