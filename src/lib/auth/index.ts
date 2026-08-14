@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "../supabase/client";
 
 export function loginUser({ email, password }: { email: string; password: string }) {
@@ -33,6 +34,7 @@ export function registerUser({
 export async function signOutUser() {
   const supabase = createClient();
   await supabase.auth.signOut();
+  redirect("/login");
 }
 
 export async function updateUsername(userId: string, username: string) {
