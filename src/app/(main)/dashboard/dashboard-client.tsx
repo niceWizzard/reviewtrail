@@ -11,6 +11,7 @@ import {
   Archive,
   Trash2,
   Edit3,
+  MoveRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
@@ -109,8 +110,12 @@ export function DashboardClient({ trackers }: { trackers: ExamTracker[] }) {
 
         <div className="flex items-center gap-3">
           <Button render={<Link href="/builder" />} size="sm" className="gap-2 shadow-sm" nativeButton={false}>
-            <Plus className="size-4" />
             Create New Tracker
+            <Plus className="size-4" />
+          </Button>
+          <Button variant="secondary" render={<Link href="/templates" />} size="sm"  nativeButton={false}>
+            Choose from Template
+            <MoveRight className="size-4" />
           </Button>
         </div>
       </div>
